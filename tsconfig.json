@@ -1,0 +1,23 @@
+{
+    "files": [],
+    "references": [
+        {
+            "path": "./packages/dockview"
+        },
+        {
+            "path": "./packages/dockview-core"
+        },
+        {
+            "path": "./packages/dockview-solid"
+        },
+    ],
+    "compilerOptions": {
+      "jsx": "preserve",
+      "types": [
+        "solid-js",
+        "node",
+        "**/*.spec.ts",
+        "**/*.spec.tsx",
+        ]
+    }
+}

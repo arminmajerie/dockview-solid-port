@@ -1,0 +1,11 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "dist/cjs",
+    "tsBuildInfoFile": ".build/tsconfig.tsbuildinfo.cjs",
+    "jsx": "preserve",
+    "jsxImportSource": "solid-js",
+    "rootDir": "src",
+  },
+  "include": ["src"]
+}
