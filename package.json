@@ -28,7 +28,6 @@
     "rebuild": "lerna run rebuild --scope dockview-core --scope @arminmajerie/dockview --scope @arminmajerie/dockview-solid"
   },
   "devDependencies": {
-
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@rollup/plugin-terser": "^0.4.4",
     "@rollup/plugin-typescript": "^11.1.5",
@@ -57,6 +56,7 @@
     "node": ">=18.0"
   },
   "dependencies": {
+    "@arminmajerie/dockview": "^4.5.2",
     "@total-typescript/shoehorn": "^0.1.2"
   }
 }

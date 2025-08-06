@@ -1,6 +1,6 @@
 {
   "name": "@arminmajerie/dockview",
-  "version": "4.5.2",
+  "version": "4.5.3",
   "description": "Zero dependency layout manager supporting tabs, grids and splitviews",
   "keywords": [
     "splitview",
@@ -36,6 +36,14 @@
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
   "types": "./dist/cjs/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js",
+      "types": "./dist/esm/index.d.ts"
+    }
+  },
+
   "source": "scripts/rollupEntryTarget.tsx",
   "files": [
     "dist",
