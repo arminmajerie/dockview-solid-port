@@ -1,6 +1,6 @@
 {
-  "name": "dockview",
-  "version": "4.5.0",
+  "name": "@arminmajerie/dockview",
+  "version": "4.5.1",
   "description": "Zero dependency layout manager supporting tabs, grids and splitviews",
   "keywords": [
     "splitview",
@@ -23,16 +23,16 @@
     "solid",
     "solid-component"
   ],
-  "homepage": "https://github.com/mathuo/dockview",
+  "homepage": "https://github.com/arminmajerie/dockview-solid-port",
   "bugs": {
-    "url": "https://github.com/mathuo/dockview/issues"
+    "url": "https://github.com/arminmajerie/dockview-solid-port/issues"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/mathuo/dockview.git"
+    "url": "https://github.com/arminmajerie/dockview-solid-port.git"
   },
   "license": "MIT",
-  "author": "https://github.com/mathuo",
+  "author": "https://github.com/arminmajerie",
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
   "types": "./dist/cjs/index.d.ts",
@@ -49,7 +49,7 @@
     "build:esm": "cross-env ../../node_modules/.bin/tsc --build ./tsconfig.esm.json --verbose --extendedDiagnostics",
     "build": "npm run clean && npm run build:cjs && npm run build:esm && npm run build:css",
     "clean": "rimraf dist/ .build/ .rollup.cache/",
-    "prepublishOnly": "npm run rebuild && npm run build:bundle && npm run test",
+    "prepublishOnly": "npm run rebuild && npm run build:bundle",
     "rebuild": "npm run clean && npm run build"
   },
   "dependencies": {
