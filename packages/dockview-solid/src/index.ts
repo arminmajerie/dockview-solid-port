@@ -1,1 +1,1 @@
-export * from 'dockview';
+export * from '@arminmajerie/dockview';

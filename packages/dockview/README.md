@@ -39,10 +39,11 @@
 
 ## Quick Start
 
-Dockview has a peer dependency on `solid-js >= 1.9.7`. You can install dockview from [npm](https://www.npmjs.com/package/@arminmajerie/dockview).
+Dockview has a peer dependency on `solid-js >= 1.9.7`.
+You can install dockview from [npm](https://www.npmjs.com/package/@arminmajerie/dockview-solid).
 
 ```sh
-npm install --save @arminmajerie/dockview solid-js
+npm install @arminmajerie/dockview-solid dockview-core solid-js
 ```
 
 Within your project, you must import or reference the stylesheet at `dockview/dist/styles/dockview.css` and attach a theme.

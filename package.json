@@ -25,7 +25,7 @@
     "version": "lerna version",
     "rebuild:core": "npm run rebuild --workspace=packages/dockview-core",
     "rebuild:dockview": "npm run rebuild --workspace=packages/dockview",
-    "rebuild": "lerna run rebuild --scope dockview-core --scope dockview --scope @arminmajerie/dockview-solid"
+    "rebuild": "lerna run rebuild --scope dockview-core --scope @arminmajerie/dockview --scope @arminmajerie/dockview-solid"
   },
   "devDependencies": {
 

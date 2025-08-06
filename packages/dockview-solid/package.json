@@ -57,7 +57,7 @@
     "rebuild": "npm run clean && npm run build"
   },
   "dependencies": {
-    "@arminmajerie/dockview": "^4.5.0"
+    "@arminmajerie/dockview": "^4.5.1"
   },
   "peerDependencies": {
     "solid-js": "^1.8.0"
