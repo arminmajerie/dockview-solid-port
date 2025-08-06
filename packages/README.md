@@ -10,7 +10,7 @@ This mono-repository has a number of packages containing the code for the [dockv
 ## dockview
 
 -   Depends on `dockview-core`.
--   Exports a `React` wrapper.
+-   Exports a `SolidJs` wrapper.
 -   Published as [dockview](https://www.npmjs.com/package/dockview) on npm.
 
 ## docs

@@ -1,38 +1,111 @@
 <div align="center">
-<h1>dockview</h1>
-
-<p>Zero dependency layout manager supporting tabs, groups, grids and splitviews. Supports React, Vue and Vanilla TypeScript</p>
-
+  <h1>@arminmajerie/dockview-solid</h1>
+  <p>
+    Zero-dependency layout manager for <strong>SolidJS</strong>.<br>
+    <b>No React. No Vue. No legacy code.</b>
+  </p>
+  <p>
+    <a href="https://www.npmjs.com/package/@arminmajerie/dockview-solid">
+      <img src="https://img.shields.io/npm/v/@arminmajerie/dockview-solid?logo=npm" alt="npm version">
+    </a>
+    <a href="https://www.npmjs.com/package/@arminmajerie/dockview-solid">
+      <img src="https://img.shields.io/npm/dm/@arminmajerie/dockview-solid.svg" alt="npm downloads">
+    </a>
+  </p>
 </div>
 
 ---
 
-[![npm version](https://badge.fury.io/js/dockview.svg)](https://www.npmjs.com/package/dockview)
-[![npm](https://img.shields.io/npm/dm/dockview)](https://www.npmjs.com/package/dockview)
-[![CI Build](https://github.com/mathuo/dockview/workflows/CI/badge.svg)](https://github.com/mathuo/dockview/actions?query=workflow%3ACI)
-[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=mathuo_dockview&metric=coverage)](https://sonarcloud.io/summary/overall?id=mathuo_dockview)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=mathuo_dockview&metric=alert_status)](https://sonarcloud.io/summary/overall?id=mathuo_dockview)
-[![Bundle Phobia](https://badgen.net/bundlephobia/minzip/dockview)](https://bundlephobia.com/result?p=dockview)
+**This package is for SolidJS.**
+It is NOT based on `solid-dockview` (outdated) or the React-dependent `dockview-solid` from mathuo/dockview.
 
-##
+---
 
-![](packages/docs/static/img/splashscreen.gif)
+## Why this repo?
 
-Please see the website: https://dockview.dev
+* `solid-dockview` ([lyonbot/solid-dockview](https://github.com/lyonbot/solid-dockview)): Outdated, not compatible, unmaintained.
+* `dockview-solid` ([mathuo/dockview/tree/main/packages/dockview-solid](https://github.com/mathuo/dockview/tree/main/packages/dockview-solid)): Thin React wrapper, **still requires React**.
+
+**`@arminmajerie/dockview-solid`:**
+
+* ✅ Directly ported from [mathuo/dockview](https://github.com/mathuo/dockview)
+* ✅ 100% SolidJS (no React dependency, no React shims)
+* ✅ Works in SolidJS + Tauri applications
+
+---
 
 ## Features
 
--   Serialization / deserialization with full layout management
--   Support for split-views, grid-views and 'dockable' views
--   Themeable and customizable
--   Tab and Group docking / Drag n' Drop
--   Popout Windows
--   Floating Groups
--   Extensive API
--   Supports Shadow DOMs
--   High test coverage
--   Documentation website with live examples
--   Transparent builds and Code Analysis
--   Security at mind - verifed publishing and builds through GitHub Actions
+* Tabs, groups, grids, splitviews
+* Drag-and-drop with customizable drop zones
+* Floating groups and popout windows
+* Serialization/deserialization for state persistence
+* Theme system (CSS custom properties)
+* Full API for programmatic control
+* Works natively in SolidJS and Tauri
+* No React or legacy code
 
-Want to verify our builds? Go [here](https://www.npmjs.com/package/dockview#Provenance).
+---
+
+## Installation
+
+```sh
+npm install @arminmajerie/dockview-solid dockview-core solid-js
+```
+
+Both `@arminmajerie/dockview-solid` and `dockview-core` are required.
+
+---
+
+## Usage
+
+```js
+import "dockview-core/dist/styles/dockview.css";
+import {
+  DockviewSolid,
+  DockviewApi,
+  IDockviewPanelProps,
+  IDockviewPanelHeaderProps,
+  IDockviewHeaderActionsProps,
+  IWatermarkPanelProps,
+  DockviewReadyEvent,
+  IDockviewPanel,
+  themeReplit
+} from "@arminmajerie/dockview-solid";
+
+// Example component usage:
+
+<DockviewSolid
+  theme={themeReplit}
+  components={{ panelContent: PanelContent }}
+  tabComponents={{
+    customTabHeaderWorkspace: CustomTabHeaderWithCloseButton,
+    customTabHeaderConfig: CustomTabHeaderWithCloseButton,
+    customTabHeaderComponent: CustomTabHeaderWithCloseButton,
+    customTabHeaderCanvas: CustomTabHeaderNoClosing,
+  }}
+  rightHeaderActionsComponent={AddPanel}
+  watermarkComponent={MyWatermark}
+  onReady={handleReady}
+/>
+```
+
+---
+
+## Project status
+
+* **Alpha:** Major features are ported, but expect bugs and breaking changes.
+* **Docs and live examples:** Coming soon.
+* **No support for React/Vue.**
+
+---
+
+## License
+
+MIT
+
+---
+
+## Maintainer
+
+* [arminmajerie](https://github.com/arminmajerie)
