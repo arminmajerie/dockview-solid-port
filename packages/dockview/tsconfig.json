@@ -1,13 +1,15 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "outDir": "dist/cjs",
-    "tsBuildInfoFile": ".build/tsconfig.tsbuildinfo.cjs",
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "node",
     "jsx": "preserve",
     "jsxImportSource": "solid-js",
     "rootDir": "src",
-    "types": ["node"]
+    "types": ["node"],
+    "outDir": "dist"
   },
   "include": ["src"],
-  "exclude": ["**/node_modules"]
+  "exclude": ["node_modules"]
 }

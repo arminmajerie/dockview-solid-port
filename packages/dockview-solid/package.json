@@ -1,6 +1,6 @@
 {
   "name": "@arminmajerie/dockview-solid",
-  "version": "4.5.3",
+  "version": "4.5.4",
   "description": "Zero dependency layout manager supporting tabs, grids and splitviews (SolidJS version)",
   "keywords": [
     "solid",
@@ -30,30 +30,22 @@
   },
   "license": "MIT",
   "author": "https://github.com/arminmajerie",
-  "main": "./dist/cjs/index.js",
-  "module": "./dist/esm/index.js",
-  "types": "./dist/esm/index.d.ts",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/esm/index.js",
-      "require": "./dist/cjs/index.js",
-      "types": "./dist/esm/index.d.ts"
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
     }
   },
-  "source": "scripts/rollupEntryTarget.tsx",
   "files": [
     "dist",
     "README.md"
   ],
   "scripts": {
-    "build:bundle": "npm run build",
-    "rollup": "npm run clean && npm run build && rollup --config",
-    "build:cjs": "cross-env ../../node_modules/.bin/tsc --build ./tsconfig.json --verbose --extendedDiagnostics",
-    "build:css": "node scripts/copy-css.js",
-    "build:esm": "cross-env ../../node_modules/.bin/tsc --build ./tsconfig.esm.json --verbose --extendedDiagnostics",
-    "build": "npm run clean && npm run build:cjs && npm run build:esm && npm run build:css",
-    "clean": "rimraf dist/ .build/ .rollup.cache/",
-    "prepublishOnly": "npm run rebuild && npm run build ",
+    "build": "tsup src/index.ts --format esm,cjs --dts --out-dir dist",
+    "clean": "rimraf dist",
     "rebuild": "npm run clean && npm run build"
   },
   "dependencies": {
@@ -64,6 +56,8 @@
   },
   "devDependencies": {
     "solid-js": "^1.9.7",
-    "rollup-preset-solid": "^3.0.0"
+    "ts-node": "^10.9.2",
+    "tsup": "^8.5.0",
+    "rimraf": "^5.0.5"
   }
 }

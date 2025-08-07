@@ -1,27 +1,18 @@
 {
   "name": "@arminmajerie/dockview",
-  "version": "4.5.3",
-  "description": "Zero dependency layout manager supporting tabs, grids and splitviews",
+  "version": "4.5.4",
+  "description": "Zero dependency layout manager supporting tabs, grids and splitviews (SolidJS only)",
   "keywords": [
-    "splitview",
-    "split-view",
-    "gridview",
-    "grid-view",
     "dockview",
-    "dock-view",
-    "grid",
+    "splitview",
+    "gridview",
+    "dock",
     "tabs",
     "layout",
-    "layout manager",
-    "dock layout",
-    "dock",
-    "docking",
-    "splitter",
-    "drag-and-drop",
-    "drag",
-    "drop",
     "solid",
-    "solid-component"
+    "solidjs",
+    "docking",
+    "drag-and-drop"
   ],
   "homepage": "https://github.com/arminmajerie/dockview-solid-port",
   "bugs": {
@@ -33,42 +24,39 @@
   },
   "license": "MIT",
   "author": "https://github.com/arminmajerie",
-  "main": "./dist/cjs/index.js",
-  "module": "./dist/esm/index.js",
-  "types": "./dist/cjs/index.d.ts",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/esm/index.js",
-      "require": "./dist/cjs/index.js",
-      "types": "./dist/esm/index.d.ts"
+      "require": "./dist/index.js",
+      "import": "./dist/index.mjs"
     }
   },
-
-  "source": "scripts/rollupEntryTarget.tsx",
   "files": [
     "dist",
     "README.md"
   ],
   "scripts": {
-    "build:bundle": "npm run build",
-    "rollup": "npm run clean && npm run build && rollup --config",
-    "build:cjs": "cross-env ../../node_modules/.bin/tsc --build ./tsconfig.json --verbose --extendedDiagnostics",
-    "build:css": "node scripts/copy-css.js",
-    "build:esm": "cross-env ../../node_modules/.bin/tsc --build ./tsconfig.esm.json --verbose --extendedDiagnostics",
-    "build": "npm run clean && npm run build:cjs && npm run build:esm && npm run build:css",
-    "clean": "rimraf dist/ .build/ .rollup.cache/",
-    "prepublishOnly": "npm run rebuild && npm run build:bundle",
-    "rebuild": "npm run clean && npm run build"
+    "clean": "rimraf dist/ .build/ .tsup",
+    "build": "npm run clean && tsup src/index.ts --format esm,cjs --dts --out-dir dist && node scripts/copy-css.js",
+    "lint": "eslint src --ext .ts,.tsx",
+    "prepublishOnly": "npm run build",
+    "rebuild": "npm run build"
   },
   "dependencies": {
     "dockview-core": "^4.5.0"
   },
   "devDependencies": {
-    "@rollup/plugin-node-resolve": "^15.2.3",
-    "@rollup/plugin-terser": "^0.4.4",
-    "@rollup/plugin-typescript": "^11.1.6",
-    "rollup-plugin-postcss": "^4.0.2",
-    "rollup-preset-solid": "^3.0.0",
-    "typescript": "^5.9.2"
+    "eslint": "^8.56.0",
+    "typescript": "^5.3.3",
+    "solid-js": "^1.9.7",
+    "rimraf": "^5.0.5",
+    "cross-env": "^7.0.3",
+    "typedoc": "^0.28",
+    "ts-node": "^10.9.2",
+    "tsup": "^8.5.0",
+    "vite": "^5.1.5",
+    "vite-plugin-solid": "^2.11.8"
   }
 }

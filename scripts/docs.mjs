@@ -14,19 +14,19 @@ const API_OUTPUT_FILE = './packages/docs/src/generated/api.output.json';
 const DOCUMENT_LIST = [
     // dockview
     'DockviewApi',
-    'IDockviewReactProps',
+    'IDockviewSolidProps',
     'DockviewPanelApi',
     // splitview
     'SplitviewApi',
-    'ISplitviewReactProps',
+    'ISplitviewSolidProps',
     'SplitviewPanelApi',
     // gridview
     'GridviewApi',
-    'IGridviewReactProps',
+    'IGridviewSolidProps',
     'GridviewPanelApi',
     // paneview
     'PaneviewApi',
-    'IPaneviewReactProps',
+    'IPaneviewSolidProps',
     'PaneviewPanelApi',
 ];
 
@@ -67,10 +67,10 @@ const dockviewCore = content.children.find(
     (child) => child.name === 'dockview-core'
 );
 const dockview = content.children.find((child) => child.name === 'dockview');
-const dockviewVue = content.children.find((child) => child.name === 'dockview-vue');
 
 
-const declarations = [dockviewCore, dockview, dockviewVue]
+
+const declarations = [dockviewCore, dockview]
     .flatMap(
         (item) => item.children
         // .filter((child) => DOCUMENT_LIST.includes(child.name))

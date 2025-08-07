@@ -1,51 +1,10 @@
 // packages/dockview/src/solid.tsx
 import { createSignal, JSX, onMount, onCleanup, createContext, Accessor  } from 'solid-js';
-import { Dynamic, render } from 'solid-js/web';
+import { render } from 'solid-js/web';
 import { DockviewIDisposable } from 'dockview-core';
-
-// Types
-export interface SolidPanelWrapperProps {
-  component: (props: Record<string, any>) => JSX.Element;
-  componentProps: Record<string, any>;
-  ref?: (api: SolidPanelWrapperRef) => void;
-}
-export interface SolidPanelWrapperRef {
-  update: (props: Record<string, any>) => void;
-}
-
-// Component
-export function SolidComponentBridge(props: SolidPanelWrapperProps): JSX.Element {
-  const [currentProps, setCurrentProps] = createSignal(props.componentProps);
-
-  onMount(() => {
-    if (props.ref) {
-      props.ref({
-        update: (newProps: Record<string, any>) => {
-          setCurrentProps(prev => ({ ...prev, ...newProps }));
-        }
-      });
-    }
-  });
-
-  // @ts-ignore
-  return <Dynamic component={props.component} {...props.componentProps}/>;
-}
-
-
-/**
- * Since we are storing the React.Portal references in a rendered array they
- * require a key property like any other React element rendered in an array
- * to prevent excessive re-rendering
- */
-const uniquePortalKeyGenerator = (() => {
-  let value = 1;
-  return { next: () => `dockview_solid_portal_key_${(value++).toString()}` };
-})();
 
 // Context (use if you actually need context passing)
 export const SolidPartContext = createContext({});
-
-
 
 // SolidPortalStore — stores a list of cleanup disposables, not portals
 export interface SolidPortalStore {
@@ -143,6 +102,4 @@ export const usePortalsLifecycle: PortalLifecycleHook = () => {
   return [portals, addPortal];
 };
 
-export function isSolidComponent(component: any): boolean {
-  return typeof component === "function";
-}
+

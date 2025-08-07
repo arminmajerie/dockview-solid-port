@@ -1,13 +1,19 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "outDir": "dist/cjs",
-    "tsBuildInfoFile": ".build/tsconfig.tsbuildinfo.cjs",
+    "target": "esnext",
+    "module": "esnext",
+    "declaration": true,
+    "declarationDir": "dist",
+    "emitDeclarationOnly": false,
+    "outDir": "dist",
     "jsx": "preserve",
     "jsxImportSource": "solid-js",
-    "rootDir": "src",
-    "types": ["node"]
+    "strict": true,
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
   },
-  "include": ["src"],
-  "exclude": ["**/node_modules"]
+  "include": ["src"]
 }
