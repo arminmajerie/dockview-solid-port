@@ -13,7 +13,9 @@
   "license": "MIT",
   "author": "https://github.com/arminmajerie",
   "workspaces": [
-    "packages/*"
+    "packages/dockview",
+    "packages/dockview-solid",
+    "dockview-solid-example"
   ],
   "scripts": {
     "clean": "lerna run clean",
@@ -23,7 +25,8 @@
     "lint": "eslint 'packages/*/src/**/*.{ts,tsx,js,jsx}'",
     "lint:fix": "eslint 'packages/*/src/**/*.{ts,tsx,js,jsx}' --fix",
     "docs": "typedoc && node scripts/docs.mjs",
-    "version": "lerna version"
+    "version": "lerna version",
+    "example": "cd packages/dockview-solid-example && npm run server"
   },
   "devDependencies": {
     "lerna": "^8.2.1",

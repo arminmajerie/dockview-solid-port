@@ -5,11 +5,11 @@
             "path": "./packages/dockview"
         },
         {
-            "path": "./packages/dockview-core"
+            "path": "./packages/dockview-solid-example,"
         },
         {
             "path": "./packages/dockview-solid"
-        },
+        }
     ],
     "compilerOptions": {
       "jsx": "preserve",
@@ -17,7 +17,7 @@
         "solid-js",
         "node",
         "**/*.spec.ts",
-        "**/*.spec.tsx",
+        "**/*.spec.tsx"
         ]
     }
 }

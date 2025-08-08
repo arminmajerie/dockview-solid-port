@@ -16,8 +16,21 @@
 
 ---
 
+## Important
 **This package is for SolidJS.**
 It is NOT based on `solid-dockview` (outdated) or the React-dependent `dockview-solid` from mathuo/dockview.
+
+This is a SolidJS source package. Consumers must use a build tool that applies the SolidJS JSX transform (e.g. vite-plugin-solid or rollup-plugin-solid) to all .jsx and .tsx files from this package.
+
+Do NOT use React or default JSX transforms—you will get runtime errors.
+
+please look att the project ***dockview-solid-example*** in the github page to get started with a semi complex example.
+
+### consumers must have:
+* A working Vite+vite-plugin-solid setup O
+  * Or
+* a Rollup/Webpack config that compiles imported .jsx using the SolidJS transform
+
 
 ---
 

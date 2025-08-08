@@ -1,12 +1,20 @@
+// packages/dockview/tsup.config.ts
 import { defineConfig } from 'tsup';
-
 export default defineConfig({
   entry: ['src/index.ts'],
-  splitting: false,
-  sourcemap: true,
-  clean: true,
-  format: ['esm', 'cjs'],   // Add cjs if you're building both
+  format: ['esm', 'cjs'],
   dts: true,
-  target: 'esnext',
-  external: ['solid-js', 'solid-js/web', 'dockview-core'],
+  sourcemap: true,
+  minify: false,
+  clean: true,
+  splitting: false,
+  esbuildOptions(options) {
+    options.jsx = 'preserve';
+    options.jsxFactory = 'jsx';
+    options.jsxFragment = 'Fragment';
+    options.jsxImportSource = 'solid-js';
+  },
+  external: [
+    'solid-js', 'solid-js/web', '@arminmajerie/dockview-core'
+  ],
 });

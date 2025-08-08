@@ -1,15 +1,19 @@
+// packages/dockview/tsconfig.json
 {
-  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "target": "ESNext",
     "module": "ESNext",
     "moduleResolution": "node",
     "jsx": "preserve",
     "jsxImportSource": "solid-js",
+    "declaration": true,
+    "declarationMap": true,
+    "outDir": "dist",
     "rootDir": "src",
-    "types": ["node"],
-    "outDir": "dist"
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true
   },
   "include": ["src"],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "dist"]
 }

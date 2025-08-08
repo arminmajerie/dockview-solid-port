@@ -1,0 +1,22 @@
+@import 'tailwindcss';
+
+html, body {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  overflow: hidden; /* Optional, but ensures no scrollbars */
+}
+
+
+.dockview-theme-replit,
+.dockview-theme-replit .dockview-root,
+.dockview-theme-replit .dv-panel,
+.dockview-theme-replit .dv-content-container {
+  border-radius: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+  border-width: 0 !important;
+}
