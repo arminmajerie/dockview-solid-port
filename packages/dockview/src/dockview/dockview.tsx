@@ -74,26 +74,20 @@ function extractCoreOptions(props: IDockviewSolidProps): DockviewOptions {
 
 
 export function DockviewSolid(props: IDockviewSolidProps) {
-  console.log("[DockviewSolid:dockview.tsx] function ENTRY", props);
+
 
   let domRef: HTMLDivElement | undefined;
   const [portals, addPortal] = usePortalsLifecycle();
   let prevProps: Partial<IDockviewSolidProps> = {};
   const [dockviewRef, setDockviewRef] = createSignal<DockviewApi | undefined>(undefined);
 
-  console.log("[DockviewSolid:dockview.tsx] RENDER 2");
 
   onMount(() => {
-    console.log("[DockviewSolid:dockview.tsx] onMount fired", domRef);
-
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         if (!domRef) {
-          console.error("[DockviewSolid:dockview.tsx] domRef still undefined after rAF ×2");
           return;
         }
-
-        console.log("[DockviewSolid:dockview.tsx] domRef is ready", domRef);
 
         const frameworkTabComponents = props.tabComponents ? { ...props.tabComponents } : {};
         if (props.defaultTabComponent) {
@@ -114,7 +108,6 @@ export function DockviewSolid(props: IDockviewSolidProps) {
             { addPortal }
           ),
           createComponent: (options) => {
-            console.log("[DockviewSolid:dockview.tsx] createComponent", options);
             return new SolidPanelContentPart(
               options.id,
               props.components[options.name],
@@ -122,7 +115,6 @@ export function DockviewSolid(props: IDockviewSolidProps) {
             );
           },
           createTabComponent: (options) => {
-            console.log("[DockviewSolid:dockview.tsx] createTabComponent", options);
             return new SolidPanelHeaderPart(
               options.id,
               frameworkTabComponents[options.name],
@@ -131,7 +123,6 @@ export function DockviewSolid(props: IDockviewSolidProps) {
           },
           createWatermarkComponent: props.watermarkComponent
             ? () => {
-              console.log("[DockviewSolid:dockview.tsx] createWatermarkComponent");
               return new SolidWatermarkPart(
                 "watermark",
                 props.watermarkComponent!,
@@ -142,29 +133,20 @@ export function DockviewSolid(props: IDockviewSolidProps) {
           defaultTabComponent: props.defaultTabComponent ? DEFAULT_SOLID_TAB : undefined,
         };
 
-        console.log("[DockviewSolid:dockview.tsx] creating Dockview instance with options", {
-          ...extractCoreOptions(props),
-          ...frameworkOptions,
-        });
-
         const api = createDockview(domRef, {
           ...extractCoreOptions(props),
           ...frameworkOptions,
         });
-
         const { clientWidth, clientHeight } = domRef;
-        console.log("[DockviewSolid:dockview.tsx] calling api.layout", { clientWidth, clientHeight });
         api.layout(clientWidth, clientHeight);
 
         if (props.onReady) {
-          console.log("[DockviewSolid:dockview.tsx] calling props.onReady");
           props.onReady({ api });
         }
 
         setDockviewRef(api); // ✅ CORRECTED HERE
 
         onCleanup(() => {
-          console.log("[DockviewSolid:dockview.tsx] onCleanup: disposing dockviewRef");
           setDockviewRef(undefined);
           api.dispose();
         });
@@ -173,7 +155,6 @@ export function DockviewSolid(props: IDockviewSolidProps) {
   });
 
   createEffect(() => {
-    console.log("[DockviewSolid:dockview.tsx] EFFECT what is this rangor", props);
     const ref = dockviewRef();
     const changes: Partial<DockviewOptions> = {};
 
@@ -184,37 +165,24 @@ export function DockviewSolid(props: IDockviewSolidProps) {
         const propValue = props[key as keyof typeof props];
         if (propValue !== prevProps[key as keyof typeof prevProps]) {
           changes[key] = propValue as any;
-          console.log(`[DockviewSolid:dockview.tsx] PROP changed: ${key.toString()}`, {
-            old: prevProps[key as keyof typeof prevProps],
-            new: propValue,
-          });
         }
       }
     });
 
-    if (ref) {
-      console.log("[DockviewSolid:dockview.tsx] dockviewRef exists, updating options", changes);
-      ref.updateOptions(changes);
-    } else {
-      console.log("[DockviewSolid:dockview.tsx] dockviewRef is not initialized yet, skipping option patch");
-    }
-
+    if (ref) {ref.updateOptions(changes);}
     prevProps = { ...props };
   });
 
   createEffect(() => {
     const ref = dockviewRef();
     if (!ref) {
-      console.log("[DockviewSolid:dockview.tsx] onDidDrop: dockviewRef missing");
       return;
     }
-    console.log("[DockviewSolid:dockview.tsx] Subscribing to onDidDrop");
+
     const disposable = ref.onDidDrop((event) => {
-      console.log("[DockviewSolid:dockview.tsx] onDidDrop event", event);
       props.onDidDrop?.(event);
     });
     onCleanup(() => {
-      console.log("[DockviewSolid:dockview.tsx] onDidDrop: unsubscribing");
       disposable.dispose();
     });
   });
@@ -222,16 +190,12 @@ export function DockviewSolid(props: IDockviewSolidProps) {
   createEffect(() => {
     const ref = dockviewRef();
     if (!ref) {
-      console.log("[DockviewSolid:dockview.tsx] onWillDrop: dockviewRef missing");
       return;
     }
-    console.log("[DockviewSolid:dockview.tsx] Subscribing to onWillDrop");
     const disposable = ref.onWillDrop((event) => {
-      console.log("[DockviewSolid:dockview.tsx] onWillDrop event", event);
       props.onWillDrop?.(event);
     });
     onCleanup(() => {
-      console.log("[DockviewSolid:dockview.tsx] onWillDrop: unsubscribing");
       disposable.dispose();
     });
   });
@@ -240,17 +204,14 @@ export function DockviewSolid(props: IDockviewSolidProps) {
     createEffect(() => {
       const ref = dockviewRef();
       if (!ref) {
-        console.log(`[DockviewSolid:dockview.tsx] updateOptions (${label}): dockviewRef missing`);
         return;
       }
-      console.log(`[DockviewSolid:dockview.tsx] updateOptions (${label})`);
       ref.updateOptions(updater(ref));
     });
   };
 
   update("createComponent", () => ({
     createComponent: (options) => {
-      console.log("[DockviewSolid:dockview.tsx] createComponent (dynamic)", options);
       return new SolidPanelContentPart(
         options.id,
         props.components[options.name],
@@ -267,7 +228,6 @@ export function DockviewSolid(props: IDockviewSolidProps) {
     return {
       defaultTabComponent: props.defaultTabComponent ? DEFAULT_SOLID_TAB : undefined,
       createTabComponent: (options) => {
-        console.log("[DockviewSolid:dockview.tsx] createTabComponent (dynamic)", options);
         return new SolidPanelHeaderPart(
           options.id,
           frameworkTabComponents[options.name],
@@ -280,7 +240,6 @@ export function DockviewSolid(props: IDockviewSolidProps) {
   update("createWatermarkComponent", () => ({
     createWatermarkComponent: props.watermarkComponent
       ? () => {
-        console.log("[DockviewSolid:dockview.tsx] createWatermarkComponent (dynamic)");
         return new SolidWatermarkPart(
           "watermark",
           props.watermarkComponent!,
@@ -311,14 +270,10 @@ export function DockviewSolid(props: IDockviewSolidProps) {
     ),
   }));
 
-  console.log("[DockviewSolid:dockview.tsx] RETURN main div", domRef);
 
   return (
     <div
-      ref={(el) => {
-        domRef = el;
-        console.log("[DockviewSolid:dockview.tsx] div got ref", domRef);
-      }}
+      ref={(el) => {domRef = el;}}
       style={{ height: "100%", width: "100%" }}
     >
       {/* {portals()} */}

@@ -10,13 +10,7 @@ import CloseIcon from '@suid/icons-material/Close';
 
 let resizeObserver: ResizeObserver | undefined;
 // Panel content component
-function PanelContent(props: IDockviewPanelProps) {
-  return (
-    <div style="padding:0 5px; font-size:1.5rem; height:100%; width:100%; margin:0; display:flex; align-items:center; justify-content:center; color:#2ec4b6;">
-      Panel: {props.params.title}
-    </div>
-  );
-}
+
 
 
 export function App() {
@@ -124,10 +118,9 @@ export function App() {
     }
   };
 
-  const [showMenu, setShowMenu] = createSignal(false);
+
   function handleAddPanel(panelId: string) {
     const currentPanel = dockViewApi.getPanel(activePanelId());
-    setShowMenu(false);
     if (!dockViewApi) return;
 
     const config = allPanelConfigs[panelId];
@@ -142,6 +135,9 @@ export function App() {
       }
       else if(panelId === "configurationPanel") {
         direction = "below";
+      }
+      else if(panelId === "workspacePanel") {
+        direction = "left";
       }
     }
     if(currentPanel.id === "componentPanel") {
@@ -160,6 +156,8 @@ export function App() {
         direction = "right";
       }
     }
+
+
 
     let addedPanel = dockViewApi.addPanel(
 
@@ -182,7 +180,7 @@ export function App() {
   }
 
   function AddPanel() {
-
+    const [showMenu, setShowMenu] = createSignal(false);
     let dropdownRef: HTMLDivElement | undefined;
 
     onMount(() => {
