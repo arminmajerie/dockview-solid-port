@@ -1,106 +1,155 @@
-import { createEffect, onCleanup, createSignal, onMount } from 'solid-js';
-import { SplitviewApi, SplitviewPanelApi, createSplitview, SplitviewOptions, PROPERTY_KEYS_SPLITVIEW, SplitviewFrameworkOptions, SplitviewComponentOptions } from "dockview-core";
-import { usePortalsLifecycle } from "../solid"; // <-- your Solid version
-import { PanelParameters } from "../types";
-import { SolidPanelView } from "./view";       // <-- your Solid version
+// packages/dockview/src/splitview/splitview.tsx
+import { createEffect, onCleanup, onMount, type JSX } from "solid-js";
+import {
+  createSplitview,
+  SplitviewApi,
+  SplitviewOptions,
+  SplitviewFrameworkOptions,
+  SplitviewComponentOptions,
+  PROPERTY_KEYS_SPLITVIEW,
+} from "dockview-core";
+import { usePortalsLifecycle } from "../solid";
+import type { PanelParameters } from "../types";
+import { SolidPanelView } from "./view";
+
+/* ---------- Events & Props ---------- */
 
 export interface SplitviewReadyEvent {
   api: SplitviewApi;
 }
 
-export interface ISplitviewPanelProps<T extends { [index: string]: any } = any> extends PanelParameters<T> {
-  api: SplitviewPanelApi;
+export interface ISplitviewPanelProps<T extends Record<string, any> = any>
+  extends PanelParameters<T> {
+  api: any;             // panel API from dockview-core (kept as `any` to avoid value/type mixups)
   containerApi: SplitviewApi;
 }
 
 export interface ISplitviewSolidProps extends SplitviewOptions {
-  onReady: (event: SplitviewReadyEvent) => void;
-  components: Record<string, (props: ISplitviewPanelProps) => any>;
+  /** Registry of Solid components, referenced by name in api.addPanel({ component }) */
+  components: Record<string, (props: ISplitviewPanelProps) => JSX.Element>;
+
+  /** Called after the first layout when the host has a real size */
+  onReady?: (event: SplitviewReadyEvent) => void;
+
+  /** Prefer Solid’s `class`; `className` remains as an alias during migration */
+  class?: string;
+  className?: string;
+
+  /** Inline styles for the host element */
+  style?: JSX.CSSProperties | string;
+
+  /** Disable ResizeObserver-based relayout */
+  disableAutoResizing?: boolean;
 }
+
+/* ---------- Helpers ---------- */
 
 function extractCoreOptions(props: ISplitviewSolidProps): SplitviewOptions {
-  const coreOptions = PROPERTY_KEYS_SPLITVIEW.reduce((obj, key) => {
+  const core = PROPERTY_KEYS_SPLITVIEW.reduce((acc, key) => {
     if (key in props) {
-      obj[key] = props[key] as any;
+      (acc as any)[key] = (props as any)[key];
     }
-    return obj;
+    return acc;
   }, {} as Partial<SplitviewComponentOptions>);
-  return coreOptions as SplitviewOptions;
+  return core as SplitviewOptions;
 }
 
+/* ---------- Component ---------- */
+
 export function SplitviewSolid(props: ISplitviewSolidProps) {
-  let domRef: HTMLDivElement | undefined;
-  let splitviewRef: SplitviewApi | undefined;
+  let hostEl: HTMLDivElement | undefined;
+  let api: SplitviewApi | undefined;
+  let ro: ResizeObserver | undefined;
+
   const [portals, addPortal] = usePortalsLifecycle();
-  let prevProps: Partial<ISplitviewSolidProps> = {};
 
-  // Handle SplitviewOptions changes reactively
-  createEffect(() => {
-    const changes: Partial<SplitviewOptions> = {};
-    PROPERTY_KEYS_SPLITVIEW.forEach((propKey) => {
-      // this is always a valid key for SplitviewOptions!
-      const key = propKey as keyof SplitviewOptions;
-      const propValue = props[key as keyof ISplitviewSolidProps];
-      if (key in props && propValue !== prevProps[key]) {
-        changes[key] = propValue as any;
-      }
-    });
-    if (splitviewRef) {
-      splitviewRef.updateOptions(changes);
-    }
-    prevProps = { ...props };
-  });
+  // Track last seen SplitviewOptions to send only changes
+  let prevOptions: Partial<SplitviewOptions> = {};
 
-  onCleanup(() => {
-    splitviewRef?.dispose();
-    splitviewRef = undefined;
-  });
-
-  // Initialization
   onMount(() => {
-    if (!domRef) return;
+    if (!hostEl) return;
 
     const frameworkOptions: SplitviewFrameworkOptions = {
-      createComponent: (options) => {
-        return new SolidPanelView(
+      createComponent: (options) =>
+        new SolidPanelView(
           options.id,
           options.name,
           props.components[options.name],
-          { addPortal }
-        );
-      }
+          { addPortal } // SolidPortalStore shape in your code
+        ),
     };
 
-    splitviewRef = createSplitview(domRef, {
+    api = createSplitview(hostEl, {
       ...extractCoreOptions(props),
       ...frameworkOptions,
     });
 
-    const { clientWidth, clientHeight } = domRef;
-    splitviewRef.layout(clientWidth, clientHeight);
+    // Ensure first layout when element has real size (double rAF)
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        if (!api || !hostEl) return;
+        api.layout(hostEl.clientWidth, hostEl.clientHeight);
+        props.onReady?.({ api });
+      });
+    });
 
-    if (props.onReady) {
-      props.onReady({ api: splitviewRef });
+    if (!props.disableAutoResizing && "ResizeObserver" in window) {
+      ro = new ResizeObserver(() => {
+        if (!api || !hostEl) return;
+        api.layout(hostEl.clientWidth, hostEl.clientHeight);
+      });
+      ro.observe(hostEl);
     }
   });
 
-  // Update createComponent if props.components changes
+  // Update createComponent if components registry identity changes
   createEffect(() => {
-    if (!splitviewRef) return;
-    splitviewRef.updateOptions({
-      createComponent: (options) => {
-        return new SolidPanelView(
+    if (!api) return;
+    api.updateOptions({
+      createComponent: (options) =>
+        new SolidPanelView(
           options.id,
           options.name,
           props.components[options.name],
           { addPortal }
-        );
-      }
+        ),
     });
   });
 
+  // Reactively update SplitviewOptions (orientation, margin, proportionalLayout, styles, descriptor, ...)
+  createEffect(() => {
+    if (!api) return;
+
+    const changes: Partial<SplitviewOptions> = {};
+    for (const k of PROPERTY_KEYS_SPLITVIEW) {
+      const nextVal = (props as any)[k];
+      if (nextVal !== (prevOptions as any)[k]) {
+        (changes as any)[k] = nextVal;
+      }
+    }
+
+    if (Object.keys(changes).length > 0) {
+      api.updateOptions(changes);
+      prevOptions = { ...prevOptions, ...changes };
+      if (hostEl) api.layout(hostEl.clientWidth, hostEl.clientHeight);
+    }
+  });
+
+  onCleanup(() => {
+    ro?.disconnect();
+    ro = undefined;
+    api?.dispose();
+    api = undefined;
+  });
+
+  const hostClass = () => props.class ?? props.className ?? undefined;
+
   return (
-    <div ref={el => domRef = el} style={{ height: "100%", width: "100%" }}>
+    <div
+      ref={(el) => (hostEl = el)}
+      class={hostClass()}
+      style={props.style}
+    >
       {/*{portals()}*/}
     </div>
   );
