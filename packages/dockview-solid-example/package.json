@@ -1,6 +1,6 @@
 {
   "name": "dockview-solid-example",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "",
   "type": "module",
   "scripts": {
@@ -17,8 +17,8 @@
     "vite-plugin-solid": "^2.11.6"
   },
   "dependencies": {
-    "@arminmajerie/dockview-solid": "^4.5.11",
-    "dockview-core": "^4.5.0",
+    "@arminmajerie/dockview-solid": "^4.5.12",
+    "dockview-core": "^4.7.1",
     "@suid/icons-material": "^0.8.1",
     "@suid/material": "^0.18.0",
     "solid-js": "^1.9.5"
