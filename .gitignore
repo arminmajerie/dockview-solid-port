@@ -16,3 +16,4 @@ yarn-error.log
 /docs/
 /generated/
 /package-lock.json
+/packages/dockview-solid-example/package-lock.json
