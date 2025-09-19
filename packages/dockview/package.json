@@ -1,6 +1,6 @@
 {
   "name": "@arminmajerie/dockview",
-  "version": "4.5.12",
+  "version": "4.5.13",
   "description": "Zero dependency layout manager supporting tabs, grids and splitviews (SolidJS only)",
   "keywords": [
     "dockview",
@@ -27,6 +27,23 @@
   "main": "./dist/index.js",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./style.css": "./dist/style.css",
+    "./styles/dockview.css": "./dist/styles/dockview.css",
+    "./styles/*": "./dist/styles/*",
+    "./dist/style.css": "./dist/style.css",
+    "./dist/styles/dockview.css": "./dist/styles/dockview.css",
+    "./dist/styles/*": "./dist/styles/*"
+  },
+  "sideEffects": [
+    "./dist/style.css",
+    "./dist/styles/*.css"
+  ],
   "files": [
     "dist",
     "README.md"
@@ -35,7 +52,6 @@
     "build": "npm run clean && tsc -p tsconfig.json && node scripts/copy-css.js",
     "build:cjs": "tsc -p tsconfig.cjs.json",
     "clean": "rimraf dist",
-
     "lint": "eslint src --ext .ts,.tsx",
     "prepublishOnly": "npm run build",
     "rebuild": "npm run build"
@@ -44,12 +60,12 @@
     "dockview-core": "^4.7.1"
   },
   "peerDependencies": {
-    "solid-js": "^1.9.7"
+    "solid-js": "^1.8.0"
   },
   "devDependencies": {
     "eslint": "^8.56.0",
     "typescript": "^5.3.3",
-    "solid-js": "^1.9.7",
+    "solid-js": "^1.8.0",
     "rimraf": "^5.0.5",
     "cross-env": "^7.0.3",
     "typedoc": "^0.28",
