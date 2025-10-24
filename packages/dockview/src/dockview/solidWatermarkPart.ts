@@ -5,7 +5,7 @@ import {
   IWatermarkRenderer,
   WatermarkRendererInitParameters,
   IWatermarkPanelProps,
-} from 'dockview-core';
+} from '@arminmajerie/dockview-core';
 import { JSX } from 'solid-js';
 
 export class SolidWatermarkPart implements IWatermarkRenderer {

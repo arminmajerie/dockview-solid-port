@@ -1,7 +1,7 @@
 // packages/dockview/src/solid.tsx
 import { createSignal, JSX, onMount, onCleanup, createContext, Accessor  } from 'solid-js';
 import { render } from 'solid-js/web';
-import { DockviewIDisposable } from 'dockview-core';
+import { DockviewIDisposable } from '@arminmajerie/dockview-core';
 
 // Context (use if you actually need context passing)
 export const SolidPartContext = createContext({});

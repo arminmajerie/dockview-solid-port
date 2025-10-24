@@ -3,7 +3,7 @@ import {
     PanelUpdateEvent,
     IPanePart,
     PanePanelComponentInitParameter,
-} from 'dockview-core';
+} from '@arminmajerie/dockview-core';
 import { SolidPart, SolidPortalStore } from '../solid';
 import { IPaneviewPanelProps } from './paneview';
 import { JSX } from 'solid-js';

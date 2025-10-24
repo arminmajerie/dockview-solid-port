@@ -7,7 +7,7 @@ import {
     PROPERTY_KEYS_GRIDVIEW,
     GridviewComponentOptions,
     GridviewFrameworkOptions,
-} from 'dockview-core';
+} from '@arminmajerie/dockview-core';
 import { SolidGridPanelView } from './view';
 import { usePortalsLifecycle } from '../solid';
 import { PanelParameters } from '../types';

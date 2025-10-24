@@ -15,8 +15,7 @@ import {
     DockviewFrameworkOptions,
     DockviewReadyEvent,
     createDockview,
-} from 'dockview-core';
-
+} from '@arminmajerie/dockview-core';
 
 import { SolidPanelContentPart } from './solidContentPart';
 import { SolidPanelHeaderPart } from './solidHeaderPart';
@@ -24,7 +23,7 @@ import { SolidPortalStore, usePortalsLifecycle } from '../solid';
 import { SolidWatermarkPart } from './solidWatermarkPart';
 import { SolidHeaderActionsRendererPart } from './headerActionsRenderer';
 import { createEffect, createSignal, JSX, onCleanup, onMount } from 'solid-js';
-import { IDisposable } from 'dockview-core/dist/cjs/lifecycle';
+import { IDisposable } from '@arminmajerie/dockview-core/dist/cjs/lifecycle';
 
 function createGroupControlElement(
   component: ((props: IDockviewHeaderActionsProps) => JSX.Element) | undefined,

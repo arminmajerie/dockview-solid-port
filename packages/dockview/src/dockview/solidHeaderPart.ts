@@ -4,7 +4,7 @@ import {
   ITabRenderer,
   TabPartInitParameters,
   IDockviewPanelHeaderProps,
-} from 'dockview-core';
+} from '@arminmajerie/dockview-core';
 import { JSX } from 'solid-js';
 
 export class SolidPanelHeaderPart implements ITabRenderer {

@@ -8,7 +8,7 @@ import {
   PanelUpdateEvent,
   IHeaderActionsRenderer,
   IDockviewHeaderActionsProps,
-} from 'dockview-core';
+} from '@arminmajerie/dockview-core';
 import { JSX } from 'solid-js';
 
 

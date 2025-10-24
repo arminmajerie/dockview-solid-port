@@ -1,6 +1,6 @@
 import { createSignal, onCleanup, onMount, JSX } from 'solid-js';
 import { CloseButton } from '../svg';
-import type { DockviewPanelApi, IDockviewPanelHeaderProps } from 'dockview-core';
+import type { DockviewPanelApi, IDockviewPanelHeaderProps } from '@arminmajerie/dockview-core';
 
 function useTitle(api: DockviewPanelApi): () => string | undefined {
   const [title, setTitle] = createSignal<string | undefined>(api.title);

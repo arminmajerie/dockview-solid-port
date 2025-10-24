@@ -4,7 +4,7 @@ import {
     GridviewInitParameters,
     IFrameworkPart,
     GridviewComponent,
-} from 'dockview-core';
+} from '@arminmajerie/dockview-core';
 import { SolidPart, SolidPortalStore } from '../solid';
 import { IGridviewPanelProps } from './gridview';
 import { JSX } from 'solid-js';

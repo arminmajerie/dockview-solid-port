@@ -17,7 +17,7 @@ console.log('[copy-css.js] Ensured output directory exists.');
 let sourceCss;
 try {
   // Try direct resolution
-  sourceCss = require.resolve('dockview-core/dist/styles/dockview.css');
+  sourceCss = require.resolve('@arminmajerie/dockview-core/dist/styles/dockview.css');
   console.log('[copy-css.js] Resolved sourceCss:', sourceCss);
 } catch (e) {
   console.error('[copy-css.js] ERROR: Could not resolve dockview-core CSS from node_modules:', e);

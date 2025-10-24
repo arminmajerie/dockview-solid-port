@@ -1,5 +1,5 @@
 // packages/dockview/src/index.ts
-export * from 'dockview-core';
+export * from '@arminmajerie/dockview-core';
 
 export * from './dockview/dockview';
 export * from './dockview/defaultTab';

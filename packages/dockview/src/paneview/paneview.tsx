@@ -1,5 +1,5 @@
 import { createEffect, onCleanup, onMount, JSX } from 'solid-js';
-import { PaneviewPanelApi, PaneviewApi, PaneviewDropEvent, createPaneview, PaneviewOptions, PROPERTY_KEYS_PANEVIEW, PaneviewComponentOptions, PaneviewFrameworkOptions } from 'dockview-core';
+import { PaneviewPanelApi, PaneviewApi, PaneviewDropEvent, createPaneview, PaneviewOptions, PROPERTY_KEYS_PANEVIEW, PaneviewComponentOptions, PaneviewFrameworkOptions } from '@arminmajerie/dockview-core';
 import { usePortalsLifecycle } from '../solid';
 import { PanePanelSection } from './view';
 import { PanelParameters } from '../types';
