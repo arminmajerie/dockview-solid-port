@@ -13,7 +13,7 @@ import {
   themeReplit,
   SplitviewSolid, // <-- use the Solid Splitview
 } from "@arminmajerie/dockview-solid";
-import { Orientation } from "dockview-core";
+import { Orientation } from '@arminmajerie/dockview-core';
 
 import CloseIcon from "@suid/icons-material/Close";
 

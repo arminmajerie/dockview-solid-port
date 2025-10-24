@@ -48,28 +48,28 @@
     "dist",
     "README.md"
   ],
+  "dependencies": {
+    "@arminmajerie/dockview-core": "file:../dockview-core"
+  },
+  "peerDependencies": {
+    "solid-js": "^1.8.0"
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.3",
+    "eslint": "^8.56.0",
+    "rimraf": "^5.0.5",
+    "solid-js": "^1.8.0",
+    "ts-node": "^10.9.2",
+    "tsup": "^8.5.0",
+    "typedoc": "^0.28",
+    "typescript": "^5.3.3"
+  },
   "scripts": {
     "build": "npm run clean && tsc -p tsconfig.json && node scripts/copy-css.js",
     "build:cjs": "tsc -p tsconfig.cjs.json",
     "clean": "rimraf dist",
     "lint": "eslint src --ext .ts,.tsx",
     "prepublishOnly": "npm run build",
-    "rebuild": "npm run build"
-  },
-  "dependencies": {
-    "dockview-core": "^4.7.1"
-  },
-  "peerDependencies": {
-    "solid-js": "^1.8.0"
-  },
-  "devDependencies": {
-    "eslint": "^8.56.0",
-    "typescript": "^5.3.3",
-    "solid-js": "^1.8.0",
-    "rimraf": "^5.0.5",
-    "cross-env": "^7.0.3",
-    "typedoc": "^0.28",
-    "ts-node": "^10.9.2",
-    "tsup": "^8.5.0"
+    "rebuild": "npm run clean && npm run build"
   }
 }

@@ -4,7 +4,7 @@ import {
   PanelViewInitParameters,
   SplitviewPanel,
   SplitviewPanelApi,
-} from "dockview-core";
+} from '@arminmajerie/dockview-core';
 import { SolidPart, SolidPortalStore } from "../solid";
 import { ISplitviewPanelProps } from "./splitview";
 import type { JSX } from "solid-js";
