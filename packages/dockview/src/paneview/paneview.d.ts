@@ -1,3 +1,4 @@
+// dockview-solid-port\packages\dockview\src\paneview\paneview.d.ts
 import { JSX } from 'solid-js';
 import { PaneviewPanelApi, PaneviewApi, PaneviewDropEvent, PaneviewOptions } from 'dockview-core';
 import { PanelParameters } from '../types';

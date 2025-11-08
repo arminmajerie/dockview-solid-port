@@ -1,3 +1,4 @@
+// dockview-solid-port\packages\dockview\src\paneview\view.js
 import { SolidPart } from '../solid';
 export class PanePanelSection {
     get element() {

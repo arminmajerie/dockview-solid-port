@@ -1,4 +1,4 @@
-
+// dockview-solid-port\packages\dockview\src\paneview\view.ts
 import {
     PanelUpdateEvent,
     IPanePart,

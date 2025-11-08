@@ -1,3 +1,4 @@
+// dockview-solid-port\packages\dockview\src\paneview\paneview.tsx
 import { createEffect, onCleanup, onMount, JSX } from 'solid-js';
 import { PaneviewPanelApi, PaneviewApi, PaneviewDropEvent, createPaneview, PaneviewOptions, PROPERTY_KEYS_PANEVIEW, PaneviewComponentOptions, PaneviewFrameworkOptions } from '@arminmajerie/dockview-core';
 import { usePortalsLifecycle } from '../solid';
