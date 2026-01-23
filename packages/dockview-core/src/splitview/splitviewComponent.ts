@@ -45,6 +45,7 @@ export interface AddSplitviewComponentOptions<T extends Parameters = Parameters>
     index?: number;
     minimumSize?: number;
     maximumSize?: number;
+    skipLayout?: boolean;
 }
 
 export interface ISplitviewComponent extends IDisposable {
@@ -286,7 +287,7 @@ export class SplitviewComponent
         const index =
             typeof options.index === 'number' ? options.index : undefined;
 
-        this.splitview.addView(view, size, index);
+        this.splitview.addView(view, size, index, options.skipLayout);
 
         this.doAddView(view);
         this.setActive(view);

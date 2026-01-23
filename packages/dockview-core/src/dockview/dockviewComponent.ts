@@ -49,7 +49,7 @@ import {
 import { WillShowOverlayLocationEvent } from './events';
 import { DockviewGroupPanel } from './dockviewGroupPanel';
 import { DockviewPanelModel } from './dockviewPanelModel';
-import { getPanelData } from '../dnd/dataTransfer';
+import { getPanelData, getPanelDataWithNativeFallback, hasPanelData, isCrossWindowDrag } from '../dnd/dataTransfer';
 import { Parameters } from '../panel/types';
 import { Overlay } from '../overlay/overlay';
 import {
@@ -448,12 +448,18 @@ export class DockviewComponent
         this._rootDropTarget = new Droptarget(this.element, {
             className: 'dv-drop-target-edge',
             canDisplayOverlay: (event, position) => {
-                const data = getPanelData();
+                // Check if this is a panel drag (same-window or cross-window)
+                // Use hasPanelData() since getData() is blocked during dragover
+                const hasData = hasPanelData(event.dataTransfer);
+                const localData = getPanelData();
+                const crossWindow = isCrossWindowDrag(event.dataTransfer);
 
-                if (data) {
-                    if (data.viewId !== this.id) {
+                if (hasData) {
+                    // For same-window drags, check viewId
+                    if (localData && localData.viewId !== this.id) {
                         return false;
                     }
+                    // For cross-window drags, accept (viewId mismatch is expected)
 
                     if (position === 'center') {
                         // center drop target is only allowed if there are no panels in the grid
@@ -601,7 +607,7 @@ export class DockviewComponent
                     panel: undefined,
                     api: this._api,
                     group: undefined,
-                    getData: getPanelData,
+                    getData: () => getPanelDataWithNativeFallback(event.nativeEvent.dataTransfer),
                     kind: 'edge',
                 });
 
@@ -611,9 +617,28 @@ export class DockviewComponent
                     return;
                 }
 
-                const data = getPanelData();
+                // Use native fallback for cross-window drag support
+                const data = getPanelDataWithNativeFallback(event.nativeEvent.dataTransfer);
 
                 if (data) {
+                    // Check if this is a cross-window drag (no LocalSelectionTransfer data)
+                    const localData = getPanelData();
+                    if (!localData) {
+                        // Cross-window drag - fire onDidDrop and let application handle it
+                        // console.log('[DockviewComponent] Cross-window drop on edge, firing onDidDrop');
+                        this._onDidDrop.fire(
+                            new DockviewDidDropEvent({
+                                nativeEvent: event.nativeEvent,
+                                position: event.position,
+                                panel: undefined,
+                                api: this._api,
+                                group: undefined,
+                                getData: () => getPanelDataWithNativeFallback(event.nativeEvent.dataTransfer),
+                            })
+                        );
+                        return;
+                    }
+
                     this.moveGroupOrPanel({
                         from: {
                             groupId: data.groupId,
@@ -2192,7 +2217,7 @@ export class DockviewComponent
 
             // Check if destination group is empty - if so, force render the component
             const isDestinationGroupEmpty = destinationGroup.model.size === 0;
-            
+
             this.movingLock(() =>
                 destinationGroup.model.openPanel(removedPanel, {
                     index: destinationIndex,

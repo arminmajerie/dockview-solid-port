@@ -2,8 +2,11 @@ import { addDisposableListener, Emitter, Event } from '../../../events';
 import { CompositeDisposable, IDisposable } from '../../../lifecycle';
 import {
     getPanelData,
+    hasPanelData,
+    isCrossWindowDrag,
     LocalSelectionTransfer,
     PanelTransfer,
+    setNativePanelData,
 } from '../../../dnd/dataTransfer';
 import { toggleClass } from '../../../dom';
 import { DockviewComponent } from '../../dockviewComponent';
@@ -33,10 +36,18 @@ class TabDragHandler extends DragHandler {
     }
 
     getData(event: DragEvent): IDisposable {
+        const transfer = new PanelTransfer(this.accessor.id, this.group.id, this.panel.id);
+
+        // Set in local singleton (for same-window drops)
         this.panelTransfer.setData(
-            [new PanelTransfer(this.accessor.id, this.group.id, this.panel.id)],
+            [transfer],
             PanelTransfer.prototype
         );
+
+        // Also set in native dataTransfer (for cross-window drops)
+        if (event.dataTransfer) {
+            setNativePanelData(event.dataTransfer, transfer);
+        }
 
         return {
             dispose: () => {
@@ -54,6 +65,9 @@ export class Tab extends CompositeDisposable {
 
     private readonly _onPointDown = new Emitter<MouseEvent>();
     readonly onPointerDown: Event<MouseEvent> = this._onPointDown.event;
+
+    private readonly _onContextMenu = new Emitter<MouseEvent>();
+    readonly onContextMenu: Event<MouseEvent> = this._onContextMenu.event;
 
     private readonly _onDropped = new Emitter<DroptargetEvent>();
     readonly onDrop: Event<DroptargetEvent> = this._onDropped.event;
@@ -97,10 +111,21 @@ export class Tab extends CompositeDisposable {
                     return false;
                 }
 
-                const data = getPanelData();
+                // Check if this is a panel drag (same-window or cross-window)
+                // Use hasPanelData() since getData() is blocked during dragover
+                const hasData = hasPanelData(event.dataTransfer);
+                const localData = getPanelData();
+                const crossWindow = isCrossWindowDrag(event.dataTransfer);
 
-                if (data && this.accessor.id === data.viewId) {
-                    return true;
+                if (hasData) {
+                    // For same-window drags, check viewId matches
+                    if (localData && this.accessor.id === localData.viewId) {
+                        return true;
+                    }
+                    // For cross-window drags, accept
+                    if (crossWindow) {
+                        return true;
+                    }
                 }
 
                 return this.group.model.canDisplayOverlay(
@@ -116,6 +141,7 @@ export class Tab extends CompositeDisposable {
 
         this.addDisposables(
             this._onPointDown,
+            this._onContextMenu,
             this._onDropped,
             this._onDragStart,
             this.dragHandler.onDragStart((event) => {
@@ -141,6 +167,10 @@ export class Tab extends CompositeDisposable {
             this.dragHandler,
             addDisposableListener(this._element, 'pointerdown', (event) => {
                 this._onPointDown.fire(event);
+            }),
+            addDisposableListener(this._element, 'contextmenu', (event) => {
+                // console.log('[dockview/Tab] contextmenu event fired on tab element:', this.panel.id);
+                this._onContextMenu.fire(event);
             }),
             this.dropTarget.onDrop((event) => {
                 this._onDropped.fire(event);

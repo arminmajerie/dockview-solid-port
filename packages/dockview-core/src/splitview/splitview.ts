@@ -579,15 +579,24 @@ export class Splitview {
         }
 
         if (!skipLayout) {
-            this.relayout([index]);
-        }
+            const isInitialLayoutPending = this.size === 0;
 
-        if (
-            !skipLayout &&
-            typeof size !== 'number' &&
-            size.type === 'distribute'
-        ) {
-            this.distributeViewSizes();
+            if (isInitialLayoutPending) {
+                this._contentSize = this.viewItems.reduce(
+                    (r, i) => r + i.size,
+                    0
+                );
+                this.saveProportions();
+            } else {
+                this.relayout([index]);
+
+                if (
+                    typeof size !== 'number' &&
+                    size.type === 'distribute'
+                ) {
+                    this.distributeViewSizes();
+                }
+            }
         }
 
         this._onDidAddView.fire(view);

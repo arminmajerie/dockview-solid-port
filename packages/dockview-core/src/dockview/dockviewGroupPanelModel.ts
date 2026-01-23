@@ -1,5 +1,5 @@
 import { DockviewApi } from '../api/component.api';
-import { getPanelData, PanelTransfer } from '../dnd/dataTransfer';
+import { getPanelData, getPanelDataWithNativeFallback, isCrossWindowDrag, PanelTransfer } from '../dnd/dataTransfer';
 import { Position } from '../dnd/droptarget';
 import { DockviewComponent } from './dockviewComponent';
 import { isAncestor, toggleClass } from '../dom';
@@ -996,7 +996,7 @@ export class DockviewGroupPanelModel
             nativeEvent: event,
             position,
             panel,
-            getData: () => getPanelData(),
+            getData: () => getPanelDataWithNativeFallback(event.dataTransfer),
             kind: getKind(),
             group: this.groupPanel,
             api: this._api,
@@ -1008,7 +1008,26 @@ export class DockviewGroupPanelModel
             return;
         }
 
-        const data = getPanelData();
+        // Use native fallback for cross-window drag support
+        const data = getPanelDataWithNativeFallback(event.dataTransfer);
+        // Also get local data to detect cross-window vs same-window drags
+        const localData = getPanelData();
+
+        // For cross-window drags, fire onDidDrop and let application handle it
+        if (data && !localData) {
+            console.log('[DockviewGroupPanelModel] Cross-window drop detected, firing onDidDrop');
+            this._onDidDrop.fire(
+                new DockviewDidDropEvent({
+                    nativeEvent: event,
+                    position,
+                    panel,
+                    getData: () => getPanelDataWithNativeFallback(event.dataTransfer),
+                    group: this.groupPanel,
+                    api: this._api,
+                })
+            );
+            return;
+        }
 
         if (data && data.viewId === this.accessor.id) {
             if (type === 'content') {
@@ -1074,7 +1093,7 @@ export class DockviewGroupPanelModel
                     nativeEvent: event,
                     position,
                     panel,
-                    getData: () => getPanelData(),
+                    getData: () => getPanelDataWithNativeFallback(event.dataTransfer),
                     group: this.groupPanel,
                     api: this._api,
                 })

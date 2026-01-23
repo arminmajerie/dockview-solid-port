@@ -4,6 +4,7 @@ import {
     getPaneData,
     LocalSelectionTransfer,
     PaneTransfer,
+    setNativePaneData,
 } from '../dnd/dataTransfer';
 import { Droptarget, DroptargetEvent } from '../dnd/droptarget';
 import { Emitter, Event } from '../events';
@@ -83,11 +84,19 @@ export abstract class DraggablePaneviewPanel extends PaneviewPanel {
         this.header.draggable = true;
 
         this.handler = new (class PaneDragHandler extends DragHandler {
-            getData(): IDisposable {
+            getData(event: DragEvent): IDisposable {
+                const transfer = new PaneTransfer(accessorId, id);
+                
+                // Set in local singleton (for same-window drops)
                 LocalSelectionTransfer.getInstance().setData(
-                    [new PaneTransfer(accessorId, id)],
+                    [transfer],
                     PaneTransfer.prototype
                 );
+
+                // Also set in native dataTransfer (for cross-window drops)
+                if (event.dataTransfer) {
+                    setNativePaneData(event.dataTransfer, transfer);
+                }
 
                 return {
                     dispose: () => {

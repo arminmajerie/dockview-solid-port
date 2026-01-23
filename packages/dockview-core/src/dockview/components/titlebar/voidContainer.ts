@@ -1,4 +1,4 @@
-import { getPanelData } from '../../../dnd/dataTransfer';
+import { getPanelData, hasPanelData, isCrossWindowDrag } from '../../../dnd/dataTransfer';
 import {
     Droptarget,
     DroptargetEvent,
@@ -55,10 +55,21 @@ export class VoidContainer extends CompositeDisposable {
         this.dropTarget = new Droptarget(this._element, {
             acceptedTargetZones: ['center'],
             canDisplayOverlay: (event, position) => {
-                const data = getPanelData();
+                // Check if this is a panel drag (same-window or cross-window)
+                // Use hasPanelData() since getData() is blocked during dragover
+                const hasData = hasPanelData(event.dataTransfer);
+                const localData = getPanelData();
+                const crossWindow = isCrossWindowDrag(event.dataTransfer);
 
-                if (data && this.accessor.id === data.viewId) {
-                    return true;
+                if (hasData) {
+                    // For same-window drags, check viewId matches
+                    if (localData && this.accessor.id === localData.viewId) {
+                        return true;
+                    }
+                    // For cross-window drags, accept
+                    if (crossWindow) {
+                        return true;
+                    }
                 }
 
                 return group.model.canDisplayOverlay(

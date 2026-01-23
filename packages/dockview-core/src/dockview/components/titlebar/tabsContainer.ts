@@ -13,7 +13,7 @@ import { IDockviewPanel } from '../../dockviewPanel';
 import { DockviewComponent } from '../../dockviewComponent';
 import { WillShowOverlayLocationEvent } from '../../events';
 import { getPanelData } from '../../../dnd/dataTransfer';
-import { Tabs } from './tabs';
+import { Tabs, TabContextMenuEvent } from './tabs';
 import {
     createDropdownElementHandle,
     DropdownElement,
@@ -41,6 +41,7 @@ export interface ITabsContainer extends IDisposable {
     readonly onDrop: Event<TabDropIndexEvent>;
     readonly onTabDragStart: Event<TabDragEvent>;
     readonly onGroupDragStart: Event<GroupDragEvent>;
+    readonly onTabContextMenu: Event<TabContextMenuEvent>;
     readonly onWillShowOverlay: Event<WillShowOverlayLocationEvent>;
     hidden: boolean;
     delete(id: string): void;
@@ -84,6 +85,10 @@ export class TabsContainer
 
     get onTabDragStart(): Event<TabDragEvent> {
         return this.tabs.onTabDragStart;
+    }
+
+    get onTabContextMenu(): Event<TabContextMenuEvent> {
+        return this.tabs.onTabContextMenu;
     }
 
     private readonly _onGroupDragStart = new Emitter<GroupDragEvent>();

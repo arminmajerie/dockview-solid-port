@@ -77,7 +77,25 @@ export abstract class DragHandler extends CompositeDisposable {
                     }
                 }
             }),
-            addDisposableListener(this.el, 'dragend', () => {
+            addDisposableListener(this.el, 'dragend', (event: DragEvent) => {
+                // Check if dropped outside the window
+                const isOutsideWindow = 
+                    event.clientX <= 0 || 
+                    event.clientY <= 0 || 
+                    event.clientX >= window.innerWidth || 
+                    event.clientY >= window.innerHeight;
+                
+                if (isOutsideWindow) {
+                    console.log('[DragHandler] Panel dropped OUTSIDE the app window!', {
+                        clientX: event.clientX,
+                        clientY: event.clientY,
+                        screenX: event.screenX,
+                        screenY: event.screenY,
+                        windowWidth: window.innerWidth,
+                        windowHeight: window.innerHeight,
+                    });
+                }
+                
                 this.pointerEventsDisposable.dispose();
                 setTimeout(() => {
                     this.dataDisposable.dispose(); // allow the data to be read by other handlers before disposing

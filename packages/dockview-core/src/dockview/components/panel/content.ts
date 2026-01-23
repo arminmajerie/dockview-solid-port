@@ -9,7 +9,7 @@ import { IDockviewPanel } from '../../dockviewPanel';
 import { DockviewComponent } from '../../dockviewComponent';
 import { Droptarget } from '../../../dnd/droptarget';
 import { DockviewGroupPanelModel } from '../../dockviewGroupPanelModel';
-import { getPanelData } from '../../../dnd/dataTransfer';
+import { getPanelData, hasPanelData, isCrossWindowDrag } from '../../../dnd/dataTransfer';
 
 export interface IContentContainer extends IDisposable {
     readonly dropTarget: Droptarget;
@@ -73,18 +73,29 @@ export class ContentContainer
                     return false;
                 }
 
-                const data = getPanelData();
+                // Check if this is a panel drag (same-window or cross-window)
+                // Use hasPanelData() since getData() is blocked during dragover
+                const hasData = hasPanelData(event.dataTransfer);
+                const localData = getPanelData();
+                const crossWindow = isCrossWindowDrag(event.dataTransfer);
 
                 if (
-                    !data &&
+                    !hasData &&
                     event.shiftKey &&
                     this.group.location.type !== 'floating'
                 ) {
                     return false;
                 }
 
-                if (data && data.viewId === this.accessor.id) {
-                    return true;
+                if (hasData) {
+                    // For same-window drags, check viewId matches
+                    if (localData && localData.viewId === this.accessor.id) {
+                        return true;
+                    }
+                    // For cross-window drags, accept
+                    if (crossWindow) {
+                        return true;
+                    }
                 }
 
                 return this.group.canDisplayOverlay(event, position, 'content');

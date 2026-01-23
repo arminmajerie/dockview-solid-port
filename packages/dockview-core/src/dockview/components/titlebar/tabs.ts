@@ -18,6 +18,11 @@ import { DockviewPanel, IDockviewPanel } from '../../dockviewPanel';
 import { Tab } from '../tab/tab';
 import { TabDragEvent, TabDropIndexEvent } from './tabsContainer';
 
+export interface TabContextMenuEvent {
+    event: MouseEvent;
+    panel: IDockviewPanel;
+}
+
 export class Tabs extends CompositeDisposable {
     private readonly _element: HTMLElement;
     private readonly _tabsList: HTMLElement;
@@ -32,6 +37,9 @@ export class Tabs extends CompositeDisposable {
 
     private readonly _onDrop = new Emitter<TabDropIndexEvent>();
     readonly onDrop: Event<TabDropIndexEvent> = this._onDrop.event;
+
+    private readonly _onTabContextMenu = new Emitter<TabContextMenuEvent>();
+    readonly onTabContextMenu: Event<TabContextMenuEvent> = this._onTabContextMenu.event;
 
     private readonly _onWillShowOverlay =
         new Emitter<WillShowOverlayLocationEvent>();
@@ -182,6 +190,9 @@ export class Tabs extends CompositeDisposable {
         const disposable = new CompositeDisposable(
             tab.onDragStart((event) => {
                 this._onTabDragStart.fire({ nativeEvent: event, panel });
+            }),
+            tab.onContextMenu((event) => {
+                this._onTabContextMenu.fire({ event, panel });
             }),
             tab.onPointerDown((event) => {
                 if (event.defaultPrevented) {

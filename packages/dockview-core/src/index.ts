@@ -1,6 +1,16 @@
 export {
     getPaneData,
     getPanelData,
+    getPanelDataWithNativeFallback,
+    hasPanelData,
+    hasNativePanelData,
+    isCrossWindowDrag,
+    getNativePanelData,
+    getNativePaneData,
+    setNativePanelData,
+    setNativePaneData,
+    DOCKVIEW_PANEL_MIME_TYPE,
+    DOCKVIEW_PANE_MIME_TYPE,
     PaneTransfer,
     PanelTransfer,
 } from './dnd/dataTransfer';
@@ -51,6 +61,7 @@ export {
     TabDragEvent,
     GroupDragEvent,
 } from './dockview/components/titlebar/tabsContainer';
+export { TabContextMenuEvent } from './dockview/components/titlebar/tabs';
 export * from './dockview/types';
 export * from './dockview/dockviewGroupPanel';
 export {
@@ -142,3 +153,6 @@ export {
     createPaneview,
     createSplitview,
 } from './api/entryPoints';
+
+// External detach support
+export * from './dockview/externalDetach';
