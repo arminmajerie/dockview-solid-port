@@ -38,6 +38,10 @@
     "node": ">=18.0"
   },
   "scripts": {
+    "publish:dockview": "npm publish -w @arminmajerie/dockview --access public",
+    "publish:dockview-core": "npm publish -w @arminmajerie/dockview-core --access public",
+    "publish:dockview-solid": "npm publish -w @arminmajerie/dockview-solid --access public",
+
     "clean": "lerna run clean",
     "build": "lerna run build --stream",
     "build:ordered": "npm run build -w packages/dockview-core && npm run build -w packages/dockview && npm run build -w packages/dockview-solid",

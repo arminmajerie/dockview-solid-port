@@ -1,5 +1,5 @@
 // packages/dockview/src/splitview/splitview.tsx
-import { createEffect, onCleanup, onMount, type JSX } from "solid-js";
+import { createEffect, createSignal, onCleanup, onMount, type JSX } from "solid-js";
 import {
   createSplitview,
   SplitviewApi,
@@ -161,7 +161,8 @@ function createRatioPersistence(
 /* ---------- Component ---------- */
 
 export function SplitviewSolid(props: ISplitviewSolidProps) {
-  let hostEl: HTMLDivElement | undefined;
+  // Use a signal to track the host element reactively
+  const [hostEl, setHostEl] = createSignal<HTMLDivElement | undefined>(undefined);
   let api: SplitviewApi | undefined;
   let ro: ResizeObserver | undefined;
 
@@ -182,10 +183,11 @@ export function SplitviewSolid(props: ISplitviewSolidProps) {
   // Store cleanup function at component level
   let persistenceCleanup: (() => void) | undefined;
 
-  const persistence = createRatioPersistence(props, () => hostEl);
+  const persistence = createRatioPersistence(props, () => hostEl());
 
   const attachPersistenceHandlers = () => {
-    if (!persistence.shouldPersist() || !hostEl || !api) return;
+    const el = hostEl();
+    if (!persistence.shouldPersist() || !el || !api) return;
 
     // Track user mouse interactions
     const onMouseDown = () => {
@@ -202,7 +204,7 @@ export function SplitviewSolid(props: ISplitviewSolidProps) {
     };
 
     try {
-      hostEl.addEventListener('mousedown', onMouseDown, { passive: true });
+      el.addEventListener('mousedown', onMouseDown, { passive: true });
       window.addEventListener('mouseup', onMouseUp, { passive: true });
     } catch (e) {
       console.error('Splitview: Failed to attach mouse handlers', e);
@@ -219,17 +221,17 @@ export function SplitviewSolid(props: ISplitviewSolidProps) {
 
     if (ro) {
       // Enhance existing ResizeObserver callback
-      const originalCallback = ro;
       ro.disconnect();
       ro = new ResizeObserver((entries) => {
         // Original resize logic
-        if (api && hostEl) {
-          api.layout(hostEl.clientWidth, hostEl.clientHeight);
+        const currentEl = hostEl();
+        if (api && currentEl) {
+          api.layout(currentEl.clientWidth, currentEl.clientHeight);
         }
         // Persistence resize tracking
         onWrapResize();
       });
-      ro.observe(hostEl);
+      ro.observe(el);
     }
 
     // Observe first panel to detect ratio changes
@@ -245,15 +247,17 @@ export function SplitviewSolid(props: ISplitviewSolidProps) {
       if (!panels || panels.length === 0) return;
 
       firstPanelEl = panels[0]?.view?.element;
-      if (!firstPanelEl || !hostEl) return;
+      const currentEl = hostEl();
+      if (!firstPanelEl || !currentEl) return;
 
       panelRO = new ResizeObserver(() => {
         if (!saveEnabled || !wrapResizeSettled || !userAdjusting) return;
-        if (!hostEl || !firstPanelEl) return;
+        const el = hostEl();
+        if (!el || !firstPanelEl) return;
 
         const total = props.orientation === 'VERTICAL'
-          ? hostEl.clientHeight
-          : hostEl.clientWidth;
+          ? el.clientHeight
+          : el.clientWidth;
         const first = props.orientation === 'VERTICAL'
           ? firstPanelEl.clientHeight
           : firstPanelEl.clientWidth;
@@ -279,7 +283,7 @@ export function SplitviewSolid(props: ISplitviewSolidProps) {
 
     return () => {
       try {
-        hostEl?.removeEventListener('mousedown', onMouseDown);
+        el?.removeEventListener('mousedown', onMouseDown);
         window.removeEventListener('mouseup', onMouseUp);
         panelRO?.disconnect();
         if (adjustResetTimer) window.clearTimeout(adjustResetTimer);
@@ -290,8 +294,32 @@ export function SplitviewSolid(props: ISplitviewSolidProps) {
     };
   };
 
-  onMount(() => {
-    if (!hostEl) return;
+  // Track if we've initialized the splitview
+  let initialized = false;
+  let layoutScheduled = false;
+
+  // Helper to wait for element to have real dimensions
+  const waitForDimensions = (el: HTMLElement, callback: () => void, maxAttempts = 50) => {
+    let attempts = 0;
+    const check = () => {
+      attempts++;
+      if (el.clientWidth > 0 && el.clientHeight > 0) {
+        callback();
+      } else if (attempts < maxAttempts) {
+        requestAnimationFrame(check);
+      } else {
+        // Fallback: call anyway after max attempts (element might legitimately be 0 width)
+        callback();
+      }
+    };
+    requestAnimationFrame(check);
+  };
+
+  // Use createEffect to initialize when hostEl becomes available
+  createEffect(() => {
+    const el = hostEl();
+    if (!el || initialized) return;
+    initialized = true;
 
     const frameworkOptions: SplitviewFrameworkOptions = {
       createComponent: (options) =>
@@ -303,37 +331,38 @@ export function SplitviewSolid(props: ISplitviewSolidProps) {
         ),
     };
 
-    api = createSplitview(hostEl, {
+    api = createSplitview(el, {
       ...extractCoreOptions(props),
       ...frameworkOptions,
     });
 
-    // Ensure first layout when element has real size (double rAF)
-    requestAnimationFrame(() => {
+    // Wait for element to have real dimensions before first layout
+    waitForDimensions(el, () => {
+      const currentEl = hostEl();
+      if (!api || !currentEl) return;
+      
+      api.layout(currentEl.clientWidth, currentEl.clientHeight);
+
+      // Setup persistence after initial layout - store cleanup
+      persistenceCleanup = attachPersistenceHandlers();
+
+      // Enable saving only after layout stabilizes
       requestAnimationFrame(() => {
-        if (!api || !hostEl) return;
-        api.layout(hostEl.clientWidth, hostEl.clientHeight);
-
-        // Setup persistence after initial layout - store cleanup
-        persistenceCleanup = attachPersistenceHandlers();
-
-        // Enable saving only after layout stabilizes
         requestAnimationFrame(() => {
-          requestAnimationFrame(() => {
-            saveEnabled = true;
-          });
+          saveEnabled = true;
         });
-
-        props.onReady?.({ api });
       });
+
+      props.onReady?.({ api });
     });
 
     if (!props.disableAutoResizing && "ResizeObserver" in window) {
       ro = new ResizeObserver(() => {
-        if (!api || !hostEl) return;
-        api.layout(hostEl.clientWidth, hostEl.clientHeight);
+        const currentEl = hostEl();
+        if (!api || !currentEl) return;
+        api.layout(currentEl.clientWidth, currentEl.clientHeight);
       });
-      ro.observe(hostEl);
+      ro.observe(el);
     }
   });
 
@@ -366,7 +395,8 @@ export function SplitviewSolid(props: ISplitviewSolidProps) {
     if (Object.keys(changes).length > 0) {
       api.updateOptions(changes);
       prevOptions = { ...prevOptions, ...changes };
-      if (hostEl) api.layout(hostEl.clientWidth, hostEl.clientHeight);
+      const el = hostEl();
+      if (el) api.layout(el.clientWidth, el.clientHeight);
     }
   });
 
@@ -391,7 +421,7 @@ export function SplitviewSolid(props: ISplitviewSolidProps) {
 
   return (
     <div
-      ref={(el) => (hostEl = el)}
+      ref={setHostEl}
       class={hostClass()}
       style={props.style}
     >
