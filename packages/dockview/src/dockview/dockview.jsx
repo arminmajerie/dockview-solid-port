@@ -23,14 +23,12 @@ function extractCoreOptions(props) {
     return coreOptions;
 }
 export function DockviewSolid(props) {
-    console.log("[DockviewSolid] Rendered with props:", props);
     let domRef;
     let dockviewRef;
     const [portals, addPortal] = usePortalsLifecycle();
     let prevProps = {};
     createEffect(() => {
         const changes = {};
-        console.log("[DockviewSolid] Effect ran", props);
         PROPERTY_KEYS_DOCKVIEW.forEach((propKey) => {
             // Only assign keys that are valid DockviewOptions keys
             if (propKey in props) {

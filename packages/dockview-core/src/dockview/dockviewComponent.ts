@@ -625,7 +625,6 @@ export class DockviewComponent
                     const localData = getPanelData();
                     if (!localData) {
                         // Cross-window drag - fire onDidDrop and let application handle it
-                        // console.log('[DockviewComponent] Cross-window drop on edge, firing onDidDrop');
                         this._onDidDrop.fire(
                             new DockviewDidDropEvent({
                                 nativeEvent: event.nativeEvent,

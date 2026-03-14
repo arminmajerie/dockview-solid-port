@@ -294,22 +294,22 @@
                 }
 
                 &:hover {
-                    background-color: #e4e5e6 !important;
+                    background-color: var(--dv-tab-hover-background-color, #e4e5e6) !important;
                 }
             }
-            border-bottom: 1px solid rgba(128, 128, 128, 0.35);
+            border-bottom: 1px solid var(--dv-tabs-container-border-color, rgba(128, 128, 128, 0.35));
         }
 
         .dv-content-container {
-            background-color: #fcfcfc;
+            background-color: var(--dv-content-container-background-color, #fcfcfc);
         }
 
         &.dv-active-group {
-            border: 1px solid rgba(128, 128, 128, 0.35);
+            border: 1px solid var(--dv-active-group-border-color, rgba(128, 128, 128, 0.35));
         }
 
         &.dv-inactive-group {
-            border: 1px solid transparent;
+            border: 1px solid var(--dv-inactive-group-border-color, transparent);
         }
     }
 }
@@ -320,7 +320,7 @@
     @include dockview-design-handle-mixin();
 
     padding: 10px;
-    background-color: #ebeced;
+    background-color: var(--dv-background-color, #ebeced);
 
     //
     --dv-group-view-background-color: #ebeced;

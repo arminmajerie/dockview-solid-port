@@ -77,8 +77,8 @@ for (const depPackage of depPackages) {
     const dvCore = JSON.parse(fs.readFileSync(dockviewCorePath).toString());
     const dv = JSON.parse(fs.readFileSync(dockviewPath).toString());
 
-    console.log(`dockview-core version: ${dvCore.version}`);
-    console.log(
+    0&&console['log'](`dockview-core version: ${dvCore.version}`);
+    0&&console['log'](
         `${depPackage} version: ${dv.version} dockview-core dependency version: ${dv.dependencies['dockview-core']}`
     );
 }

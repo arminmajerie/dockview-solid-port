@@ -33,7 +33,8 @@ export class SolidHeaderActionsRendererPart implements IHeaderActionsRenderer {
     this._element = document.createElement('div');
     this._element.className = 'dv-solid-part';
     this._element.style.height = '100%';
-    this._element.style.width = '100%';
+    this._element.style.display = 'flex';
+    this._element.style.alignItems = 'center';
   }
 
   init(parameters: {

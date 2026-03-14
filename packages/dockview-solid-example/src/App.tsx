@@ -21,7 +21,6 @@ let resizeObserver: ResizeObserver | undefined;
 
 // Panel content component
 export function App() {
-  console.log("DockView Solid Example");
   let dockViewContainer: HTMLDivElement | undefined = undefined;
   let dockViewApi: DockviewApi | undefined;
 
@@ -365,7 +364,6 @@ export function App() {
 
   // Called when DockViewSolid is ready
   function handleReady(event: DockviewReadyEvent) {
-    console.log("Ready", event);
     dockViewApi = event.api;
     if (containerWidth() < 100 || containerHeight() < 100) {
       return;

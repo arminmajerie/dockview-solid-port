@@ -169,7 +169,6 @@ export class Tab extends CompositeDisposable {
                 this._onPointDown.fire(event);
             }),
             addDisposableListener(this._element, 'contextmenu', (event) => {
-                // console.log('[dockview/Tab] contextmenu event fired on tab element:', this.panel.id);
                 this._onContextMenu.fire(event);
             }),
             this.dropTarget.onDrop((event) => {

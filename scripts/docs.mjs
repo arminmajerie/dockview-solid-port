@@ -44,7 +44,7 @@ const SKIP_DOC = ['Event'];
  * #region generating Typedoc output
  */
 
-console.log('running docs');
+0&&console['log']('running docs');
 
 const forceBuild = true
 
@@ -52,10 +52,10 @@ if (forceBuild || !existsSync(TYPEDOC_OUTPUT_FILE)) {
     execSync(
         `typedoc --json ${TYPEDOC_OUTPUT_FILE}`,
         (error, stdout, stderr) => {
-            console.log('stdout: ' + stdout);
-            console.log('stderr: ' + stderr);
+            0&&console['log']('stdout: ' + stdout);
+            0&&console['log']('stderr: ' + stderr);
             if (error !== null) {
-                console.log('exec error: ' + error);
+                0&&console['log']('exec error: ' + error);
             }
         }
     );

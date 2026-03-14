@@ -239,7 +239,6 @@ export class ExternalDetachController {
                         serializedState: result.serializedState,
                     });
                     
-                    console.log(`[ExternalDetach] Panel '${meta.panelId}' detached successfully`);
                 } else {
                     console.warn(`[ExternalDetach] Detach rejected for panel '${meta.panelId}': ${result.error}`);
                 }
@@ -299,7 +298,6 @@ export class ExternalDetachController {
         // Remove from detached tracking
         this.detachedPanels.delete(panelId);
         
-        console.log(`[ExternalDetach] Panel '${panelId}' ready for reattach`);
         
         // The actual panel recreation should be handled by the host application
         // via the dockview API. This just cleans up tracking.

@@ -1015,7 +1015,6 @@ export class DockviewGroupPanelModel
 
         // For cross-window drags, fire onDidDrop and let application handle it
         if (data && !localData) {
-            console.log('[DockviewGroupPanelModel] Cross-window drop detected, firing onDidDrop');
             this._onDidDrop.fire(
                 new DockviewDidDropEvent({
                     nativeEvent: event,

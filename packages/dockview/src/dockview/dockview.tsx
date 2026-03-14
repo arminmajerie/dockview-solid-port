@@ -155,9 +155,23 @@ export function DockviewSolid(props: IDockviewSolidProps) {
     });
   });
 
+  // Track whether initial setup is complete to prevent effects from
+  // re-triggering updateOptions immediately after onReady (which causes
+  // re-layout that can blank out panels added during onReady).
+  let initialSetupComplete = false;
+
   // Prop updates
   createEffect(() => {
     const ref = dockviewRef();
+    if (!ref) return;
+
+    // Skip the first run — the factories were already set in start()
+    if (!initialSetupComplete) {
+      initialSetupComplete = true;
+      prevProps = { ...props };
+      return;
+    }
+
     const changes: Partial<DockviewOptions> = {};
 
     PROPERTY_KEYS_DOCKVIEW.forEach((propKey) => {
@@ -170,7 +184,7 @@ export function DockviewSolid(props: IDockviewSolidProps) {
       }
     });
 
-    if (ref && Object.keys(changes).length) {
+    if (Object.keys(changes).length) {
       ref.updateOptions(changes);
     }
     prevProps = { ...props };
@@ -196,14 +210,20 @@ export function DockviewSolid(props: IDockviewSolidProps) {
     onCleanup(() => disposable.dispose());
   });
 
-  // Helpers to update dynamic creators
+  // Helpers to update dynamic creators — skips the initial run since
+  // factories are already set during start() before onReady fires.
   const update = (
     _label: string,
     updater: (ref: DockviewApi) => Partial<DockviewComponentOptions>
   ) => {
+    let initialized = false;
     createEffect(() => {
       const ref = dockviewRef();
       if (!ref) return;
+      if (!initialized) {
+        initialized = true;
+        return;
+      }
       ref.updateOptions(updater(ref));
     });
   };

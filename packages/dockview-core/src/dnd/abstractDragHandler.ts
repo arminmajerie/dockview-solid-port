@@ -85,16 +85,7 @@ export abstract class DragHandler extends CompositeDisposable {
                     event.clientX >= window.innerWidth || 
                     event.clientY >= window.innerHeight;
                 
-                if (isOutsideWindow) {
-                    console.log('[DragHandler] Panel dropped OUTSIDE the app window!', {
-                        clientX: event.clientX,
-                        clientY: event.clientY,
-                        screenX: event.screenX,
-                        screenY: event.screenY,
-                        windowWidth: window.innerWidth,
-                        windowHeight: window.innerHeight,
-                    });
-                }
+
                 
                 this.pointerEventsDisposable.dispose();
                 setTimeout(() => {
