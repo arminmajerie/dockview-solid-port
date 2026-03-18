@@ -1,9 +1,18 @@
-import { toggleClass } from '../dom';
+import { addTestId, toggleClass } from '../dom';
 import { DockviewEvent, Emitter, Event } from '../events';
 import { CompositeDisposable } from '../lifecycle';
 import { DragAndDropObserver } from './dnd';
 import { clamp } from '../math';
 import { Direction } from '../gridview/baseComponentGridview';
+import {
+    DockviewDragInteraction,
+    DockviewDropTargetDescriptor,
+    DockviewDropZone,
+    DockviewDragSessionStore,
+    DockviewNativeDragEvent,
+    getDragCoordinates,
+    toDockviewDragInteraction,
+} from './dragSession';
 
 interface DropTargetRect {
     top: number;
@@ -18,36 +27,35 @@ function setGPUOptimizedBounds(element: HTMLElement, bounds: DropTargetRect): vo
     const leftPx = `${Math.round(left)}px`;
     const widthPx = `${Math.round(width)}px`;
     const heightPx = `${Math.round(height)}px`;
-    
-    // Use traditional positioning but maintain GPU layer
+
     element.style.top = topPx;
     element.style.left = leftPx;
     element.style.width = widthPx;
     element.style.height = heightPx;
     element.style.visibility = 'visible';
-    
-    // Ensure GPU layer is maintained
+
     if (!element.style.transform || element.style.transform === '') {
         element.style.transform = 'translate3d(0, 0, 0)';
     }
 }
 
-function setGPUOptimizedBoundsFromStrings(element: HTMLElement, bounds: {
-    top: string;
-    left: string;
-    width: string;
-    height: string;
-}): void {
+function setGPUOptimizedBoundsFromStrings(
+    element: HTMLElement,
+    bounds: {
+        top: string;
+        left: string;
+        width: string;
+        height: string;
+    }
+): void {
     const { top, left, width, height } = bounds;
-    
-    // Use traditional positioning but maintain GPU layer
+
     element.style.top = top;
     element.style.left = left;
     element.style.width = width;
     element.style.height = height;
     element.style.visibility = 'visible';
-    
-    // Ensure GPU layer is maintained
+
     if (!element.style.transform || element.style.transform === '') {
         element.style.transform = 'translate3d(0, 0, 0)';
     }
@@ -59,24 +67,26 @@ function checkBoundsChanged(element: HTMLElement, bounds: DropTargetRect): boole
     const leftPx = `${Math.round(left)}px`;
     const widthPx = `${Math.round(width)}px`;
     const heightPx = `${Math.round(height)}px`;
-    
-    // Check if position or size changed (back to traditional method)
-    return element.style.top !== topPx ||
-           element.style.left !== leftPx ||
-           element.style.width !== widthPx || 
-           element.style.height !== heightPx;
+
+    return (
+        element.style.top !== topPx ||
+        element.style.left !== leftPx ||
+        element.style.width !== widthPx ||
+        element.style.height !== heightPx
+    );
 }
 
 export interface DroptargetEvent {
     readonly position: Position;
-    readonly nativeEvent: DragEvent;
+    readonly nativeEvent: DockviewNativeDragEvent;
+    readonly descriptor: DockviewDropTargetDescriptor;
 }
 
 export class WillShowOverlayEvent
     extends DockviewEvent
     implements DroptargetEvent
 {
-    get nativeEvent(): DragEvent {
+    get nativeEvent(): DockviewNativeDragEvent {
         return this.options.nativeEvent;
     }
 
@@ -84,10 +94,15 @@ export class WillShowOverlayEvent
         return this.options.position;
     }
 
+    get descriptor(): DockviewDropTargetDescriptor {
+        return this.options.descriptor;
+    }
+
     constructor(
         private readonly options: {
-            nativeEvent: DragEvent;
+            nativeEvent: DockviewNativeDragEvent;
             position: Position;
+            descriptor: DockviewDropTargetDescriptor;
         }
     ) {
         super();
@@ -128,10 +143,10 @@ export function positionToDirection(position: Position): Direction {
     }
 }
 
-export type Position = 'top' | 'bottom' | 'left' | 'right' | 'center';
+export type Position = DockviewDropZone;
 
 export type CanDisplayOverlay = (
-    dragEvent: DragEvent,
+    dragEvent: DockviewDragInteraction,
     state: Position
 ) => boolean;
 
@@ -157,7 +172,7 @@ const SMALL_HEIGHT_BOUNDARY = 100;
 
 export interface DropTargetTargetModel {
     getElements(
-        event?: DragEvent,
+        event?: DockviewDragInteraction,
         outline?: HTMLElement
     ): {
         root: HTMLElement;
@@ -175,13 +190,22 @@ export interface DroptargetOptions {
     getOverrideTarget?: () => DropTargetTargetModel | undefined;
     className?: string;
     getOverlayOutline?: () => HTMLElement | null;
+    targetDescriptor?: Omit<DockviewDropTargetDescriptor, 'id'>;
+    dragSessionStore?: DockviewDragSessionStore;
 }
 
+let dropTargetCounter = 0;
+
 export class Droptarget extends CompositeDisposable {
+    private static readonly REGISTRY = new WeakMap<HTMLElement, Droptarget>();
+    private static readonly USED_EVENT_ID = '__dockview_droptarget_event_is_used__';
+    private static ACTUAL_TARGET: Droptarget | undefined;
+
     private targetElement: HTMLElement | undefined;
     private overlayElement: HTMLElement | undefined;
     private _state: Position | undefined;
     private _acceptedTargetZonesSet: Set<Position>;
+    private readonly descriptorValue: DockviewDropTargetDescriptor;
 
     private readonly _onDrop = new Emitter<DroptargetEvent>();
     readonly onDrop: Event<DroptargetEvent> = this._onDrop.event;
@@ -191,10 +215,6 @@ export class Droptarget extends CompositeDisposable {
         this._onWillShowOverlay.event;
 
     readonly dnd: DragAndDropObserver;
-
-    private static USED_EVENT_ID = '__dockview_droptarget_event_is_used__';
-
-    private static ACTUAL_TARGET: Droptarget | undefined;
 
     private _disabled: boolean;
 
@@ -210,170 +230,139 @@ export class Droptarget extends CompositeDisposable {
         return this._state;
     }
 
+    get element(): HTMLElement {
+        return this.elementRef;
+    }
+
+    get descriptor(): DockviewDropTargetDescriptor {
+        return this.descriptorValue;
+    }
+
     constructor(
-        private readonly element: HTMLElement,
+        private readonly elementRef: HTMLElement,
         private readonly options: DroptargetOptions
     ) {
         super();
 
         this._disabled = false;
+        this._acceptedTargetZonesSet = new Set(this.options.acceptedTargetZones);
+        this.descriptorValue = {
+            id: `dockview-drop-target-${dropTargetCounter++}`,
+            kind: this.options.targetDescriptor?.kind ?? 'generic',
+            groupId: this.options.targetDescriptor?.groupId,
+            panelId: this.options.targetDescriptor?.panelId,
+        };
 
-        // use a set to take advantage of #<set>.has
-        this._acceptedTargetZonesSet = new Set(
-            this.options.acceptedTargetZones
-        );
+        Droptarget.REGISTRY.set(this.elementRef, this);
 
-        this.dnd = new DragAndDropObserver(this.element, {
+        this.dnd = new DragAndDropObserver(this.elementRef, {
             onDragEnter: () => {
                 this.options.getOverrideTarget?.()?.getElements();
             },
             onDragOver: (e) => {
-                Droptarget.ACTUAL_TARGET = this;
-
-                const overrideTarget = this.options.getOverrideTarget?.();
-
-                if (this._acceptedTargetZonesSet.size === 0) {
-                    if (overrideTarget) {
-                        return;
-                    }
-                    this.removeDropTarget();
-                    return;
-                }
-
-                const target =
-                    this.options.getOverlayOutline?.() ?? this.element;
-
-                const width = target.offsetWidth;
-                const height = target.offsetHeight;
-
-                if (width === 0 || height === 0) {
-                    return; // avoid div!0
-                }
-
-                const rect = (
-                    e.currentTarget as HTMLElement
-                ).getBoundingClientRect();
-                const x = (e.clientX ?? 0) - rect.left;
-                const y = (e.clientY ?? 0) - rect.top;
-
-                const quadrant = this.calculateQuadrant(
-                    this._acceptedTargetZonesSet,
-                    x,
-                    y,
-                    width,
-                    height
-                );
-
-                /**
-                 * If the event has already been used by another DropTarget instance
-                 * then don't show a second drop target, only one target should be
-                 * active at any one time
-                 */
-                if (this.isAlreadyUsed(e) || quadrant === null) {
-                    // no drop target should be displayed
-                    this.removeDropTarget();
-                    return;
-                }
-
-                if (!this.options.canDisplayOverlay(e, quadrant)) {
-                    if (overrideTarget) {
-                        return;
-                    }
-                    this.removeDropTarget();
-                    return;
-                }
-
-                const willShowOverlayEvent = new WillShowOverlayEvent({
+                const interaction = toDockviewDragInteraction({
                     nativeEvent: e,
-                    position: quadrant,
+                    currentTarget: this.elementRef,
+                    backend: 'desktop',
+                    session:
+                        this.options.dragSessionStore?.value ?? {
+                            sessionId: null,
+                            backend: null,
+                            state: 'idle',
+                        },
                 });
 
-                /**
-                 * Provide an opportunity to prevent the overlay appearing and in turn
-                 * any dnd behaviours
-                 */
-                this._onWillShowOverlay.fire(willShowOverlayEvent);
-
-                if (willShowOverlayEvent.defaultPrevented) {
-                    this.removeDropTarget();
-                    return;
-                }
-
-                this.markAsUsed(e);
-
-                if (overrideTarget) {
-                    //
-                } else if (!this.targetElement) {
-                    this.targetElement = document.createElement('div');
-                    this.targetElement.className = 'dv-drop-target-dropzone';
-                    this.overlayElement = document.createElement('div');
-                    this.overlayElement.className = 'dv-drop-target-selection';
-                    this._state = 'center';
-                    this.targetElement.appendChild(this.overlayElement);
-
-                    target.classList.add('dv-drop-target');
-                    target.append(this.targetElement);
-
-                    // this.overlayElement.style.opacity = '0';
-
-                    // requestAnimationFrame(() => {
-                    //     if (this.overlayElement) {
-                    //         this.overlayElement.style.opacity = '';
-                    //     }
-                    // });
-                }
-
-                this.toggleClasses(quadrant, width, height);
-
-                this._state = quadrant;
+                this.handleExternalDragOver(interaction);
             },
             onDragLeave: () => {
-                const target = this.options.getOverrideTarget?.();
-
-                if (target) {
-                    return;
-                }
-
                 this.removeDropTarget();
             },
             onDragEnd: (e) => {
                 const target = this.options.getOverrideTarget?.();
 
-                if (target && Droptarget.ACTUAL_TARGET === this) {
-                    if (this._state) {
-                        // only stop the propagation of the event if we are dealing with it
-                        // which is only when the target has state
-                        e.stopPropagation();
-                        this._onDrop.fire({
-                            position: this._state,
-                            nativeEvent: e,
-                        });
-                    }
+                if (target && Droptarget.ACTUAL_TARGET === this && this._state) {
+                    const interaction = toDockviewDragInteraction({
+                        nativeEvent: e,
+                        currentTarget: this.elementRef,
+                        backend: 'desktop',
+                        session:
+                            this.options.dragSessionStore?.value ?? {
+                                sessionId: null,
+                                backend: null,
+                                state: 'idle',
+                            },
+                    });
+
+                    this.handleExternalDrop(interaction);
+                    return;
                 }
 
                 this.removeDropTarget();
-
                 target?.clear();
             },
             onDrop: (e) => {
-                e.preventDefault();
+                const interaction = toDockviewDragInteraction({
+                    nativeEvent: e,
+                    currentTarget: this.elementRef,
+                    backend: 'desktop',
+                    session:
+                        this.options.dragSessionStore?.value ?? {
+                            sessionId: null,
+                            backend: null,
+                            state: 'idle',
+                        },
+                });
 
-                const state = this._state;
-
-                this.removeDropTarget();
-
-                this.options.getOverrideTarget?.()?.clear();
-
-                if (state) {
-                    // only stop the propagation of the event if we are dealing with it
-                    // which is only when the target has state
-                    e.stopPropagation();
-                    this._onDrop.fire({ position: state, nativeEvent: e });
-                }
+                this.handleExternalDrop(interaction);
             },
         });
 
         this.addDisposables(this._onDrop, this._onWillShowOverlay, this.dnd);
+    }
+
+    static getActiveTarget(): Droptarget | undefined {
+        return Droptarget.ACTUAL_TARGET;
+    }
+
+    static clearActiveTarget(): void {
+        Droptarget.ACTUAL_TARGET?.removeDropTarget();
+    }
+
+    static findTargetsAtPoint(
+        clientX: number,
+        clientY: number,
+        root?: HTMLElement
+    ): Droptarget[] {
+        const ownerDocument = root?.ownerDocument ?? document;
+
+        if (typeof ownerDocument.elementFromPoint !== 'function') {
+            return [];
+        }
+
+        const hitElement = ownerDocument.elementFromPoint(clientX, clientY);
+
+        if (!(hitElement instanceof HTMLElement)) {
+            return [];
+        }
+
+        const targets: Droptarget[] = [];
+        let current: HTMLElement | null = hitElement;
+
+        while (current) {
+            const target = Droptarget.REGISTRY.get(current);
+
+            if (target) {
+                targets.push(target);
+            }
+
+            if (root && current === root) {
+                break;
+            }
+
+            current = current.parentElement;
+        }
+
+        return targets.reverse();
     }
 
     setTargetZones(acceptedTargetZones: Position[]): void {
@@ -384,24 +373,154 @@ export class Droptarget extends CompositeDisposable {
         this.options.overlayModel = model;
     }
 
+    handleExternalDragOver(input: DockviewDragInteraction): boolean {
+        return this.renderDropTarget(input) !== null;
+    }
+
+    handleExternalDrop(input: DockviewDragInteraction): boolean {
+        input.preventDefault();
+
+        const state = this._state;
+
+        this.removeDropTarget();
+        this.options.getOverrideTarget?.()?.clear();
+
+        if (!state) {
+            return false;
+        }
+
+        input.stopPropagation();
+
+        this.options.dragSessionStore?.markDropped({
+            coordinates: getDragCoordinates(input.nativeEvent),
+            nativeEvent: input.nativeEvent,
+            activeDropTarget: this.descriptorValue,
+            activeDropZone: state,
+        });
+
+        this._onDrop.fire({
+            position: state,
+            nativeEvent: input.nativeEvent,
+            descriptor: this.descriptorValue,
+        });
+
+        if (input.backend === 'desktop') {
+            this.options.dragSessionStore?.reset();
+        }
+
+        return true;
+    }
+
     dispose(): void {
         this.removeDropTarget();
+        Droptarget.REGISTRY.delete(this.elementRef);
         super.dispose();
     }
 
-    /**
-     * Add a property to the event object for other potential listeners to check
-     */
-    private markAsUsed(event: DragEvent): void {
-        (event as any)[Droptarget.USED_EVENT_ID] = true;
+    private markAsUsed(event: DockviewDragInteraction): void {
+        (event as unknown as Record<string, unknown>)[Droptarget.USED_EVENT_ID] =
+            true;
     }
 
-    /**
-     * Check is the event has already been used by another instance of DropTarget
-     */
-    private isAlreadyUsed(event: DragEvent): boolean {
-        const value = (event as any)[Droptarget.USED_EVENT_ID];
+    private isAlreadyUsed(event: DockviewDragInteraction): boolean {
+        const value = (
+            event as unknown as Record<string, unknown>
+        )[Droptarget.USED_EVENT_ID];
         return typeof value === 'boolean' && value;
+    }
+
+    private renderDropTarget(input: DockviewDragInteraction): Position | null {
+        if (this.disabled) {
+            this.removeDropTarget();
+            return null;
+        }
+
+        const overrideTarget = this.options.getOverrideTarget?.();
+
+        if (this._acceptedTargetZonesSet.size === 0) {
+            this.removeDropTarget();
+            return null;
+        }
+
+        const target = this.options.getOverlayOutline?.() ?? this.elementRef;
+        const width = target.offsetWidth;
+        const height = target.offsetHeight;
+
+        if (width === 0 || height === 0) {
+            this.removeDropTarget();
+            return null;
+        }
+
+        const rect = this.elementRef.getBoundingClientRect();
+        const x = input.clientX - rect.left;
+        const y = input.clientY - rect.top;
+
+        const quadrant = this.calculateQuadrant(
+            this._acceptedTargetZonesSet,
+            x,
+            y,
+            width,
+            height
+        );
+
+        if (this.isAlreadyUsed(input) || quadrant === null) {
+            this.removeDropTarget();
+            return null;
+        }
+
+        if (!this.options.canDisplayOverlay(input, quadrant)) {
+            this.removeDropTarget();
+            overrideTarget?.clear();
+            return null;
+        }
+
+        const willShowOverlayEvent = new WillShowOverlayEvent({
+            nativeEvent: input.nativeEvent,
+            position: quadrant,
+            descriptor: this.descriptorValue,
+        });
+
+        this._onWillShowOverlay.fire(willShowOverlayEvent);
+
+        if (willShowOverlayEvent.defaultPrevented) {
+            this.removeDropTarget();
+            overrideTarget?.clear();
+            return null;
+        }
+
+        this.markAsUsed(input);
+
+        if (Droptarget.ACTUAL_TARGET && Droptarget.ACTUAL_TARGET !== this) {
+            Droptarget.ACTUAL_TARGET.removeDropTarget();
+        }
+
+        Droptarget.ACTUAL_TARGET = this;
+
+        if (!overrideTarget && !this.targetElement) {
+            this.targetElement = document.createElement('div');
+            this.targetElement.className = 'dv-drop-target-dropzone';
+            this.overlayElement = document.createElement('div');
+            this.overlayElement.className = 'dv-drop-target-selection';
+            addTestId(this.overlayElement, 'dockview-drop-overlay');
+            this.targetElement.appendChild(this.overlayElement);
+            target.classList.add('dv-drop-target');
+            target.append(this.targetElement);
+        }
+
+        this.toggleClasses(quadrant, width, height);
+        this._state = quadrant;
+
+        this.options.dragSessionStore?.setActiveDropTarget(
+            this.descriptorValue,
+            quadrant,
+            {
+                clientX: input.clientX,
+                clientY: input.clientY,
+            },
+            input.nativeEvent
+        );
+
+        return quadrant;
     }
 
     private toggleClasses(
@@ -429,7 +548,6 @@ export class Droptarget extends CompositeDisposable {
         const bottomClass = !isSmallY && isBottom;
 
         let size = 1;
-
         const sizeOptions = this.options.overlayModel?.size ?? DEFAULT_SIZE;
 
         if (sizeOptions.type === 'percentage') {
@@ -445,13 +563,11 @@ export class Droptarget extends CompositeDisposable {
 
         if (target) {
             const outlineEl =
-                this.options.getOverlayOutline?.() ?? this.element;
+                this.options.getOverlayOutline?.() ?? this.elementRef;
             const elBox = outlineEl.getBoundingClientRect();
-
             const ta = target.getElements(undefined, outlineEl);
             const el = ta.root;
             const overlay = ta.overlay;
-
             const bigbox = el.getBoundingClientRect();
 
             const rootTop = elBox.top - bigbox.top;
@@ -460,8 +576,8 @@ export class Droptarget extends CompositeDisposable {
             const box = {
                 top: rootTop,
                 left: rootLeft,
-                width: width,
-                height: height,
+                width,
+                height,
             };
 
             if (rightClass) {
@@ -479,13 +595,14 @@ export class Droptarget extends CompositeDisposable {
             if (isSmallX && isLeft) {
                 box.width = 4;
             }
+
             if (isSmallX && isRight) {
                 box.left = rootLeft + width - 4;
                 box.width = 4;
             }
 
-            // Use GPU-optimized bounds checking and setting
             if (!checkBoundsChanged(overlay, box)) {
+                this.applyOverlayMetadata(overlay, quadrant);
                 return;
             }
 
@@ -495,15 +612,7 @@ export class Droptarget extends CompositeDisposable {
                 this.options.className ? ` ${this.options.className}` : ''
             }`;
 
-            toggleClass(overlay, 'dv-drop-target-left', isLeft);
-            toggleClass(overlay, 'dv-drop-target-right', isRight);
-            toggleClass(overlay, 'dv-drop-target-top', isTop);
-            toggleClass(overlay, 'dv-drop-target-bottom', isBottom);
-            toggleClass(
-                overlay,
-                'dv-drop-target-center',
-                quadrant === 'center'
-            );
+            this.applyOverlayClasses(overlay, quadrant, isSmallX, isSmallY);
 
             if (ta.changed) {
                 toggleClass(
@@ -520,6 +629,8 @@ export class Droptarget extends CompositeDisposable {
                 }, 10);
             }
 
+            this.applyOverlayMetadata(overlay, quadrant);
+
             return;
         }
 
@@ -529,25 +640,6 @@ export class Droptarget extends CompositeDisposable {
 
         const box = { top: '0px', left: '0px', width: '100%', height: '100%' };
 
-        /**
-         * You can also achieve the overlay placement using the transform CSS property
-         * to translate and scale the element however this has the undesired effect of
-         * 'skewing' the element. Comment left here for anybody that ever revisits this.
-         *
-         * @see https://developer.mozilla.org/en-US/docs/Web/CSS/transform
-         *
-         * right
-         * translateX(${100 * (1 - size) / 2}%) scaleX(${scale})
-         *
-         * left
-         * translateX(-${100 * (1 - size) / 2}%) scaleX(${scale})
-         *
-         * top
-         * translateY(-${100 * (1 - size) / 2}%) scaleY(${scale})
-         *
-         * bottom
-         * translateY(${100 * (1 - size) / 2}%) scaleY(${scale})
-         */
         if (rightClass) {
             box.left = `${100 * (1 - size)}%`;
             box.width = `${100 * size}%`;
@@ -561,26 +653,49 @@ export class Droptarget extends CompositeDisposable {
         }
 
         setGPUOptimizedBoundsFromStrings(this.overlayElement, box);
+        this.applyOverlayClasses(this.overlayElement, quadrant, isSmallX, isSmallY);
+        this.applyOverlayMetadata(this.overlayElement, quadrant);
+    }
 
-        toggleClass(
-            this.overlayElement,
-            'dv-drop-target-small-vertical',
-            isSmallY
-        );
-        toggleClass(
-            this.overlayElement,
-            'dv-drop-target-small-horizontal',
-            isSmallX
-        );
-        toggleClass(this.overlayElement, 'dv-drop-target-left', isLeft);
-        toggleClass(this.overlayElement, 'dv-drop-target-right', isRight);
-        toggleClass(this.overlayElement, 'dv-drop-target-top', isTop);
-        toggleClass(this.overlayElement, 'dv-drop-target-bottom', isBottom);
-        toggleClass(
-            this.overlayElement,
-            'dv-drop-target-center',
-            quadrant === 'center'
-        );
+    private applyOverlayClasses(
+        overlay: HTMLElement,
+        quadrant: Position,
+        isSmallX: boolean,
+        isSmallY: boolean
+    ): void {
+        const isLeft = quadrant === 'left';
+        const isRight = quadrant === 'right';
+        const isTop = quadrant === 'top';
+        const isBottom = quadrant === 'bottom';
+
+        toggleClass(overlay, 'dv-drop-target-small-vertical', isSmallY);
+        toggleClass(overlay, 'dv-drop-target-small-horizontal', isSmallX);
+        toggleClass(overlay, 'dv-drop-target-left', isLeft);
+        toggleClass(overlay, 'dv-drop-target-right', isRight);
+        toggleClass(overlay, 'dv-drop-target-top', isTop);
+        toggleClass(overlay, 'dv-drop-target-bottom', isBottom);
+        toggleClass(overlay, 'dv-drop-target-center', quadrant === 'center');
+    }
+
+    private applyOverlayMetadata(
+        overlay: HTMLElement,
+        quadrant: Position
+    ): void {
+        addTestId(overlay, 'dockview-drop-overlay');
+        overlay.dataset.dropZone = quadrant;
+        overlay.dataset.dropTargetKind = this.descriptorValue.kind;
+
+        if (this.descriptorValue.groupId) {
+            overlay.dataset.groupId = this.descriptorValue.groupId;
+        } else {
+            delete overlay.dataset.groupId;
+        }
+
+        if (typeof this.descriptorValue.panelId === 'string') {
+            overlay.dataset.panelId = this.descriptorValue.panelId;
+        } else {
+            delete overlay.dataset.panelId;
+        }
     }
 
     private calculateQuadrant(
@@ -594,9 +709,7 @@ export class Droptarget extends CompositeDisposable {
             this.options.overlayModel?.activationSize ??
             DEFAULT_ACTIVATION_SIZE;
 
-        const isPercentage = activationSizeOptions.type === 'percentage';
-
-        if (isPercentage) {
+        if (activationSizeOptions.type === 'percentage') {
             return calculateQuadrantAsPercentage(
                 overlayType,
                 x,
@@ -618,15 +731,23 @@ export class Droptarget extends CompositeDisposable {
     }
 
     private removeDropTarget(): void {
+        const activeTarget = Droptarget.ACTUAL_TARGET === this;
+
+        this._state = undefined;
+        this.options.getOverrideTarget?.()?.clear();
+
         if (this.targetElement) {
-            this._state = undefined;
-            this.targetElement.parentElement?.classList.remove(
-                'dv-drop-target'
-            );
+            this.targetElement.parentElement?.classList.remove('dv-drop-target');
             this.targetElement.remove();
             this.targetElement = undefined;
             this.overlayElement = undefined;
         }
+
+        if (activeTarget) {
+            Droptarget.ACTUAL_TARGET = undefined;
+        }
+
+        this.options.dragSessionStore?.clearActiveDropTarget(this.descriptorValue.id);
     }
 }
 

@@ -1,4 +1,10 @@
-import { getPanelData, hasPanelData, isCrossWindowDrag } from '../../../dnd/dataTransfer';
+import {
+    beginPanelTransfer,
+    getPanelData,
+    hasPanelData,
+    isCrossWindowDrag,
+    PanelTransfer,
+} from '../../../dnd/dataTransfer';
 import {
     Droptarget,
     DroptargetEvent,
@@ -10,7 +16,11 @@ import { addDisposableListener, Emitter, Event } from '../../../events';
 import { CompositeDisposable } from '../../../lifecycle';
 import { DockviewGroupPanel } from '../../dockviewGroupPanel';
 import { DockviewGroupPanelModel } from '../../dockviewGroupPanelModel';
-import { toggleClass } from '../../../dom';
+import { addTestId, toggleClass } from '../../../dom';
+import {
+    DockviewDragItemDescriptor,
+    DockviewNativeDragEvent,
+} from '../../../dnd/dragSession';
 
 export class VoidContainer extends CompositeDisposable {
     private readonly _element: HTMLElement;
@@ -20,7 +30,7 @@ export class VoidContainer extends CompositeDisposable {
     private readonly _onDrop = new Emitter<DroptargetEvent>();
     readonly onDrop: Event<DroptargetEvent> = this._onDrop.event;
 
-    private readonly _onDragStart = new Emitter<DragEvent>();
+    private readonly _onDragStart = new Emitter<DockviewNativeDragEvent>();
     readonly onDragStart = this._onDragStart.event;
 
     readonly onWillShowOverlay: Event<WillShowOverlayEvent>;
@@ -36,11 +46,16 @@ export class VoidContainer extends CompositeDisposable {
         super();
 
         this._element = document.createElement('div');
-
         this._element.className = 'dv-void-container';
         this._element.draggable = !this.accessor.options.disableDnd;
-        
-        toggleClass(this._element, 'dv-draggable', !this.accessor.options.disableDnd);
+        addTestId(this._element, 'dockview-group-handle');
+        this._element.dataset.groupId = this.group.id;
+
+        toggleClass(
+            this._element,
+            'dv-draggable',
+            !this.accessor.options.disableDnd
+        );
 
         this.addDisposables(
             this._onDrop,
@@ -50,23 +65,30 @@ export class VoidContainer extends CompositeDisposable {
             })
         );
 
-        this.handler = new GroupDragHandler(this._element, accessor, group, !!this.accessor.options.disableDnd);
+        this.handler = new GroupDragHandler(
+            this._element,
+            accessor,
+            group,
+            !!this.accessor.options.disableDnd
+        );
 
         this.dropTarget = new Droptarget(this._element, {
             acceptedTargetZones: ['center'],
+            dragSessionStore: this.accessor.dragSessionStore,
+            targetDescriptor: {
+                kind: 'header_space',
+                groupId: this.group.id,
+            },
             canDisplayOverlay: (event, position) => {
-                // Check if this is a panel drag (same-window or cross-window)
-                // Use hasPanelData() since getData() is blocked during dragover
                 const hasData = hasPanelData(event.dataTransfer);
                 const localData = getPanelData();
                 const crossWindow = isCrossWindowDrag(event.dataTransfer);
 
                 if (hasData) {
-                    // For same-window drags, check viewId matches
                     if (localData && this.accessor.id === localData.viewId) {
                         return true;
                     }
-                    // For cross-window drags, accept
+
                     if (crossWindow) {
                         return true;
                     }
@@ -86,7 +108,27 @@ export class VoidContainer extends CompositeDisposable {
         this.addDisposables(
             this.handler,
             this.handler.onDragStart((event) => {
+                this.accessor.beginNativeDragSession(
+                    this.getDragDescriptor(),
+                    event
+                );
                 this._onDragStart.fire(event);
+            }),
+            this.handler.onDragEnd((event) => {
+                this.accessor.completeNativeDragSession(event);
+            }),
+            this.accessor.touchDragManager.registerSource({
+                element: this._element,
+                disabled: () => !!this.accessor.options.disableDnd,
+                getDescriptor: () => this.getDragDescriptor(),
+                getGhostLabel: () => `Multiple Panels (${this.group.size})`,
+                onDragStart: (event) => {
+                    this._onDragStart.fire(event);
+
+                    return beginPanelTransfer(
+                        new PanelTransfer(this.accessor.id, this.group.id, null)
+                    );
+                },
             }),
             this.dropTarget.onDrop((event) => {
                 this._onDrop.fire(event);
@@ -97,7 +139,22 @@ export class VoidContainer extends CompositeDisposable {
 
     updateDragAndDropState(): void {
         this._element.draggable = !this.accessor.options.disableDnd;
-        toggleClass(this._element, 'dv-draggable', !this.accessor.options.disableDnd);
+        toggleClass(
+            this._element,
+            'dv-draggable',
+            !this.accessor.options.disableDnd
+        );
         this.handler.setDisabled(!!this.accessor.options.disableDnd);
+    }
+
+    private getDragDescriptor(): DockviewDragItemDescriptor {
+        return {
+            itemType: 'group',
+            sourceGroupId: this.group.id,
+            sourcePanelId: null,
+            sourceComponentId: this.accessor.id,
+            viewId: this.accessor.id,
+            label: `Multiple Panels (${this.group.size})`,
+        };
     }
 }

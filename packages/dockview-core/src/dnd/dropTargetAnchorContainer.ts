@@ -1,5 +1,6 @@
 import { CompositeDisposable, Disposable } from '../lifecycle';
 import { DropTargetTargetModel } from './droptarget';
+import { DockviewDragInteraction } from './dragSession';
 
 export class DropTargetAnchorContainer extends CompositeDisposable {
     private _model:
@@ -43,7 +44,10 @@ export class DropTargetAnchorContainer extends CompositeDisposable {
             exists: () => {
                 return !!this._model;
             },
-            getElements: (event?: DragEvent, outline?: HTMLElement) => {
+            getElements: (
+                event?: DockviewDragInteraction,
+                outline?: HTMLElement
+            ) => {
                 const changed = this._outline !== outline;
                 this._outline = outline;
 

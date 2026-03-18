@@ -3,6 +3,7 @@ import { Position } from '../dnd/droptarget';
 import { CreateComponentOptions } from '../dockview/options';
 import { AcceptableEvent, IAcceptableEvent } from '../events';
 import { IPanePart, IPaneviewPanel } from './paneviewPanel';
+import { DockviewNativeDragEvent } from '../dnd/dragSession';
 
 export interface PaneviewOptions {
     disableAutoResizing?: boolean;
@@ -35,7 +36,7 @@ export const PROPERTY_KEYS_PANEVIEW: (keyof PaneviewOptions)[] = (() => {
 })();
 
 export interface PaneviewDndOverlayEvent extends IAcceptableEvent {
-    nativeEvent: DragEvent;
+    nativeEvent: DockviewNativeDragEvent;
     position: Position;
     panel: IPaneviewPanel;
     getData: () => PaneTransfer | undefined;
@@ -46,7 +47,7 @@ export class PaneviewUnhandledDragOverEvent
     implements PaneviewDndOverlayEvent
 {
     constructor(
-        readonly nativeEvent: DragEvent,
+        readonly nativeEvent: DockviewNativeDragEvent,
         readonly position: Position,
         readonly getData: () => PaneTransfer | undefined,
         readonly panel: IPaneviewPanel

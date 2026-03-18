@@ -1,5 +1,6 @@
 import { getPanelData } from '../../../dnd/dataTransfer';
 import {
+    addTestId,
     isChildEntirelyVisibleWithinParent,
     OverflowObserver,
 } from '../../../dom';
@@ -106,6 +107,8 @@ export class Tabs extends CompositeDisposable {
 
         this._tabsList = document.createElement('div');
         this._tabsList.className = 'dv-tabs-container dv-horizontal';
+        addTestId(this._tabsList, 'dockview-tabs-list');
+        this._tabsList.dataset.groupId = this.group.id;
 
         this.showTabsOverflowControl = options.showTabsOverflowControl;
 

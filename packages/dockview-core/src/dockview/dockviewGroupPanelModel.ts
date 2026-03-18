@@ -1,8 +1,13 @@
 import { DockviewApi } from '../api/component.api';
-import { getPanelData, getPanelDataWithNativeFallback, isCrossWindowDrag, PanelTransfer } from '../dnd/dataTransfer';
+import {
+    getPanelData,
+    getPanelDataWithNativeFallback,
+    isCrossWindowDrag,
+    PanelTransfer,
+} from '../dnd/dataTransfer';
 import { Position } from '../dnd/droptarget';
 import { DockviewComponent } from './dockviewComponent';
-import { isAncestor, toggleClass } from '../dom';
+import { addTestId, isAncestor, toggleClass } from '../dom';
 import {
     addDisposableListener,
     DockviewEvent,
@@ -41,6 +46,11 @@ import { OverlayRenderContainer } from '../overlay/overlayRenderContainer';
 import { TitleEvent } from '../api/dockviewPanelApi';
 import { Contraints } from '../gridview/gridviewPanel';
 import { DropTargetAnchorContainer } from '../dnd/dropTargetAnchorContainer';
+import {
+    DockviewDragInteraction,
+    DockviewNativeDragEvent,
+    getDataTransferFromNativeEvent,
+} from '../dnd/dragSession';
 
 interface GroupMoveEvent {
     groupId: string;
@@ -75,7 +85,7 @@ export interface DockviewGroupChangeEvent {
 }
 
 export class DockviewDidDropEvent extends DockviewEvent {
-    get nativeEvent(): DragEvent {
+    get nativeEvent(): DockviewNativeDragEvent {
         return this.options.nativeEvent;
     }
 
@@ -97,7 +107,7 @@ export class DockviewDidDropEvent extends DockviewEvent {
 
     constructor(
         private readonly options: {
-            readonly nativeEvent: DragEvent;
+            readonly nativeEvent: DockviewNativeDragEvent;
             readonly position: Position;
             readonly panel?: IDockviewPanel;
             getData(): PanelTransfer | undefined;
@@ -121,7 +131,7 @@ export class DockviewWillDropEvent extends DockviewDidDropEvent {
     }
 
     constructor(options: {
-        readonly nativeEvent: DragEvent;
+        readonly nativeEvent: DockviewNativeDragEvent;
         readonly position: Position;
         readonly panel?: IDockviewPanel;
         getData(): PanelTransfer | undefined;
@@ -184,7 +194,7 @@ export interface IDockviewGroupPanelModel extends IPanel {
         suppressRoll?: boolean;
     }): void;
     canDisplayOverlay(
-        event: DragEvent,
+        event: DockviewDragInteraction,
         position: Position,
         target: DockviewGroupDropLocation
     ): boolean;
@@ -389,6 +399,8 @@ export class DockviewGroupPanelModel
         super();
 
         toggleClass(this.container, 'dv-groupview', true);
+        addTestId(this.container, 'dockview-group');
+        this.container.dataset.groupId = id;
 
         this._api = new DockviewApi(this.accessor);
 
@@ -953,12 +965,12 @@ export class DockviewGroupPanelModel
     }
 
     canDisplayOverlay(
-        event: DragEvent,
+        event: DockviewDragInteraction,
         position: Position,
         target: DockviewGroupDropLocation
     ): boolean {
         const firedEvent = new DockviewUnhandledDragOverEvent(
-            event,
+            event.nativeEvent,
             target,
             position,
             getPanelData,
@@ -972,7 +984,7 @@ export class DockviewGroupPanelModel
 
     private handleDropEvent(
         type: 'header' | 'content',
-        event: DragEvent,
+        event: DockviewNativeDragEvent,
         position: Position,
         index?: number
     ): void {
@@ -996,7 +1008,10 @@ export class DockviewGroupPanelModel
             nativeEvent: event,
             position,
             panel,
-            getData: () => getPanelDataWithNativeFallback(event.dataTransfer),
+            getData: () =>
+                getPanelDataWithNativeFallback(
+                    getDataTransferFromNativeEvent(event)
+                ),
             kind: getKind(),
             group: this.groupPanel,
             api: this._api,
@@ -1009,7 +1024,9 @@ export class DockviewGroupPanelModel
         }
 
         // Use native fallback for cross-window drag support
-        const data = getPanelDataWithNativeFallback(event.dataTransfer);
+        const data = getPanelDataWithNativeFallback(
+            getDataTransferFromNativeEvent(event)
+        );
         // Also get local data to detect cross-window vs same-window drags
         const localData = getPanelData();
 
@@ -1020,7 +1037,10 @@ export class DockviewGroupPanelModel
                     nativeEvent: event,
                     position,
                     panel,
-                    getData: () => getPanelDataWithNativeFallback(event.dataTransfer),
+                    getData: () =>
+                        getPanelDataWithNativeFallback(
+                            getDataTransferFromNativeEvent(event)
+                        ),
                     group: this.groupPanel,
                     api: this._api,
                 })
@@ -1092,7 +1112,10 @@ export class DockviewGroupPanelModel
                     nativeEvent: event,
                     position,
                     panel,
-                    getData: () => getPanelDataWithNativeFallback(event.dataTransfer),
+                    getData: () =>
+                        getPanelDataWithNativeFallback(
+                            getDataTransferFromNativeEvent(event)
+                        ),
                     group: this.groupPanel,
                     api: this._api,
                 })

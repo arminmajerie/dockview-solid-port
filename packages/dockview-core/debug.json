@@ -1,0 +1,111 @@
+{
+  "numFailedTestSuites": 0,
+  "numFailedTests": 0,
+  "numPassedTestSuites": 1,
+  "numPassedTests": 3,
+  "numPendingTestSuites": 0,
+  "numPendingTests": 0,
+  "numRuntimeErrorTestSuites": 0,
+  "numTodoTests": 0,
+  "numTotalTestSuites": 1,
+  "numTotalTests": 3,
+  "openHandles": [],
+  "snapshot": {
+    "added": 0,
+    "didUpdate": false,
+    "failure": false,
+    "filesAdded": 0,
+    "filesRemoved": 0,
+    "filesRemovedList": [],
+    "filesUnmatched": 0,
+    "filesUpdated": 0,
+    "matched": 0,
+    "total": 0,
+    "unchecked": 0,
+    "uncheckedKeysByFile": [],
+    "unmatched": 0,
+    "updated": 0
+  },
+  "startTime": 1773567285111,
+  "success": true,
+  "testResults": [
+    {
+      "leaks": false,
+      "numFailingTests": 0,
+      "numPassingTests": 3,
+      "numPendingTests": 0,
+      "numTodoTests": 0,
+      "openHandles": [],
+      "perfStats": {
+        "end": 1773567301073,
+        "runtime": 13873,
+        "slow": true,
+        "start": 1773567287200
+      },
+      "skipped": false,
+      "snapshot": {
+        "added": 0,
+        "fileDeleted": false,
+        "matched": 0,
+        "unchecked": 0,
+        "uncheckedKeys": [],
+        "unmatched": 0,
+        "updated": 0
+      },
+      "testFilePath": "D:\\Code\\IntegrationBuilder\\IntegrationBuilder\\dockview-solid-port\\packages\\dockview-core\\src\\__tests__\\integration\\dockviewTouch.integration.spec.ts",
+      "testResults": [
+        {
+          "ancestorTitles": [
+            "dockview touch drag integration"
+          ],
+          "duration": 114,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "dockview touch drag integration keeps normal tap activation and starts dragging only after a long press",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 4,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "keeps normal tap activation and starts dragging only after a long press"
+        },
+        {
+          "ancestorTitles": [
+            "dockview touch drag integration"
+          ],
+          "duration": 38,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "dockview touch drag integration moves a tab after long press, updates the shared session, and cleans up on drop",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 7,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "moves a tab after long press, updates the shared session, and cleans up on drop"
+        },
+        {
+          "ancestorTitles": [
+            "dockview touch drag integration"
+          ],
+          "duration": 30,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "dockview touch drag integration cancels cleanly on pointercancel and ignores quick swipe gestures",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 6,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "cancels cleanly on pointercancel and ignores quick swipe gestures"
+        }
+      ],
+      "displayName": {
+        "name": "dockview-core",
+        "color": "blue"
+      },
+      "failureMessage": null
+    }
+  ],
+  "wasInterrupted": false
+}

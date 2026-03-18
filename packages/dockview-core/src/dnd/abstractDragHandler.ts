@@ -13,11 +13,15 @@ export abstract class DragHandler extends CompositeDisposable {
     private readonly _onDragStart = new Emitter<DragEvent>();
     readonly onDragStart = this._onDragStart.event;
 
+    private readonly _onDragEnd = new Emitter<DragEvent>();
+    readonly onDragEnd = this._onDragEnd.event;
+
     constructor(protected readonly el: HTMLElement, private disabled?: boolean) {
         super();
 
         this.addDisposables(
             this._onDragStart,
+            this._onDragEnd,
             this.dataDisposable,
             this.pointerEventsDisposable
         );
@@ -78,16 +82,8 @@ export abstract class DragHandler extends CompositeDisposable {
                 }
             }),
             addDisposableListener(this.el, 'dragend', (event: DragEvent) => {
-                // Check if dropped outside the window
-                const isOutsideWindow = 
-                    event.clientX <= 0 || 
-                    event.clientY <= 0 || 
-                    event.clientX >= window.innerWidth || 
-                    event.clientY >= window.innerHeight;
-                
-
-                
                 this.pointerEventsDisposable.dispose();
+                this._onDragEnd.fire(event);
                 setTimeout(() => {
                     this.dataDisposable.dispose(); // allow the data to be read by other handlers before disposing
                 }, 0);

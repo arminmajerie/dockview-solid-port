@@ -4,7 +4,7 @@ import {
     MutableDisposable,
 } from '../../../lifecycle';
 import { Emitter, Event } from '../../../events';
-import { trackFocus } from '../../../dom';
+import { addTestId, trackFocus } from '../../../dom';
 import { IDockviewPanel } from '../../dockviewPanel';
 import { DockviewComponent } from '../../dockviewComponent';
 import { Droptarget } from '../../../dnd/droptarget';
@@ -52,6 +52,8 @@ export class ContentContainer
         this._element = document.createElement('div');
         this._element.className = 'dv-content-container';
         this._element.tabIndex = -1;
+        addTestId(this._element, 'dockview-group-content');
+        this._element.dataset.groupId = this.group.id;
 
         this.addDisposables(this._onDidFocus, this._onDidBlur);
 
@@ -64,6 +66,11 @@ export class ContentContainer
                     : null;
             },
             className: 'dv-drop-target-content',
+            dragSessionStore: this.accessor.dragSessionStore,
+            targetDescriptor: {
+                kind: 'content',
+                groupId: this.group.id,
+            },
             acceptedTargetZones: ['top', 'bottom', 'left', 'right', 'center'],
             canDisplayOverlay: (event, position) => {
                 if (

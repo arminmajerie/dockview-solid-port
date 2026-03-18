@@ -4,6 +4,7 @@ import { DockviewApi } from '../api/component.api';
 import { IDockviewPanel } from './dockviewPanel';
 import { DockviewGroupPanel } from './dockviewGroupPanel';
 import { IDockviewEvent } from '../events';
+import { DockviewNativeDragEvent } from '../dnd/dragSession';
 
 export type DockviewGroupDropLocation =
     | 'tab'
@@ -24,7 +25,7 @@ export class WillShowOverlayLocationEvent implements IDockviewEvent {
         return this.options.kind;
     }
 
-    get nativeEvent(): DragEvent {
+    get nativeEvent(): DockviewNativeDragEvent {
         return this.event.nativeEvent;
     }
 

@@ -68,3 +68,23 @@
         color: var(--dv-activegroup-visiblepanel-tab-color);
     }
 }
+
+.dv-touch-drag-ghost {
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    max-width: 260px;
+    padding: 6px 10px;
+    overflow: hidden;
+    border-radius: 999px;
+    background-color: var(
+        --dv-activegroup-visiblepanel-tab-background-color
+    );
+    color: var(--dv-activegroup-visiblepanel-tab-color);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    pointer-events: none;
+    transform: translate3d(-9999px, -9999px, 0);
+    z-index: calc(var(--dv-overlay-z-index, 999) + 10);
+}

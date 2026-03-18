@@ -28,6 +28,44 @@ export class PaneTransfer extends TransferObject {
 export const DOCKVIEW_PANEL_MIME_TYPE = 'application/x-dockview-panel';
 export const DOCKVIEW_PANE_MIME_TYPE = 'application/x-dockview-pane';
 
+export function beginPanelTransfer(
+    data: PanelTransfer,
+    dataTransfer?: DataTransfer | null
+): { dispose(): void } {
+    const panelTransfer = LocalSelectionTransfer.getInstance<PanelTransfer>();
+
+    panelTransfer.setData([data], PanelTransfer.prototype);
+
+    if (dataTransfer) {
+        setNativePanelData(dataTransfer, data);
+    }
+
+    return {
+        dispose: () => {
+            panelTransfer.clearData(PanelTransfer.prototype);
+        },
+    };
+}
+
+export function beginPaneTransfer(
+    data: PaneTransfer,
+    dataTransfer?: DataTransfer | null
+): { dispose(): void } {
+    const paneTransfer = LocalSelectionTransfer.getInstance<PaneTransfer>();
+
+    paneTransfer.setData([data], PaneTransfer.prototype);
+
+    if (dataTransfer) {
+        setNativePaneData(dataTransfer, data);
+    }
+
+    return {
+        dispose: () => {
+            paneTransfer.clearData(PaneTransfer.prototype);
+        },
+    };
+}
+
 /**
  * Set panel transfer data on native dataTransfer for cross-window drag support.
  * This stores the data in the native dataTransfer object so it can be read

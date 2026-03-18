@@ -60,6 +60,11 @@ import {
 } from '../paneview/options';
 import { SplitviewComponentOptions } from '../splitview/options';
 import { GridviewComponentOptions } from '../gridview/options';
+import {
+    DockviewInteractionMode,
+    DockviewLayoutMode,
+} from '../dockview/dockviewEnvironment';
+import { DockviewDragSessionSnapshot } from '../dnd/dragSession';
 
 export interface CommonApi<T = any> {
     readonly height: number;
@@ -632,6 +637,18 @@ export class DockviewApi implements CommonApi<SerializedDockview> {
         return this.component.totalPanels;
     }
 
+    get interactionMode(): DockviewInteractionMode {
+        return this.component.interactionMode;
+    }
+
+    get layoutMode(): DockviewLayoutMode {
+        return this.component.layoutMode;
+    }
+
+    get dragSession(): DockviewDragSessionSnapshot {
+        return this.component.dragSession;
+    }
+
     /**
      * Invoked when the active group changes. May be undefined if no group is active.
      */
@@ -752,6 +769,18 @@ export class DockviewApi implements CommonApi<SerializedDockview> {
 
     get onDidOpenPopoutWindowFail(): Event<void> {
         return this.component.onDidOpenPopoutWindowFail;
+    }
+
+    get onDidInteractionModeChange(): Event<DockviewInteractionMode> {
+        return this.component.onDidInteractionModeChange;
+    }
+
+    get onDidLayoutModeChange(): Event<DockviewLayoutMode> {
+        return this.component.onDidLayoutModeChange;
+    }
+
+    get onDidDragSessionChange(): Event<DockviewDragSessionSnapshot> {
+        return this.component.onDidDragSessionChange;
     }
 
     /**

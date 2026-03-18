@@ -13,7 +13,11 @@ export {
     DOCKVIEW_PANE_MIME_TYPE,
     PaneTransfer,
     PanelTransfer,
+    beginPaneTransfer,
+    beginPanelTransfer,
 } from './dnd/dataTransfer';
+export * from './dnd/dragSession';
+export * from './dockview/dockviewEnvironment';
 
 /**
  * Events, Emitters and Disposables are very common concepts that many codebases will contain, however we need

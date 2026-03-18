@@ -16,6 +16,7 @@ import { FloatingGroupOptions } from './dockviewComponent';
 import { Contraints } from '../gridview/gridviewPanel';
 import { AcceptableEvent, IAcceptableEvent } from '../events';
 import { DockviewTheme } from './theme';
+import { DockviewNativeDragEvent } from '../dnd/dragSession';
 
 export interface IHeaderActionsRenderer extends IDisposable {
     readonly element: HTMLElement;
@@ -77,7 +78,7 @@ export interface DockviewOptions {
 }
 
 export interface DockviewDndOverlayEvent extends IAcceptableEvent {
-    nativeEvent: DragEvent;
+    nativeEvent: DockviewNativeDragEvent;
     target: DockviewGroupDropLocation;
     position: Position;
     group?: DockviewGroupPanel;
@@ -89,7 +90,7 @@ export class DockviewUnhandledDragOverEvent
     implements DockviewDndOverlayEvent
 {
     constructor(
-        readonly nativeEvent: DragEvent,
+        readonly nativeEvent: DockviewNativeDragEvent,
         readonly target: DockviewGroupDropLocation,
         readonly position: Position,
         readonly getData: () => PanelTransfer | undefined,

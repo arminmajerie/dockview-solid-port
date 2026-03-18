@@ -1,14 +1,13 @@
 import { addDisposableListener, Emitter, Event } from '../../../events';
 import { CompositeDisposable, IDisposable } from '../../../lifecycle';
 import {
+    beginPanelTransfer,
     getPanelData,
     hasPanelData,
     isCrossWindowDrag,
-    LocalSelectionTransfer,
     PanelTransfer,
-    setNativePanelData,
 } from '../../../dnd/dataTransfer';
-import { toggleClass } from '../../../dom';
+import { addTestId, toggleClass } from '../../../dom';
 import { DockviewComponent } from '../../dockviewComponent';
 import { ITabRenderer } from '../../types';
 import { DockviewGroupPanel } from '../../dockviewGroupPanel';
@@ -20,11 +19,12 @@ import {
 import { DragHandler } from '../../../dnd/abstractDragHandler';
 import { IDockviewPanel } from '../../dockviewPanel';
 import { addGhostImage } from '../../../dnd/ghost';
+import {
+    DockviewDragItemDescriptor,
+    DockviewNativeDragEvent,
+} from '../../../dnd/dragSession';
 
 class TabDragHandler extends DragHandler {
-    private readonly panelTransfer =
-        LocalSelectionTransfer.getInstance<PanelTransfer>();
-
     constructor(
         element: HTMLElement,
         private readonly accessor: DockviewComponent,
@@ -36,24 +36,13 @@ class TabDragHandler extends DragHandler {
     }
 
     getData(event: DragEvent): IDisposable {
-        const transfer = new PanelTransfer(this.accessor.id, this.group.id, this.panel.id);
-
-        // Set in local singleton (for same-window drops)
-        this.panelTransfer.setData(
-            [transfer],
-            PanelTransfer.prototype
+        const transfer = new PanelTransfer(
+            this.accessor.id,
+            this.group.id,
+            this.panel.id
         );
 
-        // Also set in native dataTransfer (for cross-window drops)
-        if (event.dataTransfer) {
-            setNativePanelData(event.dataTransfer, transfer);
-        }
-
-        return {
-            dispose: () => {
-                this.panelTransfer.clearData(PanelTransfer.prototype);
-            },
-        };
+        return beginPanelTransfer(transfer, event.dataTransfer);
     }
 }
 
@@ -63,8 +52,8 @@ export class Tab extends CompositeDisposable {
     private content: ITabRenderer | undefined = undefined;
     private readonly dragHandler: TabDragHandler;
 
-    private readonly _onPointDown = new Emitter<MouseEvent>();
-    readonly onPointerDown: Event<MouseEvent> = this._onPointDown.event;
+    private readonly _onPointDown = new Emitter<PointerEvent>();
+    readonly onPointerDown: Event<PointerEvent> = this._onPointDown.event;
 
     private readonly _onContextMenu = new Emitter<MouseEvent>();
     readonly onContextMenu: Event<MouseEvent> = this._onContextMenu.event;
@@ -72,12 +61,12 @@ export class Tab extends CompositeDisposable {
     private readonly _onDropped = new Emitter<DroptargetEvent>();
     readonly onDrop: Event<DroptargetEvent> = this._onDropped.event;
 
-    private readonly _onDragStart = new Emitter<DragEvent>();
+    private readonly _onDragStart = new Emitter<DockviewNativeDragEvent>();
     readonly onDragStart = this._onDragStart.event;
 
     readonly onWillShowOverlay: Event<WillShowOverlayEvent>;
 
-    public get element(): HTMLElement {
+    get element(): HTMLElement {
         return this._element;
     }
 
@@ -92,6 +81,9 @@ export class Tab extends CompositeDisposable {
         this._element.className = 'dv-tab';
         this._element.tabIndex = 0;
         this._element.draggable = !this.accessor.options.disableDnd;
+        addTestId(this._element, 'dockview-tab');
+        this._element.dataset.groupId = this.group.id;
+        this._element.dataset.panelId = this.panel.id;
 
         toggleClass(this.element, 'dv-inactive-tab', true);
 
@@ -106,23 +98,26 @@ export class Tab extends CompositeDisposable {
         this.dropTarget = new Droptarget(this._element, {
             acceptedTargetZones: ['left', 'right'],
             overlayModel: { activationSize: { value: 50, type: 'percentage' } },
+            dragSessionStore: this.accessor.dragSessionStore,
+            targetDescriptor: {
+                kind: 'tab',
+                groupId: this.group.id,
+                panelId: this.panel.id,
+            },
             canDisplayOverlay: (event, position) => {
                 if (this.group.locked) {
                     return false;
                 }
 
-                // Check if this is a panel drag (same-window or cross-window)
-                // Use hasPanelData() since getData() is blocked during dragover
                 const hasData = hasPanelData(event.dataTransfer);
                 const localData = getPanelData();
                 const crossWindow = isCrossWindowDrag(event.dataTransfer);
 
                 if (hasData) {
-                    // For same-window drags, check viewId matches
                     if (localData && this.accessor.id === localData.viewId) {
                         return true;
                     }
-                    // For cross-window drags, accept
+
                     if (crossWindow) {
                         return true;
                     }
@@ -145,9 +140,15 @@ export class Tab extends CompositeDisposable {
             this._onDropped,
             this._onDragStart,
             this.dragHandler.onDragStart((event) => {
+                this.accessor.beginNativeDragSession(
+                    this.getDragDescriptor(),
+                    event
+                );
+
                 if (event.dataTransfer) {
                     const style = getComputedStyle(this.element);
                     const newNode = this.element.cloneNode(true) as HTMLElement;
+
                     Array.from(style).forEach((key) =>
                         newNode.style.setProperty(
                             key,
@@ -155,6 +156,7 @@ export class Tab extends CompositeDisposable {
                             style.getPropertyPriority(key)
                         )
                     );
+
                     newNode.style.position = 'absolute';
 
                     addGhostImage(event.dataTransfer, newNode, {
@@ -162,9 +164,33 @@ export class Tab extends CompositeDisposable {
                         x: 30,
                     });
                 }
+
                 this._onDragStart.fire(event);
             }),
+            this.dragHandler.onDragEnd((event) => {
+                this.accessor.completeNativeDragSession(event);
+            }),
             this.dragHandler,
+            this.accessor.touchDragManager.registerSource({
+                element: this._element,
+                disabled: () => !!this.accessor.options.disableDnd,
+                getDescriptor: () => this.getDragDescriptor(),
+                getGhostLabel: () => this.panel.title ?? this.panel.id,
+                onDragStart: (event) => {
+                    this._onDragStart.fire(event);
+
+                    return beginPanelTransfer(
+                        new PanelTransfer(
+                            this.accessor.id,
+                            this.group.id,
+                            this.panel.id
+                        )
+                    );
+                },
+                setDraggingState: (isDragging) => {
+                    toggleClass(this.element, 'dv-tab-dragging', isDragging);
+                },
+            }),
             addDisposableListener(this._element, 'pointerdown', (event) => {
                 this._onPointDown.fire(event);
             }),
@@ -178,25 +204,33 @@ export class Tab extends CompositeDisposable {
         );
     }
 
-    public setActive(isActive: boolean): void {
+    setActive(isActive: boolean): void {
         toggleClass(this.element, 'dv-active-tab', isActive);
         toggleClass(this.element, 'dv-inactive-tab', !isActive);
     }
 
-    public setContent(part: ITabRenderer): void {
+    setContent(part: ITabRenderer): void {
         if (this.content) {
             this._element.removeChild(this.content.element);
         }
+
         this.content = part;
         this._element.appendChild(this.content.element);
     }
 
-    public updateDragAndDropState(): void {
+    updateDragAndDropState(): void {
         this._element.draggable = !this.accessor.options.disableDnd;
         this.dragHandler.setDisabled(!!this.accessor.options.disableDnd);
     }
 
-    public dispose(): void {
-        super.dispose();
+    private getDragDescriptor(): DockviewDragItemDescriptor {
+        return {
+            itemType: 'tab',
+            sourceGroupId: this.group.id,
+            sourcePanelId: this.panel.id,
+            sourceComponentId: this.accessor.id,
+            viewId: this.accessor.id,
+            label: this.panel.title ?? this.panel.id,
+        };
     }
 }

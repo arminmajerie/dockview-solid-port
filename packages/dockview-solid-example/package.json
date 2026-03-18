@@ -5,21 +5,20 @@
   "type": "module",
   "license": "MIT",
   "devDependencies": {
-    "@tailwindcss/vite": "^4.0.8",
-    "tailwindcss": "^4.0.7",
     "typescript": "^5.7.2",
     "vite": "^6.0.0",
     "vite-plugin-solid": "^2.11.6",
     "solid-js": "^1.8.0"
   },
   "dependencies": {
-    "@arminmajerie/dockview-solid": "4.5.13",
+    "@arminmajerie/dockview-solid": "file:../dockview-solid",
     "@suid/icons-material": "^0.8.1",
     "@suid/material": "^0.18.0"
   },
   "scripts": {
-    "build": "rm -rf dist && vite build",
-    "server": "npm run build && vite preview",
+    "build": "vite build",
+    "dev": "vite --host 127.0.0.1 --port 4173",
+    "server": "vite preview --host 127.0.0.1 --port 4173",
     "rebuild": "npm run build"
   }
 }

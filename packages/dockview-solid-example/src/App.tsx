@@ -16,11 +16,19 @@ import {
 import { Orientation } from '@arminmajerie/dockview-solid';
 
 import CloseIcon from "@suid/icons-material/Close";
+import DockviewDndHarness from "./DndHarness";
 
 let resizeObserver: ResizeObserver | undefined;
 
 // Panel content component
 export function App() {
+  if (typeof window !== "undefined") {
+    const scenario = new URLSearchParams(window.location.search).get("scenario");
+    if (scenario === "dnd") {
+      return <DockviewDndHarness />;
+    }
+  }
+
   let dockViewContainer: HTMLDivElement | undefined = undefined;
   let dockViewApi: DockviewApi | undefined;
 

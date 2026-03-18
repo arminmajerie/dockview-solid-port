@@ -4,13 +4,10 @@ import { quasiPreventDefault } from '../dom';
 import { addDisposableListener } from '../events';
 import { IDisposable } from '../lifecycle';
 import { DragHandler } from './abstractDragHandler';
-import { LocalSelectionTransfer, PanelTransfer, setNativePanelData } from './dataTransfer';
+import { beginPanelTransfer, PanelTransfer } from './dataTransfer';
 import { addGhostImage } from './ghost';
 
 export class GroupDragHandler extends DragHandler {
-    private readonly panelTransfer =
-        LocalSelectionTransfer.getInstance<PanelTransfer>();
-
     constructor(
         element: HTMLElement,
         private readonly accessor: DockviewComponent,
@@ -49,17 +46,6 @@ export class GroupDragHandler extends DragHandler {
         const dataTransfer = dragEvent.dataTransfer;
         const transfer = new PanelTransfer(this.accessor.id, this.group.id, null);
 
-        // Set in local singleton (for same-window drops)
-        this.panelTransfer.setData(
-            [transfer],
-            PanelTransfer.prototype
-        );
-
-        // Also set in native dataTransfer (for cross-window drops)
-        if (dataTransfer) {
-            setNativePanelData(dataTransfer, transfer);
-        }
-
         const style = window.getComputedStyle(this.el);
 
         const bgColor = style.getPropertyValue(
@@ -87,10 +73,6 @@ export class GroupDragHandler extends DragHandler {
             addGhostImage(dataTransfer, ghostElement, { y: -10, x: 30 });
         }
 
-        return {
-            dispose: () => {
-                this.panelTransfer.clearData(PanelTransfer.prototype);
-            },
-        };
+        return beginPanelTransfer(transfer, dataTransfer);
     }
 }

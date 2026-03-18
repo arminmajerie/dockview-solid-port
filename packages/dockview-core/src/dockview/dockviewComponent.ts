@@ -81,6 +81,19 @@ import { StrictEventsSequencing } from './strictEventsSequencing';
 import { PopupService } from './components/popupService';
 import { DropTargetAnchorContainer } from '../dnd/dropTargetAnchorContainer';
 import { themeAbyss } from './theme';
+import {
+    DockviewDragItemDescriptor,
+    DockviewDragSessionSnapshot,
+    DockviewDragSessionStore,
+    getDataTransferFromNativeEvent,
+    getDragCoordinates,
+} from '../dnd/dragSession';
+import {
+    DockviewEnvironmentController,
+    DockviewInteractionMode,
+    DockviewLayoutMode,
+} from './dockviewEnvironment';
+import { DockviewTouchDragManager } from '../dnd/touchDragManager';
 
 const DEFAULT_ROOT_OVERLAY_MODEL: DroptargetOverlayModel = {
     activationSize: { type: 'pixels', value: 10 },
@@ -213,6 +226,9 @@ export interface IDockviewComponent extends IBaseGrid<DockviewGroupPanel> {
     readonly totalPanels: number;
     readonly panels: IDockviewPanel[];
     readonly orientation: Orientation;
+    readonly interactionMode: DockviewInteractionMode;
+    readonly layoutMode: DockviewLayoutMode;
+    readonly dragSession: DockviewDragSessionSnapshot;
     readonly onDidDrop: Event<DockviewDidDropEvent>;
     readonly onWillDrop: Event<DockviewWillDropEvent>;
     readonly onWillShowOverlay: Event<WillShowOverlayLocationEvent>;
@@ -231,6 +247,9 @@ export interface IDockviewComponent extends IBaseGrid<DockviewGroupPanel> {
     readonly onDidPopoutGroupSizeChange: Event<PopoutGroupChangeSizeEvent>;
     readonly onDidPopoutGroupPositionChange: Event<PopoutGroupChangePositionEvent>;
     readonly onDidOpenPopoutWindowFail: Event<void>;
+    readonly onDidInteractionModeChange: Event<DockviewInteractionMode>;
+    readonly onDidLayoutModeChange: Event<DockviewLayoutMode>;
+    readonly onDidDragSessionChange: Event<DockviewDragSessionSnapshot>;
     readonly options: DockviewComponentOptions;
     updateOptions(options: DockviewOptions): void;
     moveGroupOrPanel(options: MoveGroupOrPanelOptions): void;
@@ -283,6 +302,9 @@ export class DockviewComponent
     readonly overlayRenderContainer: OverlayRenderContainer;
     readonly popupService: PopupService;
     readonly rootDropTargetContainer: DropTargetAnchorContainer;
+    readonly dragSessionStore: DockviewDragSessionStore;
+    readonly environment: DockviewEnvironmentController;
+    readonly touchDragManager: DockviewTouchDragManager;
 
     private readonly _onWillDragPanel = new Emitter<TabDragEvent>();
     readonly onWillDragPanel: Event<TabDragEvent> = this._onWillDragPanel.event;
@@ -375,6 +397,18 @@ export class DockviewComponent
         return this.gridview.orientation;
     }
 
+    get interactionMode(): DockviewInteractionMode {
+        return this.environment.interactionMode;
+    }
+
+    get layoutMode(): DockviewLayoutMode {
+        return this.environment.layoutMode;
+    }
+
+    get dragSession(): DockviewDragSessionSnapshot {
+        return this.dragSessionStore.value;
+    }
+
     get totalPanels(): number {
         return this.panels.length;
     }
@@ -409,6 +443,18 @@ export class DockviewComponent
         return this._floatingGroups;
     }
 
+    get onDidInteractionModeChange(): Event<DockviewInteractionMode> {
+        return this.environment.onDidInteractionModeChange;
+    }
+
+    get onDidLayoutModeChange(): Event<DockviewLayoutMode> {
+        return this.environment.onDidLayoutModeChange;
+    }
+
+    get onDidDragSessionChange(): Event<DockviewDragSessionSnapshot> {
+        return this.dragSessionStore.onDidChange;
+    }
+
     /**
      * Promise that resolves when all popout groups from the last fromJSON call are restored.
      * Useful for tests that need to wait for delayed popout creation.
@@ -435,6 +481,17 @@ export class DockviewComponent
         this.popupService = new PopupService(this.element);
         this._themeClassnames = new Classnames(this.element);
         this._api = new DockviewApi(this);
+        this.dragSessionStore = new DockviewDragSessionStore();
+        this.environment = new DockviewEnvironmentController(this.element);
+        this.touchDragManager = new DockviewTouchDragManager(
+            this.element,
+            this.environment,
+            this.dragSessionStore
+        );
+
+        addTestId(this.element, 'dockview-root');
+        this.updateEnvironmentAttributes();
+        this.updateDragSessionAttributes(this.dragSession);
 
         this.rootDropTargetContainer = new DropTargetAnchorContainer(
             this.element,
@@ -447,6 +504,10 @@ export class DockviewComponent
 
         this._rootDropTarget = new Droptarget(this.element, {
             className: 'dv-drop-target-edge',
+            dragSessionStore: this.dragSessionStore,
+            targetDescriptor: {
+                kind: 'edge',
+            },
             canDisplayOverlay: (event, position) => {
                 // Check if this is a panel drag (same-window or cross-window)
                 // Use hasPanelData() since getData() is blocked during dragover
@@ -480,7 +541,7 @@ export class DockviewComponent
                 }
 
                 const firedEvent = new DockviewUnhandledDragOverEvent(
-                    event,
+                    event.nativeEvent,
                     'edge',
                     position,
                     getPanelData
@@ -509,6 +570,9 @@ export class DockviewComponent
         }
 
         this.addDisposables(
+            this.dragSessionStore,
+            this.environment,
+            this.touchDragManager,
             this.rootDropTargetContainer,
             this.overlayRenderContainer,
             this._onWillDragPanel,
@@ -530,6 +594,15 @@ export class DockviewComponent
             this._onDidPopoutGroupSizeChange,
             this._onDidPopoutGroupPositionChange,
             this._onDidOpenPopoutWindowFail,
+            this.environment.onDidInteractionModeChange(() => {
+                this.updateEnvironmentAttributes();
+            }),
+            this.environment.onDidLayoutModeChange(() => {
+                this.updateEnvironmentAttributes();
+            }),
+            this.dragSessionStore.onDidChange((event) => {
+                this.updateDragSessionAttributes(event);
+            }),
             this.onDidViewVisibilityChangeMicroTaskQueue(() => {
                 this.updateWatermark();
             }),
@@ -607,7 +680,10 @@ export class DockviewComponent
                     panel: undefined,
                     api: this._api,
                     group: undefined,
-                    getData: () => getPanelDataWithNativeFallback(event.nativeEvent.dataTransfer),
+                    getData: () =>
+                        getPanelDataWithNativeFallback(
+                            getDataTransferFromNativeEvent(event.nativeEvent)
+                        ),
                     kind: 'edge',
                 });
 
@@ -618,7 +694,9 @@ export class DockviewComponent
                 }
 
                 // Use native fallback for cross-window drag support
-                const data = getPanelDataWithNativeFallback(event.nativeEvent.dataTransfer);
+                const data = getPanelDataWithNativeFallback(
+                    getDataTransferFromNativeEvent(event.nativeEvent)
+                );
 
                 if (data) {
                     // Check if this is a cross-window drag (no LocalSelectionTransfer data)
@@ -632,7 +710,12 @@ export class DockviewComponent
                                 panel: undefined,
                                 api: this._api,
                                 group: undefined,
-                                getData: () => getPanelDataWithNativeFallback(event.nativeEvent.dataTransfer),
+                                getData: () =>
+                                    getPanelDataWithNativeFallback(
+                                        getDataTransferFromNativeEvent(
+                                            event.nativeEvent
+                                        )
+                                    ),
                             })
                         );
                         return;
@@ -663,6 +746,33 @@ export class DockviewComponent
             }),
             this._rootDropTarget
         );
+    }
+
+    beginNativeDragSession(
+        item: DockviewDragItemDescriptor,
+        event: DragEvent
+    ): void {
+        this.dragSessionStore.startDragging({
+            backend: 'desktop',
+            item,
+            coordinates: getDragCoordinates(event),
+            nativeEvent: event,
+        });
+    }
+
+    completeNativeDragSession(event: DragEvent): void {
+        if (this.dragSession.state === 'idle') {
+            return;
+        }
+
+        if (this.dragSession.state !== 'dropped') {
+            this.dragSessionStore.markCancelled({
+                coordinates: getDragCoordinates(event),
+                nativeEvent: event,
+            });
+        }
+
+        this.dragSessionStore.reset();
     }
 
     override setVisible(panel: DockviewGroupPanel, visible: boolean): void {
@@ -2809,6 +2919,36 @@ export class DockviewComponent
             default:
                 this.rootDropTargetContainer.disabled = true;
                 break;
+        }
+    }
+
+    private updateEnvironmentAttributes(): void {
+        this.element.dataset.interactionMode = this.interactionMode;
+        this.element.dataset.layoutMode = this.layoutMode;
+    }
+
+    private updateDragSessionAttributes(
+        session: DockviewDragSessionSnapshot
+    ): void {
+        this.element.dataset.dragState = session.state;
+
+        if (session.item?.itemType) {
+            this.element.dataset.dragItemType = session.item.itemType;
+        } else {
+            delete this.element.dataset.dragItemType;
+        }
+
+        if (session.activeDropZone) {
+            this.element.dataset.activeDropZone = session.activeDropZone;
+        } else {
+            delete this.element.dataset.activeDropZone;
+        }
+
+        if (session.activeDropTarget?.kind) {
+            this.element.dataset.activeDropTargetKind =
+                session.activeDropTarget.kind;
+        } else {
+            delete this.element.dataset.activeDropTargetKind;
         }
     }
 }

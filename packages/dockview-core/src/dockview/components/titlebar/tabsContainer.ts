@@ -18,19 +18,20 @@ import {
     createDropdownElementHandle,
     DropdownElement,
 } from './tabOverflowControl';
+import { DockviewNativeDragEvent } from '../../../dnd/dragSession';
 
 export interface TabDropIndexEvent {
-    readonly event: DragEvent;
+    readonly event: DockviewNativeDragEvent;
     readonly index: number;
 }
 
 export interface TabDragEvent {
-    readonly nativeEvent: DragEvent;
+    readonly nativeEvent: DockviewNativeDragEvent;
     readonly panel: IDockviewPanel;
 }
 
 export interface GroupDragEvent {
-    readonly nativeEvent: DragEvent;
+    readonly nativeEvent: DockviewNativeDragEvent;
     readonly group: DockviewGroupPanel;
 }
 

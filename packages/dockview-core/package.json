@@ -69,7 +69,9 @@
     "clean": "rimraf dist/ .build/ .rollup.cache/",
     "prepublishOnly": "npm run rebuild && npm run build:bundle && npm run test",
     "rebuild": "npm run clean && npm run build",
-    "test": "cross-env ../../node_modules/.bin/jest --selectProjects dockview-core",
-    "test:cov": "cross-env ../../node_modules/.bin/jest --selectProjects dockview-core --coverage"
+    "test": "jest --config ./jest.config.ts",
+    "test:unit": "jest --config ./jest.config.ts --testPathPattern=src/__tests__/unit",
+    "test:integration": "jest --config ./jest.config.ts --testPathPattern=src/__tests__/integration",
+    "test:cov": "jest --config ./jest.config.ts --coverage"
   }
 }
