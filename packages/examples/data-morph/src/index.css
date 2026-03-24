@@ -1,0 +1,235 @@
+@import 'tailwindcss';
+
+/* Monaco Editor codicon font */
+@font-face {
+  font-family: 'codicon';
+  src: url('/codicon.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+:root {
+  /* Dockview Splitview CSS vars — dark theme */
+  --dv-sash-color: #2a2d44;
+  --dv-active-sash-color: #6c5ce7;
+  --dv-separator-border: #1e2035;
+
+  /* Make hover feedback immediate. */
+  --dv-active-sash-transition-duration: 0.05s;
+  --dv-active-sash-transition-delay: 0s;
+}
+
+/*
+  Stable sash behavior (no flashing):
+  - DO NOT move/resize the actual .dv-sash element on hover (that causes rapid
+    enter/leave when the element shifts under the pointer).
+  - Instead, expand a transparent hit-area (::before) so "near" hover works.
+  - Draw the visible divider as a centered bar (::after) that thickens + turns neon.
+*/
+.dv-split-view-container .dv-sash-container .dv-sash {
+  background-color: transparent !important;
+}
+
+/* Vertical divider (left/right split) */
+.dv-split-view-container.dv-horizontal > .dv-sash-container > .dv-sash::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -10px;
+  right: -10px;
+  background: transparent;
+  pointer-events: auto;
+}
+.dv-split-view-container.dv-horizontal > .dv-sash-container > .dv-sash::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 2px;
+  transform: translateX(-50%);
+  background-color: var(--dv-sash-color);
+  transition: width 80ms ease, background-color 80ms ease;
+}
+.dv-split-view-container.dv-horizontal > .dv-sash-container > .dv-sash:not(.disabled):hover::after,
+.dv-split-view-container.dv-horizontal > .dv-sash-container > .dv-sash:not(.disabled):active::after {
+  width: 3px;
+  background-color: var(--dv-active-sash-color);
+}
+
+/* Horizontal divider (top/bottom split) */
+.dv-split-view-container.dv-vertical > .dv-sash-container > .dv-sash::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -10px;
+  bottom: -10px;
+  background: transparent;
+  pointer-events: auto;
+}
+.dv-split-view-container.dv-vertical > .dv-sash-container > .dv-sash::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 2px;
+  transform: translateY(-50%);
+  background-color: var(--dv-sash-color);
+  transition: height 80ms ease, background-color 80ms ease;
+}
+.dv-split-view-container.dv-vertical > .dv-sash-container > .dv-sash:not(.disabled):hover::after,
+.dv-split-view-container.dv-vertical > .dv-sash-container > .dv-sash:not(.disabled):active::after {
+  height: 3px;
+  background-color: var(--dv-active-sash-color);
+}
+
+html, body {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  overflow: hidden;
+  background-color: #0d0f1a;
+  color: #c8ccd8;
+}
+
+/* ── Dark theme overrides for dockview replit ── */
+.dockview-theme-replit {
+  --dv-group-view-background-color: #12141f;
+  --dv-tabs-and-actions-container-background-color: #161827;
+  --dv-activegroup-visiblepanel-tab-background-color: #1e2035;
+  --dv-activegroup-hiddenpanel-tab-background-color: #161827;
+  --dv-inactivegroup-visiblepanel-tab-background-color: #1a1c2e;
+  --dv-inactivegroup-hiddenpanel-tab-background-color: #161827;
+  --dv-activegroup-visiblepanel-tab-color: #e0e3ef;
+  --dv-activegroup-hiddenpanel-tab-color: #7a7f96;
+  --dv-inactivegroup-visiblepanel-tab-color: #b0b4c4;
+  --dv-inactivegroup-hiddenpanel-tab-color: #7a7f96;
+  --dv-tab-divider-color: transparent;
+  --dv-separator-border: transparent;
+  --dv-sash-color: #2a2d44;
+  --dv-active-sash-color: #6c5ce7;
+  --dv-drag-over-background-color: rgba(108, 92, 231, 0.25);
+  --dv-drag-over-border-color: #6c5ce7;
+  --dv-icon-hover-background-color: rgba(108, 92, 231, 0.2);
+  background-color: #0d0f1a !important;
+  padding: 4px !important;
+}
+
+/* Dark content area */
+.dockview-theme-replit .dv-groupview .dv-content-container {
+  background-color: #12141f !important;
+}
+
+/* Dark tab bar bottom border */
+.dockview-theme-replit .dv-groupview .dv-tabs-and-actions-container {
+  border-bottom: 1px solid #2a2d44 !important;
+}
+
+/* Active group border — subtle purple */
+.dockview-theme-replit .dv-groupview.dv-active-group {
+  border: 1px solid #2a2d44 !important;
+}
+.dockview-theme-replit .dv-groupview.dv-inactive-group {
+  border: 1px solid transparent !important;
+}
+
+/* Tab hover — slightly lighter */
+.dockview-theme-replit .dv-groupview .dv-tab:hover {
+  background-color: #252742 !important;
+}
+
+.dockview-theme-replit,
+.dockview-theme-replit .dockview-root,
+.dockview-theme-replit .dv-panel,
+.dockview-theme-replit .dv-content-container {
+  border-radius: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+  border-width: 0 !important;
+}
+
+
+
+.textareaName {
+  overflow: hidden;
+  resize: none;
+  padding-left: 0.2ch;
+  text-align: left;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  letter-spacing: 0.2px;
+}
+
+.textareaName:focus,
+.textareaName:focus-visible,
+.textareaName:active {
+  border-color: transparent;
+  outline: none;
+  box-shadow: none;
+}
+
+.topHeaderCollapsedTray::-webkit-scrollbar {
+  height: 4px;
+}
+
+.topHeaderCollapsedTray::-webkit-scrollbar-thumb {
+  background: rgba(122, 127, 150, 0.45);
+  border-radius: 999px;
+}
+
+@media (max-width: 720px) {
+  .topHeaderRoot {
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+    gap: 8px !important;
+  }
+
+  .topHeaderBrand {
+    font-size: 13px;
+  }
+
+  .topHeaderActionLabel,
+  .topHeaderDivider {
+    display: none !important;
+  }
+}
+
+/* Monaco autocomplete/suggest widget - ensure it's on top of dockview panels */
+/* Using max 32-bit signed int z-index (same as FieldTooltip) for absolute topmost rendering */
+.monaco-editor .suggest-widget {
+  z-index: 2147483647 !important;
+}
+
+.monaco-editor .editor-widget {
+  z-index: 2147483647 !important;
+}
+
+.monaco-editor .monaco-hover {
+  z-index: 2147483647 !important;
+}
+
+/* Fix suggest widget layout - Monaco uses justify-content: space-between which pushes
+   the detail/signature to the far right. We want everything left-aligned together. */
+.monaco-editor .suggest-widget .monaco-list .monaco-list-row > .contents > .main {
+  justify-content: flex-start !important;
+}
+
+/* Add a small gap between the label (left) and the detail (right) */
+.monaco-editor .suggest-widget .monaco-list .monaco-list-row > .contents > .main > .right {
+  margin-left: 2ch !important;
+}
+
+.monaco-editor .suggest-widget .monaco-list .monaco-list-row>.contents>.main {
+  display: flex;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: pre;
+  justify-content: flex-start;
+}

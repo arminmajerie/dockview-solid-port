@@ -141,7 +141,7 @@ test.describe('touch drag', () => {
     deviceScaleFactor: iPadProfile.deviceScaleFactor,
     isMobile: iPadProfile.isMobile,
     hasTouch: iPadProfile.hasTouch,
-    colorScheme: iPadProfile.colorScheme,
+    colorScheme: 'light',
   });
 
   test('long-press drag moves a tab and keeps touch/full mode separate', async ({
@@ -179,6 +179,42 @@ test.describe('touch drag', () => {
       0
     );
     await expect(page.locator('[data-testid="dockview-drop-overlay"]')).toHaveCount(
+      0
+    );
+    await expect(
+      page.locator('[data-testid="dockview-root"]')
+    ).toHaveAttribute('data-drag-state', 'idle');
+  });
+
+  test('long-press drag can drop onto another tab to reorder in touch/full mode', async ({
+    page,
+  }) => {
+    await page.goto('/?scenario=dnd');
+
+    const initialLayout = await waitForLayoutState(page);
+    const alphaGroupId =
+      initialLayout.groups.find((group) => group.panels.includes('alpha'))?.id ??
+      '';
+
+    expect(alphaGroupId).not.toBe('');
+
+    await dispatchTouchDrag(
+      page,
+      '[data-testid="dockview-tab"][data-panel-id="gamma"]',
+      '[data-testid="dockview-tab"][data-panel-id="alpha"]'
+    );
+
+    await expect
+      .poll(async () => {
+        const nextLayout = await readJsonState<LayoutState>(page, 'layout-state');
+        return nextLayout.groups.find((group) => group.id === alphaGroupId)?.panels;
+      })
+      .toEqual(['gamma', 'alpha', 'beta']);
+
+    await expect(page.locator('[data-testid="dockview-drop-overlay"]')).toHaveCount(
+      0
+    );
+    await expect(page.locator('[data-testid="dockview-drag-ghost"]')).toHaveCount(
       0
     );
     await expect(
@@ -233,7 +269,7 @@ test.describe('compact touch drag', () => {
     deviceScaleFactor: iPhoneProfile.deviceScaleFactor,
     isMobile: iPhoneProfile.isMobile,
     hasTouch: iPhoneProfile.hasTouch,
-    colorScheme: iPhoneProfile.colorScheme,
+    colorScheme: 'light',
   });
 
   test('long-press drag works in touch/compact mode on a phone-sized viewport', async ({
@@ -291,6 +327,42 @@ test.describe('compact touch drag', () => {
       0
     );
     await expect(page.locator('[data-testid="dockview-drop-overlay"]')).toHaveCount(
+      0
+    );
+    await expect(
+      page.locator('[data-testid="dockview-root"]')
+    ).toHaveAttribute('data-drag-state', 'idle');
+  });
+
+  test('long-press drag can drop onto another tab in touch/compact mode', async ({
+    page,
+  }) => {
+    await page.goto('/?scenario=dnd');
+
+    const initialLayout = await waitForLayoutState(page);
+    const alphaGroupId =
+      initialLayout.groups.find((group) => group.panels.includes('alpha'))?.id ??
+      '';
+
+    expect(alphaGroupId).not.toBe('');
+
+    await dispatchTouchDrag(
+      page,
+      '[data-testid="dockview-tab"][data-panel-id="gamma"]',
+      '[data-testid="dockview-tab"][data-panel-id="alpha"]'
+    );
+
+    await expect
+      .poll(async () => {
+        const nextLayout = await readJsonState<LayoutState>(page, 'layout-state');
+        return nextLayout.groups.find((group) => group.id === alphaGroupId)?.panels;
+      })
+      .toEqual(['gamma', 'alpha', 'beta']);
+
+    await expect(page.locator('[data-testid="dockview-drop-overlay"]')).toHaveCount(
+      0
+    );
+    await expect(page.locator('[data-testid="dockview-drag-ghost"]')).toHaveCount(
       0
     );
     await expect(

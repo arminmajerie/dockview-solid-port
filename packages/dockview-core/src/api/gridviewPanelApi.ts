@@ -58,7 +58,7 @@ export class GridviewPanelApiImpl
         }
     }
 
-    public setConstraints(value: GridConstraintChangeEvent): void {
+    public setConstraints(value: GridConstraintChangeEvent2): void {
         this._onDidConstraintsChangeInternal.fire(value);
     }
 

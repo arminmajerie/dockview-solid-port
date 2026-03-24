@@ -16,44 +16,48 @@
     "packages/dockview",
     "packages/dockview-solid",
     "packages/dockview-core",
-    "dockview-solid-example"
+    "packages/examples/simple-example",
+    "packages/examples/data-morph"
   ],
   "devDependencies": {
     "@playwright/test": "^1.53.2",
-    "@types/jest": "^29.5.14",
+    "@types/jest": "^30.0.0",
     "cross-env": "^7.0.3",
     "eslint": "^9.39.1",
     "gulp": "^5.0.1",
-    "jest": "^29.7.0",
-    "jest-environment-jsdom": "^29.7.0",
+    "jest": "^30.3.0",
+    "jest-environment-jsdom": "^30.3.0",
     "jest-sonar-reporter": "^2.0.0",
     "gulp-sass": "^6.0.1",
-    "lerna": "^8.2.1",
+    "lerna": "^9.0.7",
     "rimraf": "^5.0.5",
     "sass": "^1.93.2",
-    "solid-js": "^1.8.0",
+    "solid-js": "^1.9.11",
     "ts-jest": "^29.2.5",
     "ts-node": "^10.9.2",
     "tsup": "^8.5.0",
     "typedoc": "^0.28",
     "typescript": "^5.3.3",
-    "vite": "^5.1.5",
-    "vite-plugin-solid": "^2.11.8"
+    "vite": "^6.4.1",
+    "vite-plugin-solid": "^2.11.11"
   },
   "engines": {
     "node": ">=18.0"
   },
   "scripts": {
-    "publish:dockview": "npm publish -w @arminmajerie/dockview --access public",
     "publish:dockview-core": "npm publish -w @arminmajerie/dockview-core --access public",
-    "publish:dockview-solid": "npm publish -w @arminmajerie/dockview-solid --access public",
+    "publish:dockview": "npm run build -w packages/dockview-core && npm publish -w @arminmajerie/dockview --access public",
+    "publish:dockview-solid": "npm run build -w packages/dockview-core && npm run build -w packages/dockview && npm publish -w @arminmajerie/dockview-solid --access public",
+    "publish:ordered": "npm run publish:dockview-core && npm run publish:dockview && npm run publish:dockview-solid",
 
-    "clean": "lerna run clean",
-    "build": "lerna run build --stream",
-    "build:ordered": "npm run build -w packages/dockview-core && npm run build -w packages/dockview && npm run build -w packages/dockview-solid",
-    "build:example": "npm --prefix packages/dockview-solid-example run build",
+    "clean": "npm -ws run clean --if-present",
+    "build": "npm -ws run build --if-present",
+    "build:ordered": "npm run build -w packages/dockview-core && npm run build -w packages/dockview && npm run build -w packages/dockview-solid && npm run build:example && npm run build:example:data-morph",
+    "build:example": "npm --prefix packages/examples/simple-example run build",
+    "build:example:data-morph": "npm --prefix packages/examples/data-morph run build",
     "dev": "lerna run dev --stream",
-    "dev:example": "npm --prefix packages/dockview-solid-example run dev",
+    "dev:example": "npm --prefix packages/examples/simple-example run dev",
+    "dev:example:data-morph": "npm --prefix packages/examples/data-morph run dev",
     "lint": "eslint 'packages/*/src/**/*.{ts,tsx,js,jsx}'",
     "lint:fix": "eslint 'packages/*/src/**/*.{ts,tsx,js,jsx}' --fix",
     "docs": "typedoc && node scripts/docs.mjs",
@@ -63,6 +67,7 @@
     "test:e2e": "playwright test",
     "test:e2e:headed": "playwright test --headed",
     "version": "lerna version",
-    "example": "cd packages/dockview-solid-example && npm run server"
+    "example": "cd packages/examples/simple-example && npm run server",
+    "example:data-morph": "cd packages/examples/data-morph && npm run server"
   }
 }

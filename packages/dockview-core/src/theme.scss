@@ -1,6 +1,6 @@
-@import 'theme/_sash-handle-mixin';
-@import 'theme/_drop-target-static-mixin';
-@import 'theme/_space-mixin';
+@use 'theme/sash-handle-mixin' as *;
+@use 'theme/drop-target-static-mixin' as *;
+@use 'theme/space-mixin' as *;
 
 @mixin dockview-theme-core-mixin {
     --dv-paneview-active-outline-color: dodgerblue;

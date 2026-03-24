@@ -298,7 +298,8 @@ export class Tabs extends CompositeDisposable {
     }
 
     private toggleDropdown(options: { reset: boolean }): void {
-        const tabs = options.reset
+        const reset = options.reset || this._tabs.length <= 1;
+        const tabs = reset
             ? []
             : this._tabs
                   .filter(
@@ -310,7 +311,7 @@ export class Tabs extends CompositeDisposable {
                   )
                   .map((x) => x.value.panel.id);
 
-        this._onOverflowTabsChange.fire({ tabs, reset: options.reset });
+        this._onOverflowTabsChange.fire({ tabs, reset });
     }
 
     updateDragAndDropState(): void {

@@ -23,16 +23,16 @@
     "solid",
     "solid-component"
   ],
-  "homepage": "https://github.com/mathuo/dockview",
+  "homepage": "https://github.com/arminmajerie/dockview-solid-port",
   "bugs": {
-    "url": "https://github.com/mathuo/dockview/issues"
+    "url": "https://github.com/arminmajerie/dockview-solid-port/issues"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/mathuo/dockview.git"
+    "url": "git+https://github.com/arminmajerie/dockview-solid-port.git"
   },
   "license": "MIT",
-  "author": "https://github.com/mathuo",
+  "author": "https://github.com/arminmajerie",
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
   "types": "./dist/cjs/index.d.ts",
@@ -45,20 +45,22 @@
     "bind-event-listener": "^3.0.0",
     "gulp-concat": "^2.6.1",
     "raf-schd": "^4.0.3"
-
   },
   "devDependencies": {
-    "@isaacs/brace-expansion": "^5.0.0",
+    "@isaacs/brace-expansion": "5.0.1",
+    "@rollup/plugin-terser": "^1.0.0",
+    "@rollup/plugin-typescript": "^12.3.0",
     "@types/node": "^24.3.0",
     "gulp": "^5.0.1",
     "gulp-dart-sass": "^1.1.0",
     "gulp-sass": "^6.0.1",
     "rimraf": "^6.0.1",
+    "rollup-plugin-postcss": "^4.0.2",
     "sass": "^1.93.2",
     "tsup": "^8.5.0",
     "typescript": "5.9.2",
-    "vite": "^5.4.21",
-    "vite-plugin-solid": "^2.11.8"
+    "vite": "^6.4.1",
+    "vite-plugin-solid": "^2.11.11"
   },
   "scripts": {
     "build:bundle": "rollup -c",

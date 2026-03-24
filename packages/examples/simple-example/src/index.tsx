@@ -1,4 +1,4 @@
-// packages/dockview-solid-example/src/index.tsx
+// packages/examples/simple-example/src/index.tsx
 import './index.css';
 import { render } from 'solid-js/web';
 

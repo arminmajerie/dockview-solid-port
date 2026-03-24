@@ -1,7 +1,6 @@
 node_modules/
 coverage/
 dist/
-output/
 .idea/
 typedocs/
 .DS_Store
@@ -16,4 +15,4 @@ yarn-error.log
 /docs/
 /generated/
 /package-lock.json
-/packages/dockview-solid-example/package-lock.json
+/packages/examples/simple-example/package-lock.json

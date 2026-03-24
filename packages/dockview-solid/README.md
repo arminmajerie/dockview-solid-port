@@ -24,13 +24,27 @@ This is a SolidJS source package. Consumers must use a build tool that applies t
 
 Do NOT use React or default JSX transforms—you will get runtime errors.
 
-please look att the project ***dockview-solid-example*** in the github page to get started with a semi complex example.
+please look att the project ***examples/simple-example*** in the github page to get started with a semi complex example.
 
 ### consumers must have:
 * A working Vite+vite-plugin-solid setup O
   * Or
 * a Rollup/Webpack config that compiles imported .jsx using the SolidJS transform
 
+
+---
+
+## Live Demo
+
+See the mobile-friendly demo running in production:
+
+**[https://amkserver.myddns.rocks/DataMorph-Playground](https://amkserver.myddns.rocks/DataMorph-Playground)**
+
+## Source Code
+
+Full source code is available at:
+
+**[https://github.com/arminmajerie/dockview-solid-port](https://github.com/arminmajerie/dockview-solid-port)**
 
 ---
 

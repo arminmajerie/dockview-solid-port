@@ -1,4 +1,4 @@
-// packages/dockview-solid-example/src/App.tsx
+// packages/examples/simple-example/src/App.tsx
 import { onMount, onCleanup, createSignal, Show } from "solid-js";
 
 import "@arminmajerie/dockview-solid/styles/dockview.css";

@@ -1,17 +1,17 @@
 {
-  "name": "dockview-solid-example",
+  "name": "simple-example",
   "version": "0.0.4",
   "description": "",
   "type": "module",
   "license": "MIT",
   "devDependencies": {
     "typescript": "^5.7.2",
-    "vite": "^6.0.0",
-    "vite-plugin-solid": "^2.11.6",
-    "solid-js": "^1.8.0"
+    "vite": "^6.4.1",
+    "vite-plugin-solid": "^2.11.11",
+    "solid-js": "^1.9.11"
   },
   "dependencies": {
-    "@arminmajerie/dockview-solid": "file:../dockview-solid",
+    "@arminmajerie/dockview-solid": "5.0.0",
     "@suid/icons-material": "^0.8.1",
     "@suid/material": "^0.18.0"
   },

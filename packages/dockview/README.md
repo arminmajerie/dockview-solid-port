@@ -20,6 +20,20 @@
 
 ---
 
+## Live Demo
+
+See the mobile-friendly demo running in production:
+
+**[https://amkserver.myddns.rocks/DataMorph-Playground](https://amkserver.myddns.rocks/DataMorph-Playground)**
+
+## Source Code
+
+Full source code is available at:
+
+**[https://github.com/arminmajerie/dockview-solid-port](https://github.com/arminmajerie/dockview-solid-port)**
+
+---
+
 ## Features
 
 * Serialization / deserialization with full layout management

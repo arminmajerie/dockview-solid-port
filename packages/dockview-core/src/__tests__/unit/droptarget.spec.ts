@@ -25,6 +25,31 @@ describe('Droptarget', () => {
         ).toBe('center');
     });
 
+    it('treats midpoint boundary coordinates as valid edge drops', () => {
+        const horizontalOnly = new Set(['left', 'right'] as const);
+        const verticalOnly = new Set(['top', 'bottom'] as const);
+
+        expect(
+            calculateQuadrantAsPercentage(
+                horizontalOnly,
+                50,
+                10,
+                100,
+                20,
+                50
+            )
+        ).toBe('left');
+        expect(
+            calculateQuadrantAsPixels(horizontalOnly, 50, 10, 100, 20, 50)
+        ).toBe('left');
+        expect(
+            calculateQuadrantAsPercentage(verticalOnly, 10, 50, 20, 100, 50)
+        ).toBe('top');
+        expect(
+            calculateQuadrantAsPixels(verticalOnly, 10, 50, 20, 100, 50)
+        ).toBe('top');
+    });
+
     it('rejects invalid targets and clears overlay state on cancel', () => {
         const sessionStore = new DockviewDragSessionStore();
         const element = document.createElement('div');

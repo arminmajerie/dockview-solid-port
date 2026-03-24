@@ -762,16 +762,16 @@ export function calculateQuadrantAsPercentage(
     const xp = (100 * x) / width;
     const yp = (100 * y) / height;
 
-    if (overlayType.has('left') && xp < threshold) {
+    if (overlayType.has('left') && xp <= threshold) {
         return 'left';
     }
-    if (overlayType.has('right') && xp > 100 - threshold) {
+    if (overlayType.has('right') && xp >= 100 - threshold) {
         return 'right';
     }
-    if (overlayType.has('top') && yp < threshold) {
+    if (overlayType.has('top') && yp <= threshold) {
         return 'top';
     }
-    if (overlayType.has('bottom') && yp > 100 - threshold) {
+    if (overlayType.has('bottom') && yp >= 100 - threshold) {
         return 'bottom';
     }
 
@@ -790,16 +790,16 @@ export function calculateQuadrantAsPixels(
     height: number,
     threshold: number
 ): Position | null {
-    if (overlayType.has('left') && x < threshold) {
+    if (overlayType.has('left') && x <= threshold) {
         return 'left';
     }
-    if (overlayType.has('right') && x > width - threshold) {
+    if (overlayType.has('right') && x >= width - threshold) {
         return 'right';
     }
-    if (overlayType.has('top') && y < threshold) {
+    if (overlayType.has('top') && y <= threshold) {
         return 'top';
     }
-    if (overlayType.has('bottom') && y > height - threshold) {
+    if (overlayType.has('bottom') && y >= height - threshold) {
         return 'bottom';
     }
 

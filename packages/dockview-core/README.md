@@ -1,38 +1,58 @@
 <div align="center">
-<h1>dockview</h1>
-
-<p>Zero dependency layout manager supporting tabs, groups, grids and splitviews. Supports React, Vue and Vanilla TypeScript</p>
-
+  <h1>@arminmajerie/dockview-core</h1>
+  <p>
+    Zero dependency layout manager supporting tabs, groups, grids and splitviews.<br>
+    <b>Mobile-friendly fork with SolidJS support.</b>
+  </p>
+  <p>
+    <a href="https://www.npmjs.com/package/@arminmajerie/dockview-core">
+      <img src="https://img.shields.io/npm/v/@arminmajerie/dockview-core?logo=npm" alt="npm version">
+    </a>
+    <a href="https://www.npmjs.com/package/@arminmajerie/dockview-core">
+      <img src="https://img.shields.io/npm/dm/@arminmajerie/dockview-core.svg" alt="npm downloads">
+    </a>
+  </p>
 </div>
 
 ---
 
-[![npm version](https://badge.fury.io/js/dockview.svg)](https://www.npmjs.com/package/dockview)
-[![npm](https://img.shields.io/npm/dm/dockview)](https://www.npmjs.com/package/dockview)
-[![CI Build](https://github.com/mathuo/dockview/workflows/CI/badge.svg)](https://github.com/mathuo/dockview/actions?query=workflow%3ACI)
-[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=mathuo_dockview&metric=coverage)](https://sonarcloud.io/summary/overall?id=mathuo_dockview)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=mathuo_dockview&metric=alert_status)](https://sonarcloud.io/summary/overall?id=mathuo_dockview)
-[![Bundle Phobia](https://badgen.net/bundlephobia/minzip/dockview)](https://bundlephobia.com/result?p=dockview)
+## Live Demo
 
-##
+See the mobile-friendly demo running in production:
 
-![](packages/docs/static/img/splashscreen.gif)
+**[https://amkserver.myddns.rocks/DataMorph-Playground](https://amkserver.myddns.rocks/DataMorph-Playground)**
 
-Please see the website: https://dockview.dev
+---
+
+## Source Code
+
+Full source code is available at:
+
+**[https://github.com/arminmajerie/dockview-solid-port](https://github.com/arminmajerie/dockview-solid-port)**
+
+---
 
 ## Features
 
--   Serialization / deserialization with full layout management
--   Support for split-views, grid-views and 'dockable' views
--   Themeable and customizable
--   Tab and Group docking / Drag n' Drop
--   Popout Windows
--   Floating Groups
--   Extensive API
--   Supports Shadow DOMs
--   High test coverage
--   Documentation website with live examples
--   Transparent builds and Code Analysis
--   Security at mind - verifed publishing and builds through GitHub Actions
+- Serialization / deserialization with full layout management
+- Support for split-views, grid-views and 'dockable' views
+- Themeable and customizable
+- Tab and Group docking / Drag n' Drop
+- Popout Windows
+- Floating Groups
+- Extensive API
+- Supports Shadow DOMs
+- Mobile-friendly touch support
+- High test coverage
+- Transparent builds and Code Analysis
+- Security in mind: verified publishing and builds through GitHub Actions
 
-Want to verify our builds? Go [here](https://www.npmjs.com/package/dockview#Provenance).
+---
+
+## Maintainer
+
+* [arminmajerie](https://github.com/arminmajerie)
+
+---
+
+MIT License

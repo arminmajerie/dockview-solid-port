@@ -26,7 +26,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/arminmajerie/dockview-solid-port.git"
+    "url": "git+https://github.com/arminmajerie/dockview-solid-port.git"
   },
   "license": "MIT",
   "author": "https://github.com/arminmajerie",
@@ -35,9 +35,9 @@
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs",
-      "require": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "require": "./dist/index.js"
     },
     "./style.css": "./dist/style.css",
     "./styles/dockview.css": "./dist/styles/dockview.css",
@@ -55,13 +55,13 @@
     "README.md"
   ],
   "dependencies": {
-    "@arminmajerie/dockview": "../dockview"
+    "@arminmajerie/dockview": "5.0.0"
   },
   "peerDependencies": {
     "solid-js": "^1.8.0"
   },
   "devDependencies": {
-    "solid-js": "^1.8.0",
+    "solid-js": "^1.9.11",
     "ts-node": "^10.9.2",
     "tsup": "^8.5.0",
     "rimraf": "^5.0.5"
