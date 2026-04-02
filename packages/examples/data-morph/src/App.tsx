@@ -1019,13 +1019,13 @@ export default function App(): JSX.Element {
               <Box sx={{ color: "#c8ccd8" }}>
                 <Typography variant="h6" sx={{ mb: 2, fontWeight: 600, color: "#e0e3ef" }}>Java SDK Downloads</Typography>
                 <Typography variant="body2" sx={{ mb: 2, color: "#7a7f96" }}>
-                  Version 0.1.0
+                  Version 1.21.0
                 </Typography>
                 <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
                   <Box
                     component="a"
-                    href="./data-morph-java-sdk-0.1.0.jar"
-                    download="data-morph-java-sdk-0.1.0.jar"
+                    href="./data-morph-java-sdk-1.21.0.jar"
+                    download="data-morph-java-sdk-1.21.0.jar"
                     sx={{
                       display: "inline-flex",
                       alignItems: "center",
@@ -1035,12 +1035,12 @@ export default function App(): JSX.Element {
                       "&:hover": { textDecoration: "underline" },
                     }}
                   >
-                    📦 data-morph-java-sdk-0.1.0.jar (SDK)
+                    📦 data-morph-java-sdk-1.21.0.jar (SDK)
                   </Box>
                   <Box
                     component="a"
-                    href="./data-morph-java-sdk-0.1.0-javadoc.jar"
-                    download="data-morph-java-sdk-0.1.0-javadoc.jar"
+                    href="./data-morph-java-sdk-1.21.0-javadoc.jar"
+                    download="data-morph-java-sdk-1.21.0-javadoc.jar"
                     sx={{
                       display: "inline-flex",
                       alignItems: "center",
@@ -1050,12 +1050,12 @@ export default function App(): JSX.Element {
                       "&:hover": { textDecoration: "underline" },
                     }}
                   >
-                    📚 data-morph-java-sdk-0.1.0-javadoc.jar (JavaDoc)
+                    📚 data-morph-java-sdk-1.21.0-javadoc.jar (JavaDoc)
                   </Box>
                   <Box
                     component="a"
-                    href="./data-morph-java-sdk-0.1.0-sources.jar"
-                    download="data-morph-java-sdk-0.1.0-sources.jar"
+                    href="./data-morph-java-sdk-1.21.0-sources.jar"
+                    download="data-morph-java-sdk-1.21.0-sources.jar"
                     sx={{
                       display: "inline-flex",
                       alignItems: "center",
@@ -1065,7 +1065,7 @@ export default function App(): JSX.Element {
                       "&:hover": { textDecoration: "underline" },
                     }}
                   >
-                    📝 data-morph-java-sdk-0.1.0-sources.jar (Java Source)
+                    📝 data-morph-java-sdk-1.21.0-sources.jar (Java Source)
                   </Box>
                 </Box>
               </Box>
