@@ -1020,17 +1020,21 @@ export default function App(): JSX.Element {
               overflow: 'hidden',
               zIndex: 9,
               height: 30,
+              flexShrink: 0,
             }}
           >
             <Box onClick={() => handleTabClick("log")}
                   sx={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    flexWrap: 'nowrap',
+                    alignItems: 'center',
                     backgroundColor: (bottomTab() === "log" ? '#1e2035': '#12141f'),
                     border: 'solid',
                     borderBlockEndWidth: (bottomTab() === "log" ? '0px': '1px'),
                     borderBlockStartWidth: '0px',
                     borderBlockStartColor: 'transparent',
                     borderColor: (bottomTab() === "log" ? '#2a2d44': '#1e2035'),
-                    alignItems: 'center',
                     borderBottomColor: 'transparent',
                     marginBottom: '2px',
                     zIndex: 8,
@@ -1048,8 +1052,8 @@ export default function App(): JSX.Element {
               >
                 <ListIcon width={15} height={15} />
               </IconButton>
-              <Button variant="text" sx={{ fontWeight: bottomTab() === "log" ? 600 : 100, color: bottomTab() === "log" ? '#e0e3ef' : '#7a7f96' }}>
-                LOG VIEWER
+              <Button variant="text" sx={{ fontWeight: bottomTab() === "log" ? 600 : 100, color: bottomTab() === "log" ? '#e0e3ef' : '#7a7f96', whiteSpace: 'nowrap', minWidth: 'auto', px: 1 }}>
+                LOG
               </Button>
             </Box>
           </Box>
@@ -1063,17 +1067,21 @@ export default function App(): JSX.Element {
               justifyContent: 'start',
               alignContent: 'start',
               marginLeft: '-2px',
+              flexShrink: 0,
             }}
           >
             <Box onClick={() => handleTabClick("api")}
                   sx={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    flexWrap: 'nowrap',
+                    alignItems: 'center',
                     backgroundColor: (bottomTab() === "api" ? '#1e2035': '#12141f'),
                     borderLeft: 'solid',
                     borderLeftWidth: (bottomTab() === "api" ? '2px': '0px'),
                     borderBlockEndWidth: '5px',
                     borderLeftColor: (bottomTab() === "api" ? '#6c5ce7': 'transparent'),
                     borderColor: (bottomTab() === "api" ? '#2a2d44': '#1e2035'),
-                    alignItems: 'center',
                     borderBottomColor: 'transparent',
                     zIndex: 8,
                   }}
@@ -1084,8 +1092,8 @@ export default function App(): JSX.Element {
               >
                 <ContentPasteSearchIcon width={15} height={15} />
               </IconButton>
-              <Button variant="text" sx={{ fontWeight: bottomTab() === "api" ? 600 : 100, color: bottomTab() === "api" ? '#e0e3ef' : '#7a7f96' }}>
-                API
+              <Button variant="text" sx={{ fontWeight: bottomTab() === "api" ? 600 : 100, color: bottomTab() === "api" ? '#e0e3ef' : '#7a7f96', whiteSpace: 'nowrap', minWidth: 'auto', px: 1 }}>
+                SDK
               </Button>
             </Box>
           </Box>
@@ -1099,17 +1107,21 @@ export default function App(): JSX.Element {
               justifyContent: 'start',
               alignContent: 'start',
               marginLeft: '-2px',
+              flexShrink: 0,
             }}
           >
             <Box onClick={() => handleTabClick("docs")}
                   sx={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    flexWrap: 'nowrap',
+                    alignItems: 'center',
                     backgroundColor: (bottomTab() === "docs" ? '#1e2035': '#12141f'),
                     borderLeft: 'solid',
                     borderLeftWidth: (bottomTab() === "docs" ? '2px': '0px'),
                     borderBlockEndWidth: '5px',
                     borderLeftColor: (bottomTab() === "docs" ? '#6c5ce7': 'transparent'),
                     borderColor: (bottomTab() === "docs" ? '#2a2d44': '#1e2035'),
-                    alignItems: 'center',
                     borderBottomColor: 'transparent',
                     zIndex: 8,
                   }}
@@ -1120,8 +1132,8 @@ export default function App(): JSX.Element {
               >
                 <MenuBookIcon width={15} height={15} />
               </IconButton>
-              <Button variant="text" sx={{ fontWeight: bottomTab() === "docs" ? 600 : 100, color: bottomTab() === "docs" ? '#e0e3ef' : '#7a7f96' }}>
-                DOCUMENTATION
+              <Button variant="text" sx={{ fontWeight: bottomTab() === "docs" ? 600 : 100, color: bottomTab() === "docs" ? '#e0e3ef' : '#7a7f96', whiteSpace: 'nowrap', minWidth: 'auto', px: 1 }}>
+                DOCS
               </Button>
             </Box>
           </Box>

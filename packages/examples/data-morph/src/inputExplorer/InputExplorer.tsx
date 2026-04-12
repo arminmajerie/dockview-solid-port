@@ -316,6 +316,7 @@ export function InputExplorer(props: InputExplorerProps): JSX.Element {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "space-between",
+                overflow: "hidden",
                 px: 1,
                 py: 0.75,
                 borderRadius: 1,
@@ -326,7 +327,7 @@ export function InputExplorer(props: InputExplorerProps): JSX.Element {
               onPointerUp={selectItem(item.id)}
               onDblClick={openEditorOnDblClick(item.id)}
             >
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1, minWidth: 0 }}>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1, flex: "0 0 auto" }}>
                 <Box sx={{ fontSize: 12, fontWeight: 700, letterSpacing: 0.2, whiteSpace: "nowrap" }}>
                   {item.id}
                 </Box>
@@ -337,6 +338,7 @@ export function InputExplorer(props: InputExplorerProps): JSX.Element {
               <Show when={canRemove(item.id)}>
                 <IconButton
                   size="small"
+                  sx={{ flexShrink: 0 }}
                   onPointerDown={(e) => e.stopPropagation()}
                   onClick={(e) => {
                     e.stopPropagation();
@@ -361,6 +363,7 @@ export function InputExplorer(props: InputExplorerProps): JSX.Element {
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
+            overflow: "hidden",
             px: 1,
             py: 0.75,
             borderRadius: 1,
@@ -370,9 +373,10 @@ export function InputExplorer(props: InputExplorerProps): JSX.Element {
           }}
           onPointerUp={handleVarsRowPointerUp}
         >
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1, minWidth: 0 }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1, flex: "0 0 auto" }}>
             <IconButton
               size="small"
+              sx={{ flexShrink: 0 }}
               onPointerDown={(e) => e.stopPropagation()}
               onPointerUp={(e) => e.stopPropagation()}
               onClick={(e) => {
@@ -390,6 +394,7 @@ export function InputExplorer(props: InputExplorerProps): JSX.Element {
           </Box>
           <IconButton
             size="small"
+            sx={{ flexShrink: 0 }}
             onPointerDown={(e) => e.stopPropagation()}
             onPointerUp={(e) => e.stopPropagation()}
             onClick={(e) => {
@@ -421,6 +426,7 @@ export function InputExplorer(props: InputExplorerProps): JSX.Element {
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "space-between",
+                    overflow: "hidden",
                     px: 1,
                     py: 0.6,
                     borderRadius: 1,
@@ -431,7 +437,7 @@ export function InputExplorer(props: InputExplorerProps): JSX.Element {
                   onPointerUp={selectItem(item.id)}
                   onDblClick={openEditorOnDblClick(item.id)}
                 >
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 1, minWidth: 0 }}>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1, flex: "0 0 auto" }}>
                     <Box sx={{ fontSize: 12, whiteSpace: "nowrap" }}>{item.id}</Box>
                     <Box sx={{ fontSize: 12, color: "#583ddc", whiteSpace: "nowrap" }}>
                       {item.format}
@@ -439,6 +445,7 @@ export function InputExplorer(props: InputExplorerProps): JSX.Element {
                   </Box>
                   <IconButton
                     size="small"
+                    sx={{ flexShrink: 0 }}
                     onPointerDown={(e) => e.stopPropagation()}
                     onClick={(e) => {
                       e.stopPropagation();
@@ -469,6 +476,7 @@ export function InputExplorer(props: InputExplorerProps): JSX.Element {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "space-between",
+                overflow: "hidden",
                 px: 1,
                 py: 0.75,
                 borderRadius: 1,
@@ -479,7 +487,7 @@ export function InputExplorer(props: InputExplorerProps): JSX.Element {
               onPointerUp={selectItem(item.id)}
               onDblClick={openEditorOnDblClick(item.id)}
             >
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1, minWidth: 0 }}>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1, flex: "0 0 auto" }}>
                 <Box sx={{ fontSize: 12, whiteSpace: "nowrap" }}>{item.id}</Box>
                 <Box sx={{ fontSize: 12, color: "#52a4ed", whiteSpace: "nowrap" }}>
                   {item.format}
@@ -487,6 +495,7 @@ export function InputExplorer(props: InputExplorerProps): JSX.Element {
               </Box>
               <IconButton
                 size="small"
+                sx={{ flexShrink: 0 }}
                 onPointerDown={(e) => e.stopPropagation()}
                 onClick={(e) => {
                   e.stopPropagation();

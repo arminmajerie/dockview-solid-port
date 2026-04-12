@@ -166,7 +166,7 @@ export function LogViewer(props: LogViewerProps): JSX.Element {
             borderColor: "divider",
           }}
         >
-          <Box sx={{ flex: 1, minWidth: 0, width: "30%" }}>
+          <Box sx={{ flex: 1, minWidth: 0, overflow: 'hidden' }}>
             <CodeEditorComboBox
               configId={'log_filter_'}
               placeholder={'Filter ...'}
@@ -181,8 +181,8 @@ export function LogViewer(props: LogViewerProps): JSX.Element {
               endPaddingPx={24}
             />
           </Box>
-          <Button variant="text" onClick={() => logService.clear()}>
-            Clear Logs
+          <Button variant="text" onClick={() => logService.clear()} sx={{ whiteSpace: 'nowrap', minWidth: 'auto', flexShrink: 0, px: 1 }}>
+            Clear
           </Button>
         </Box>
 
