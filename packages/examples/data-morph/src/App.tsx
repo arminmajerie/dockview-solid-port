@@ -17,6 +17,7 @@ import { KeyboardManager } from "@arminmajerie/keyboard-manager";
 import { logService, LogViewerPanel } from "./logViewer";
 import ListIcon from '@suid/icons-material/List';
 import ContentPasteSearchIcon from '@suid/icons-material/ContentPasteSearch';
+import MenuBookIcon from '@suid/icons-material/MenuBook';
 
 import { Box, Button, IconButton, Typography } from "@suid/material";
 import { InputExplorer } from "./inputExplorer/InputExplorer";
@@ -29,6 +30,7 @@ import { prettyPrintJson, prettyPrintXml, compactXml } from "./util/prettyPrintJ
 import { TopHeader } from "./topHeader/TopHeader";
 import { OutputPane, type OutputFormatId } from "./output/OutputPane";
 import { ScriptPane } from "./scriptPane/ScriptPane";
+import { downloadBase64AsFile, isExcelBase64 } from "./excel/excelUtils";
 
 
 function safeJsonParse(text: string): unknown {
@@ -50,6 +52,11 @@ function payloadValue(input: PipelineInputItem | undefined): unknown {
   switch (input.format) {
     case "JSON":
       return safeJsonParse(input.value);
+    case "XLSX":
+    case "XLS":
+    case "PDF":
+      // For binary formats (Excel, PDF), return the base64-encoded binary data
+      return input.binaryPayload ?? input.value;
     case "TEXT":
     case "XML":
     case "YAML":
@@ -84,6 +91,7 @@ function extractOutputFormatFromScript(script: string): OutputFormatId | null {
         if (format === 'yaml') return 'yaml';
         if (format === 'csv') return 'csv';
         if (format === 'dm' || format === 'dml') return 'dml';
+        if (format === 'xlsx' || format === 'xls' || format === 'excel') return 'xlsx';
       }
       // Handle text formats
       if (rest.startsWith('text/')) {
@@ -98,6 +106,7 @@ function extractOutputFormatFromScript(script: string): OutputFormatId | null {
       if (rest.startsWith('yaml')) return 'yaml';
       if (rest.startsWith('csv')) return 'csv';
       if (rest.startsWith('text')) return 'text';
+      if (rest.startsWith('xlsx') || rest.startsWith('xls') || rest.startsWith('excel')) return 'xlsx';
     }
   }
   return null;
@@ -166,6 +175,14 @@ const DEFAULT_MAIN_SCRIPT = `output application/json
 ---
 payload.DataMorph`;
 
+// Managed by the DataMorphPlayground build and publish scripts.
+const JAVA_SDK_DOWNLOADS = {
+  version: "1.21.4",
+  jarUrl: "https://repo1.maven.org/maven2/io/github/arminmajerie/data-morph-java-sdk/1.21.4/data-morph-java-sdk-1.21.4.jar",
+  javadocUrl: "https://repo1.maven.org/maven2/io/github/arminmajerie/data-morph-java-sdk/1.21.4/data-morph-java-sdk-1.21.4-javadoc.jar",
+  sourcesUrl: "https://repo1.maven.org/maven2/io/github/arminmajerie/data-morph-java-sdk/1.21.4/data-morph-java-sdk-1.21.4-sources.jar",
+} as const;
+
 function createDefaultState(): {
   mainScriptId: string;
   inputs: PipelineInputItem[];
@@ -233,13 +250,10 @@ export default function App(): JSX.Element {
     const mainScript = scripts().find((s) => s.isMain);
     return mainScript?.content ?? "";
   };
-  const setScript = (content: string) => {
-    setScripts((prev) => prev.map((s) => (s.isMain ? { ...s, content } : s)));
-  };
-
   const [rawOutput, setRawOutput] = createSignal<string>("Loading wasm…");
   const [outputFormat, setOutputFormat] = createSignal<OutputFormatId>("json");
   const [isPretty, setIsPretty] = createSignal<boolean>(true);
+  const [outputFoldEnabled, setOutputFoldEnabled] = createSignal(false);
 
   // Derived: apply pretty-printing to JSON/XML output without re-invoking the engine
   const output = createMemo(() => {
@@ -515,6 +529,10 @@ export default function App(): JSX.Element {
       __datamorph_classpath_resources: scriptResources,
       // Spread top-level scope variables so they're accessible directly (e.g., correlationId)
       ...topScopeVars,
+      // For binary payloads (Excel, PDF), pass payloadOptions so WASM can parse binary data correctly
+      ...(payload && (payload.format === "XLSX" || payload.format === "XLS" || payload.format === "PDF")
+        ? { payloadOptions: {} }
+        : {}),
     };
   });
 
@@ -696,6 +714,7 @@ export default function App(): JSX.Element {
           setOutputFormat={setOutputFormat}
           isPretty={isPretty}
           setIsPretty={setIsPretty}
+          foldEnabled={outputFoldEnabled}
         />
       );
     }
@@ -737,6 +756,35 @@ export default function App(): JSX.Element {
             if (panelId === "outputPanel") {
               return (
                 <div style={{ display: "flex", "align-items": "center", gap: "4px" }}>
+                  <Show when={outputFormat() === "xlsx" && isExcelBase64(rawOutput())}>
+                    <button
+                      title="Download Excel file"
+                      onClick={() => downloadBase64AsFile(rawOutput(), "output.xlsx")}
+                      style={{
+                        cursor: "pointer",
+                        background: "transparent",
+                        border: "1px solid #3a3d54",
+                        "border-radius": "4px",
+                        color: "#a6e3a1",
+                        "font-size": "11px",
+                        "font-weight": "600",
+                        padding: "1px 7px",
+                        height: "22px",
+                        "line-height": "20px",
+                        "white-space": "nowrap",
+                        display: "flex",
+                        "align-items": "center",
+                        gap: "3px",
+                      }}
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                        <polyline points="7 10 12 15 17 10"/>
+                        <line x1="12" y1="15" x2="12" y2="3"/>
+                      </svg>
+                      .xlsx
+                    </button>
+                  </Show>
                   <Show when={outputFormat() === "json" || outputFormat() === "xml"}>
                     <button
                       id="pretty-toggle-btn"
@@ -761,6 +809,37 @@ export default function App(): JSX.Element {
                       }}
                     >
                       {isPretty() ? "{ }" : "{}"}
+                    </button>
+                  </Show>
+                  <Show when={outputFormat() === "json" || outputFormat() === "xml"}>
+                    <button
+                      title={outputFoldEnabled() ? "Disable collapsing" : "Enable collapsing"}
+                      aria-label={outputFoldEnabled() ? "Disable collapsing" : "Enable collapsing"}
+                      aria-pressed={outputFoldEnabled()}
+                      onClick={() => setOutputFoldEnabled(!outputFoldEnabled())}
+                      style={{
+                        cursor: "pointer",
+                        background: outputFoldEnabled() ? "rgba(99,179,237,0.18)" : "transparent",
+                        border: "1px solid",
+                        "border-color": outputFoldEnabled() ? "rgba(99,179,237,0.55)" : "#3a3d54",
+                        "border-radius": "4px",
+                        color: outputFoldEnabled() ? "#63b3ed" : "#e0e3ef",
+                        "font-size": "11px",
+                        padding: "1px 5px",
+                        height: "22px",
+                        "line-height": "20px",
+                        display: "flex",
+                        "align-items": "center",
+                      }}
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="4 6 4 2 20 2 20 6"/>
+                        <polyline points="4 18 4 22 20 22 20 18"/>
+                        <line x1="2" y1="12" x2="10" y2="12"/>
+                        <line x1="14" y1="12" x2="22" y2="12"/>
+                        <polyline points="7 9 10 12 7 15"/>
+                        <polyline points="17 9 14 12 17 15"/>
+                      </svg>
                     </button>
                   </Show>
                   <select
@@ -788,6 +867,7 @@ export default function App(): JSX.Element {
                     <option value="csv"   style={{ background: "#1e2035", color: "#e0e3ef" }}>CSV</option>
                     <option value="dml"   style={{ background: "#1e2035", color: "#e0e3ef" }}>DML</option>
                     <option value="text"  style={{ background: "#1e2035", color: "#e0e3ef" }}>Text</option>
+                    <option value="xlsx"  style={{ background: "#1e2035", color: "#e0e3ef" }}>Excel(XLSX)</option>
                   </select>
                 </div>
               );
@@ -876,11 +956,10 @@ export default function App(): JSX.Element {
     );
   }
 
-  type BottomTab = "log" | "api";
+  type BottomTab = "log" | "api" | "docs";
+  const [bottomTab, setBottomTab] = createSignal<BottomTab>("log");
 
   function BottomPanel(): JSX.Element {
-    const [tab, setTab] = createSignal<BottomTab>("log");
-
     const adjustBottomPanelSize = () => {
       const api = mainSplitApi();
       if (!api) return;
@@ -910,10 +989,10 @@ export default function App(): JSX.Element {
     };
 
     const handleTabClick = (next: BottomTab) => {
-      if (tab() === next) {
+      if (bottomTab() === next) {
         adjustBottomPanelSize();
       }
-      setTab(next);
+      setBottomTab(next);
     };
 
     return (
@@ -945,12 +1024,12 @@ export default function App(): JSX.Element {
           >
             <Box onClick={() => handleTabClick("log")}
                   sx={{
-                    backgroundColor: (tab() === "log" ? '#1e2035': '#12141f'),
+                    backgroundColor: (bottomTab() === "log" ? '#1e2035': '#12141f'),
                     border: 'solid',
-                    borderBlockEndWidth: (tab() === "log" ? '0px': '1px'),
+                    borderBlockEndWidth: (bottomTab() === "log" ? '0px': '1px'),
                     borderBlockStartWidth: '0px',
                     borderBlockStartColor: 'transparent',
-                    borderColor: (tab() === "log" ? '#2a2d44': '#1e2035'),
+                    borderColor: (bottomTab() === "log" ? '#2a2d44': '#1e2035'),
                     alignItems: 'center',
                     borderBottomColor: 'transparent',
                     marginBottom: '2px',
@@ -961,7 +1040,7 @@ export default function App(): JSX.Element {
                 size="small"
                 sx={{
                   backgroundColor: 'transparent',
-                  color: tab() === "log" ? '#c8ccd8' : '#7a7f96',
+                  color: bottomTab() === "log" ? '#c8ccd8' : '#7a7f96',
                   width: 15,
                   height: 15,
                   paddingLeft: 2,
@@ -969,7 +1048,7 @@ export default function App(): JSX.Element {
               >
                 <ListIcon width={15} height={15} />
               </IconButton>
-              <Button variant="text" sx={{ fontWeight: tab() === "log" ? 600 : 100, color: tab() === "log" ? '#e0e3ef' : '#7a7f96' }}>
+              <Button variant="text" sx={{ fontWeight: bottomTab() === "log" ? 600 : 100, color: bottomTab() === "log" ? '#e0e3ef' : '#7a7f96' }}>
                 LOG VIEWER
               </Button>
             </Box>
@@ -988,12 +1067,12 @@ export default function App(): JSX.Element {
           >
             <Box onClick={() => handleTabClick("api")}
                   sx={{
-                    backgroundColor: (tab() === "api" ? '#1e2035': '#12141f'),
+                    backgroundColor: (bottomTab() === "api" ? '#1e2035': '#12141f'),
                     borderLeft: 'solid',
-                    borderLeftWidth: (tab() === "api" ? '2px': '0px'),
+                    borderLeftWidth: (bottomTab() === "api" ? '2px': '0px'),
                     borderBlockEndWidth: '5px',
-                    borderLeftColor: (tab() === "api" ? '#6c5ce7': 'transparent'),
-                    borderColor: (tab() === "api" ? '#2a2d44': '#1e2035'),
+                    borderLeftColor: (bottomTab() === "api" ? '#6c5ce7': 'transparent'),
+                    borderColor: (bottomTab() === "api" ? '#2a2d44': '#1e2035'),
                     alignItems: 'center',
                     borderBottomColor: 'transparent',
                     zIndex: 8,
@@ -1001,31 +1080,90 @@ export default function App(): JSX.Element {
             >
               <IconButton
                 size="small"
-                sx={{ backgroundColor: 'transparent', color: tab() === "api" ? '#c8ccd8' : '#7a7f96', width: 15, height: 15, paddingLeft: 2 }}
+                sx={{ backgroundColor: 'transparent', color: bottomTab() === "api" ? '#c8ccd8' : '#7a7f96', width: 15, height: 15, paddingLeft: 2 }}
               >
                 <ContentPasteSearchIcon width={15} height={15} />
               </IconButton>
-              <Button variant="text" sx={{ fontWeight: tab() === "api" ? 600 : 100, color: tab() === "api" ? '#e0e3ef' : '#7a7f96' }}>
+              <Button variant="text" sx={{ fontWeight: bottomTab() === "api" ? 600 : 100, color: bottomTab() === "api" ? '#e0e3ef' : '#7a7f96' }}>
+                API
+              </Button>
+            </Box>
+          </Box>
+
+          <Box
+            sx={{
+              alignItems: "start",
+              overflow: 'clip',
+              zIndex: 9,
+              height: 28,
+              justifyContent: 'start',
+              alignContent: 'start',
+              marginLeft: '-2px',
+            }}
+          >
+            <Box onClick={() => handleTabClick("docs")}
+                  sx={{
+                    backgroundColor: (bottomTab() === "docs" ? '#1e2035': '#12141f'),
+                    borderLeft: 'solid',
+                    borderLeftWidth: (bottomTab() === "docs" ? '2px': '0px'),
+                    borderBlockEndWidth: '5px',
+                    borderLeftColor: (bottomTab() === "docs" ? '#6c5ce7': 'transparent'),
+                    borderColor: (bottomTab() === "docs" ? '#2a2d44': '#1e2035'),
+                    alignItems: 'center',
+                    borderBottomColor: 'transparent',
+                    zIndex: 8,
+                  }}
+            >
+              <IconButton
+                size="small"
+                sx={{ backgroundColor: 'transparent', color: bottomTab() === "docs" ? '#c8ccd8' : '#7a7f96', width: 15, height: 15, paddingLeft: 2 }}
+              >
+                <MenuBookIcon width={15} height={15} />
+              </IconButton>
+              <Button variant="text" sx={{ fontWeight: bottomTab() === "docs" ? 600 : 100, color: bottomTab() === "docs" ? '#e0e3ef' : '#7a7f96' }}>
                 DOCUMENTATION
               </Button>
             </Box>
           </Box>
         </Box>
 
-        <Box sx={{ flex: 1, minHeight: 0, overflow: "hidden", p: 2, backgroundColor: "#12141f" }}>
-          <Show
-            when={tab() === "log"}
-            fallback={
-              <Box sx={{ color: "#c8ccd8" }}>
+        <Box sx={{ flex: 1, minHeight: 0, overflow: "hidden", position: "relative", backgroundColor: "#12141f" }}>
+          <Box
+            sx={{
+              position: "absolute",
+              inset: 0,
+              display: bottomTab() === "log" ? "flex" : "none",
+              minHeight: 0,
+              overflow: "hidden",
+              p: 2,
+            }}
+          >
+            <LogViewerPanel />
+          </Box>
+          <Box
+            sx={{
+              position: "absolute",
+              inset: 0,
+              display: bottomTab() === "api" ? "block" : "none",
+              overflow: "auto",
+              p: 2,
+              color: "#c8ccd8",
+            }}
+          >
+            <Box sx={{ color: "#c8ccd8" }}>
                 <Typography variant="h6" sx={{ mb: 2, fontWeight: 600, color: "#e0e3ef" }}>Java SDK Downloads</Typography>
                 <Typography variant="body2" sx={{ mb: 2, color: "#7a7f96" }}>
-                  Version 1.21.0
+                  Version {JAVA_SDK_DOWNLOADS.version}
+                </Typography>
+                <Typography variant="body2" sx={{ mb: 2, color: "#9fb3d9" }}>
+                  Free to use with no expiration. Paid support and implementation help are available separately.
                 </Typography>
                 <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
                   <Box
                     component="a"
-                    href="./data-morph-java-sdk-1.21.0.jar"
-                    download="data-morph-java-sdk-1.21.0.jar"
+                    href={JAVA_SDK_DOWNLOADS.jarUrl}
+                    target="_blank"
+                    rel="noreferrer"
                     sx={{
                       display: "inline-flex",
                       alignItems: "center",
@@ -1035,12 +1173,13 @@ export default function App(): JSX.Element {
                       "&:hover": { textDecoration: "underline" },
                     }}
                   >
-                    📦 data-morph-java-sdk-1.21.0.jar (SDK)
+                    📦 {`data-morph-java-sdk-${JAVA_SDK_DOWNLOADS.version}.jar`} (SDK)
                   </Box>
                   <Box
                     component="a"
-                    href="./data-morph-java-sdk-1.21.0-javadoc.jar"
-                    download="data-morph-java-sdk-1.21.0-javadoc.jar"
+                    href={JAVA_SDK_DOWNLOADS.javadocUrl}
+                    target="_blank"
+                    rel="noreferrer"
                     sx={{
                       display: "inline-flex",
                       alignItems: "center",
@@ -1050,12 +1189,13 @@ export default function App(): JSX.Element {
                       "&:hover": { textDecoration: "underline" },
                     }}
                   >
-                    📚 data-morph-java-sdk-1.21.0-javadoc.jar (JavaDoc)
+                    📚 {`data-morph-java-sdk-${JAVA_SDK_DOWNLOADS.version}-javadoc.jar`} (JavaDoc)
                   </Box>
                   <Box
                     component="a"
-                    href="./data-morph-java-sdk-1.21.0-sources.jar"
-                    download="data-morph-java-sdk-1.21.0-sources.jar"
+                    href={JAVA_SDK_DOWNLOADS.sourcesUrl}
+                    target="_blank"
+                    rel="noreferrer"
                     sx={{
                       display: "inline-flex",
                       alignItems: "center",
@@ -1065,14 +1205,31 @@ export default function App(): JSX.Element {
                       "&:hover": { textDecoration: "underline" },
                     }}
                   >
-                    📝 data-morph-java-sdk-1.21.0-sources.jar (Java Source)
+                    📝 {`data-morph-java-sdk-${JAVA_SDK_DOWNLOADS.version}-sources.jar`} (Java Source)
                   </Box>
                 </Box>
-              </Box>
-            }
+            </Box>
+          </Box>
+          <Box
+            sx={{
+              position: "absolute",
+              inset: 0,
+              display: bottomTab() === "docs" ? "block" : "none",
+              overflow: "hidden",
+            }}
           >
-            <LogViewerPanel />
-          </Show>
+            <iframe
+              src="https://amkserver.myddns.rocks/DataMorph-Docs"
+              title="DataMorph Documentation"
+              style={{
+                width: "100%",
+                height: "100%",
+                border: "none",
+                "background-color": "#12141f",
+              }}
+              sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
+            />
+          </Box>
         </Box>
       </Box>
     );

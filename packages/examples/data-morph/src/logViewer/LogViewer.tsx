@@ -15,7 +15,7 @@ import type { LogEntry } from "./types";
 import CodeEditorComboBox from "./CodeEditorComboBox";
 import SettingsBackupRestoreSharpIcon from '@suid/icons-material/SettingsBackupRestoreSharp';
 export interface LogViewerProps {
-  height: number;
+  height?: number;
 }
 
 function highlightLogLine(line: string, searchTerm: string): JSX.Element {
@@ -132,7 +132,7 @@ export function LogViewer(props: LogViewerProps): JSX.Element {
   return (
     <Box
       sx={{
-        height: `${props.height}px`,
+        height: props.height ? `${props.height}px` : "100%",
         display: "flex",
         flexDirection: "column",
         minHeight: 0,

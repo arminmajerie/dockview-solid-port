@@ -1,7 +1,7 @@
 import { onCleanup, onMount, createEffect, type JSX } from 'solid-js';
 import { EditorView, lineNumbers, highlightActiveLine, highlightActiveLineGutter, drawSelection, keymap, tooltips } from '@codemirror/view';
 import { EditorState, Compartment } from '@codemirror/state';
-import { bracketMatching, indentOnInput } from '@codemirror/language';
+import { bracketMatching, indentOnInput, foldGutter, foldKeymap, codeFolding } from '@codemirror/language';
 import { defaultKeymap, history, historyKeymap, indentWithTab } from '@codemirror/commands';
 import { closeBrackets, closeBracketsKeymap } from '@codemirror/autocomplete';
 import { json } from '@codemirror/lang-json';
@@ -31,11 +31,13 @@ export function BasicCodeMirrorEditor(props: {
   onChange: (value: string) => void;
   language: () => string;
   options?: { fontSize?: number; wordWrap?: string; tabSize?: number; readOnly?: boolean };
+  foldEnabled?: () => boolean;
 }): JSX.Element {
   let container!: HTMLDivElement;
   let view: EditorView | undefined;
   let disposeDockviewDropGuard: (() => void) | undefined;
   const languageConf = new Compartment();
+  const foldConf = new Compartment();
 
   const fontSize = props.options?.fontSize ?? 13;
   const wordWrap = props.options?.wordWrap !== 'off';
@@ -59,8 +61,10 @@ export function BasicCodeMirrorEditor(props: {
           ...closeBracketsKeymap,
           ...defaultKeymap,
           ...historyKeymap,
+          ...foldKeymap,
           indentWithTab,
         ]),
+        foldConf.of(props.foldEnabled?.() ? [codeFolding(), foldGutter()] : []),
         EditorState.tabSize.of(tabSize),
         ...(readOnly ? [EditorState.readOnly.of(true)] : []),
         tooltips({ parent: document.body }),
@@ -87,6 +91,13 @@ export function BasicCodeMirrorEditor(props: {
     const lang = props.language();
     if (!view) return;
     view.dispatch({ effects: languageConf.reconfigure(getLanguageExtension(lang)) });
+  });
+
+  // Sync fold toggle
+  createEffect(() => {
+    const enabled = props.foldEnabled?.() ?? false;
+    if (!view) return;
+    view.dispatch({ effects: foldConf.reconfigure(enabled ? [codeFolding(), foldGutter()] : []) });
   });
 
   // Sync value changes from outside

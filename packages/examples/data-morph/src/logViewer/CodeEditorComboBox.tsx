@@ -6,12 +6,7 @@ import HighlightOffIcon from '@suid/icons-material/HighlightOff';
 import ArrowDownwardRoundedIcon from '@suid/icons-material/ArrowDownwardRounded';
 
 import { KeyboardManager } from '@arminmajerie/keyboard-manager';
-
-type DialogEditorRef = {
-  getValue: () => string;
-  addCommand: (...args: unknown[]) => unknown;
-  focus: () => void;
-};
+import type { editor as monacoEditor } from 'monaco-editor';
 
 
 interface CodeEditorComboBoxProps {
@@ -54,7 +49,7 @@ const CodeEditorComboBox: Component<CodeEditorComboBoxProps> = (props) => {
   // Track current unsaved value for CustomComboBox (when isDynamic is false)
   const [comboBoxValue, setComboBoxValue] = createSignal(props.value);
   const [dataMorphContextJson, setDataMorphContextJson] = createSignal<string>('');
-  let dialogEditorRef: DialogEditorRef | undefined;
+  let dialogEditorRef: monacoEditor.IStandaloneCodeEditor | undefined;
   let showDropdown = props.showDropdown ?? true;
 
   const reserveEndPaddingPx = () => {
@@ -263,7 +258,7 @@ const CodeEditorComboBox: Component<CodeEditorComboBoxProps> = (props) => {
     setDialogOpen(false);
   };
 
-  const handleDialogEditorMount = (monacoInstance: any, editor: DialogEditorRef) => {
+  const handleDialogEditorMount = (monacoInstance: any, editor: monacoEditor.IStandaloneCodeEditor) => {
     dialogEditorRef = editor;
     
     // Add Ctrl+S handler to save and close

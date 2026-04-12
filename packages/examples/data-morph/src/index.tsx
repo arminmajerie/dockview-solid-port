@@ -1,8 +1,10 @@
+// packages/dockview-solid-example/src/index.tsx
 import './index.css';
 import { render } from 'solid-js/web';
 import { ThemeProvider, createTheme } from '@suid/material/styles';
 
 import App from './App';
+import LandingPage from './landing/LandingPage';
 
 const darkTheme = createTheme({
   palette: {
@@ -37,8 +39,29 @@ if (import.meta.env.DEV && !(root instanceof HTMLElement)) {
   );
 }
 
+function normalizePath(pathname: string): string {
+  const trimmed = pathname.replace(/\/+$/, '');
+  return trimmed === '' ? '/' : trimmed;
+}
+
+function normalizeBasePath(baseUrl: string): string {
+  const normalized = baseUrl.startsWith('/') ? baseUrl : `/${baseUrl}`;
+  return normalizePath(normalized);
+}
+
+function isPlaygroundRoute(pathname: string): boolean {
+  const basePath = normalizeBasePath(import.meta.env.BASE_URL ?? '/');
+  const playgroundPath = normalizePath(`${basePath}/DataMorph-Playground`.replace(/\/{2,}/g, '/'));
+  const normalized = normalizePath(pathname);
+  return normalized === playgroundPath || normalized.startsWith(`${playgroundPath}/`);
+}
+
 render(() => (
-  <ThemeProvider theme={darkTheme}>
-    <App />
-  </ThemeProvider>
+  isPlaygroundRoute(window.location.pathname) ? (
+    <ThemeProvider theme={darkTheme}>
+      <App />
+    </ThemeProvider>
+  ) : (
+    <LandingPage />
+  )
 ), root!);

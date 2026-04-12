@@ -1,4 +1,4 @@
-export type InputFormat = "JSON" | "XML" | "YAML" | "TEXT" | "DML";
+export type InputFormat = "JSON" | "XML" | "YAML" | "TEXT" | "DML" | "XLSX" | "XLS" | "PDF";
 import { v4 as uuidv4 } from 'uuid';
 export type PipelineInputItem = {
   id: string;
@@ -6,6 +6,10 @@ export type PipelineInputItem = {
   value: string;
   locked?: boolean;
   scope?: "top" | "vars";
+  /** Base64-encoded binary content for Excel files */
+  binaryPayload?: string;
+  /** Original file name for display purposes */
+  fileName?: string;
 };
 
 export type ScriptItem = {

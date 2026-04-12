@@ -10,6 +10,9 @@ const FORMAT_EXTENSIONS: Record<InputFormat, string> = {
   YAML: 'yaml',
   TEXT: 'txt',
   DML: 'dml',
+  XLSX: 'xlsx',
+  XLS: 'xls',
+  PDF: 'pdf',
 };
 
 // Reverse mapping from extension to format
@@ -20,6 +23,9 @@ const EXTENSION_FORMATS: Record<string, InputFormat> = {
   yml: 'YAML',
   txt: 'TEXT',
   dml: 'DML',
+  xlsx: 'XLSX',
+  xls: 'XLS',
+  pdf: 'PDF',
 };
 
 export interface ExportData {
@@ -49,26 +55,29 @@ export async function exportPlayground(
   if (inputsFolder) {
     for (const input of inputs) {
       const ext = FORMAT_EXTENSIONS[input.format] ?? 'txt';
+      // For Excel formats, store the binary payload as base64
+      const content = (input.format === 'XLSX' || input.format === 'XLS' || input.format === 'PDF') && input.binaryPayload
+        ? input.binaryPayload
+        : input.value;
       
       if (input.id === 'payload') {
         // payload.{ext}
-        inputsFolder.file(`payload.${ext}`, input.value);
+        inputsFolder.file(`payload.${ext}`, content);
       } else if (input.id === 'attributes') {
         // attributes.{ext}
-        inputsFolder.file(`attributes.${ext}`, input.value);
+        inputsFolder.file(`attributes.${ext}`, content);
       } else if (input.id === 'vars') {
         // vars is a folder container, skip the root vars object
         // Individual vars items are handled below
-        continue;
       } else if (input.id === 'correlationId') {
         // correlationId.txt - always text
-        inputsFolder.file('correlationId.txt', input.value);
+        inputsFolder.file('correlationId.txt', content);
       } else if (input.scope === 'vars') {
         // vars.{varName}.{ext}
-        inputsFolder.file(`vars.${input.id}.${ext}`, input.value);
+        inputsFolder.file(`vars.${input.id}.${ext}`, content);
       } else {
         // Top-level custom inputs: {inputName}.{ext}
-        inputsFolder.file(`${input.id}.${ext}`, input.value);
+        inputsFolder.file(`${input.id}.${ext}`, content);
       }
     }
   }
@@ -82,6 +91,7 @@ export async function exportPlayground(
       format: input.format,
       scope: input.scope ?? 'top',
       locked: input.locked ?? false,
+      ...(input.fileName ? { fileName: input.fileName } : {}),
     })),
     scripts: scripts.map(script => ({
       id: script.id,
@@ -109,7 +119,7 @@ export async function importPlayground(file: File): Promise<ExportData | null> {
 
     // Try to read metadata file
     let metadata: {
-      inputs?: Array<{ id: string; format: InputFormat; scope: string; locked: boolean }>;
+      inputs?: Array<{ id: string; format: InputFormat; scope: string; locked: boolean; fileName?: string }>;
       scripts?: Array<{ id: string; name: string; isMain: boolean }>;
     } | null = null;
 
@@ -176,12 +186,16 @@ payload`,
         // Parse the filename to determine input type
         if (fileName.startsWith('payload.')) {
           const inputMeta = metadata?.inputs?.find(i => i.id === 'payload');
+          const resolvedFormat = inputMeta?.format ?? format;
+          const isBinary = resolvedFormat === 'XLSX' || resolvedFormat === 'XLS' || resolvedFormat === 'PDF';
+          const label = resolvedFormat === 'PDF' ? 'PDF' : 'Excel';
           inputs.push({
             id: 'payload',
-            format: inputMeta?.format ?? format,
-            value: content,
+            format: resolvedFormat,
+            value: isBinary ? `[${label} file: ${inputMeta?.fileName ?? fileName}]` : content,
             locked: true,
             scope: 'top',
+            ...(isBinary ? { binaryPayload: content, fileName: inputMeta?.fileName ?? fileName } : {}),
           });
         } else if (fileName.startsWith('attributes.')) {
           const inputMeta = metadata?.inputs?.find(i => i.id === 'attributes');
