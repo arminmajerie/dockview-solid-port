@@ -28,9 +28,26 @@ const EXTENSION_FORMATS: Record<string, InputFormat> = {
   pdf: 'PDF',
 };
 
+type ExportedOutputFormat = 'json' | 'xml' | 'yaml' | 'csv' | 'text' | 'dml' | 'xlsx';
+
+const OUTPUT_EXTENSIONS: Record<ExportedOutputFormat, string> = {
+  json: 'json',
+  xml: 'xml',
+  yaml: 'yaml',
+  csv: 'csv',
+  text: 'txt',
+  dml: 'dml',
+  xlsx: 'xlsx',
+};
+
 export interface ExportData {
   scripts: ScriptItem[];
   inputs: PipelineInputItem[];
+}
+
+export interface ExportedOutputData {
+  value: string;
+  format: ExportedOutputFormat;
 }
 
 /**
@@ -38,7 +55,8 @@ export interface ExportData {
  */
 export async function exportPlayground(
   scripts: ScriptItem[],
-  inputs: PipelineInputItem[]
+  inputs: PipelineInputItem[],
+  output?: ExportedOutputData
 ): Promise<void> {
   const zip = new JSZip();
 
@@ -82,6 +100,19 @@ export async function exportPlayground(
     }
   }
 
+  if (output) {
+    const outputFolder = zip.folder('output');
+    if (outputFolder) {
+      const ext = OUTPUT_EXTENSIONS[output.format] ?? 'txt';
+      const fileName = `output.${ext}`;
+      if (output.format === 'xlsx') {
+        outputFolder.file(fileName, output.value, { base64: true });
+      } else {
+        outputFolder.file(fileName, output.value);
+      }
+    }
+  }
+
   // Create a metadata file to preserve format information
   const metadata = {
     version: '1.0',
@@ -98,6 +129,12 @@ export async function exportPlayground(
       name: script.name,
       isMain: script.isMain ?? false,
     })),
+    ...(output ? {
+      output: {
+        format: output.format,
+        fileName: `output.${OUTPUT_EXTENSIONS[output.format] ?? 'txt'}`,
+      },
+    } : {}),
   };
   zip.file('metadata.json', JSON.stringify(metadata, null, 2));
 

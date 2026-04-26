@@ -31,7 +31,7 @@ export class Scrollbar extends CompositeDisposable {
                 this._scrollLeft += event.deltaY * Scrollbar.MouseWheelSpeed;
 
                 this.calculateScrollbarStyles();
-            }),
+            }, { passive: true }),
             addDisposableListener(
                 this._horizontalScrollbar,
                 'pointerdown',

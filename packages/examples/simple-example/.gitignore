@@ -21,7 +21,12 @@ app.config.timestamp_*.js
 .settings/
 
 # Temp
-gitignore
+.cache/
+.vite/
+*.tsbuildinfo
+*.tgz
+*.log
+*-debug.log
 
 # System Files
 .DS_Store

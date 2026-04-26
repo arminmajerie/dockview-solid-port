@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# Syncs WASM output and shared source files from data-morph/DataMorphPlayground
+# Syncs WASM output and shared source files from data-morph/Extentions/DataMorphPlayground
 # into this dockview example project.
 #
 # Copies:
 #   1. Compiled WASM binaries from data-morph/wasm/pkg-web/ → data-morph-wasm/
-#   2. Shared source files from DataMorphPlayground/src/ → src/
+#   2. Shared source files from Extentions/DataMorphPlayground/src/ → src/
 #      (Excludes monaco/, landing/, excel/ which are source-only.)
 #   3. public/codicon.ttf
 #   4. index.html
@@ -45,9 +45,9 @@ if [[ -z "$source_root" ]]; then
   source_root="$(cd "$target_root/../../../../data-morph" && pwd)"
 fi
 
-playground_src="${source_root}/DataMorphPlayground/src"
+playground_src="${source_root}/Extentions/DataMorphPlayground/src"
 wasm_pkg_web="${source_root}/wasm/pkg-web"
-playground_root="${source_root}/DataMorphPlayground"
+playground_root="${source_root}/Extentions/DataMorphPlayground"
 
 # --- Validation ---
 for required_dir in "$playground_src" "$wasm_pkg_web"; do

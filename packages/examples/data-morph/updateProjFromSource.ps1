@@ -1,12 +1,12 @@
 <#
 .SYNOPSIS
-    Syncs WASM output and shared source files from data-morph/DataMorphPlayground
+    Syncs WASM output and shared source files from data-morph/Extentions/DataMorphPlayground
     into this dockview example project.
 
 .DESCRIPTION
     Copies:
       1. Compiled WASM binaries from data-morph/wasm/pkg-web/ → data-morph-wasm/
-      2. Shared source files from DataMorphPlayground/src/ → src/
+    2. Shared source files from Extentions/DataMorphPlayground/src/ → src/
          (Excludes monaco/, landing/, excel/ which are source-only.)
       3. public/codicon.ttf
       4. index.html
@@ -37,9 +37,9 @@ if (-not $SourceRoot) {
     $SourceRoot = [System.IO.Path]::GetFullPath($SourceRoot)
 }
 
-$playgroundSrc = Join-Path $SourceRoot "DataMorphPlayground" "src"
+$playgroundSrc = Join-Path $SourceRoot "Extentions" "DataMorphPlayground" "src"
 $wasmPkgWeb    = Join-Path $SourceRoot "wasm" "pkg-web"
-$playgroundRoot = Join-Path $SourceRoot "DataMorphPlayground"
+$playgroundRoot = Join-Path $SourceRoot "Extentions" "DataMorphPlayground"
 
 # --- Validation ---
 foreach ($requiredDir in @($playgroundSrc, $wasmPkgWeb)) {

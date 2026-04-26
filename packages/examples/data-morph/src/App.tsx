@@ -177,10 +177,10 @@ payload.DataMorph`;
 
 // Managed by the DataMorphPlayground build and publish scripts.
 const JAVA_SDK_DOWNLOADS = {
-  version: "1.21.4",
-  jarUrl: "https://repo1.maven.org/maven2/io/github/arminmajerie/data-morph-java-sdk/1.21.4/data-morph-java-sdk-1.21.4.jar",
-  javadocUrl: "https://repo1.maven.org/maven2/io/github/arminmajerie/data-morph-java-sdk/1.21.4/data-morph-java-sdk-1.21.4-javadoc.jar",
-  sourcesUrl: "https://repo1.maven.org/maven2/io/github/arminmajerie/data-morph-java-sdk/1.21.4/data-morph-java-sdk-1.21.4-sources.jar",
+  version: "1.21.5",
+  jarUrl: "https://repo1.maven.org/maven2/io/github/arminmajerie/data-morph-java-sdk/1.21.5/data-morph-java-sdk-1.21.5.jar",
+  javadocUrl: "https://repo1.maven.org/maven2/io/github/arminmajerie/data-morph-java-sdk/1.21.5/data-morph-java-sdk-1.21.5-javadoc.jar",
+  sourcesUrl: "https://repo1.maven.org/maven2/io/github/arminmajerie/data-morph-java-sdk/1.21.5/data-morph-java-sdk-1.21.5-sources.jar",
 } as const;
 
 function createDefaultState(): {
@@ -431,7 +431,10 @@ export default function App(): JSX.Element {
   // Import/Export handlers
   const handleExport = async () => {
     try {
-      await exportPlayground(scripts(), inputs());
+      await exportPlayground(scripts(), inputs(), {
+        value: output(),
+        format: outputFormat(),
+      });
       // 0&&console['log']('[App] Export completed');
     } catch (error) {
       console.error('[App] Export failed:', error);

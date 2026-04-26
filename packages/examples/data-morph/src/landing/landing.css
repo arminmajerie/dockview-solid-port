@@ -1,0 +1,344 @@
+@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Space+Grotesk:wght@600;700&display=swap");
+
+.dm-landing-root {
+  background: #eef2f8;
+  color: #101827;
+  font-family: "Manrope", "Segoe UI", sans-serif;
+  min-height: 100vh;
+}
+
+.container {
+  width: min(1120px, calc(100% - 40px));
+  margin: 0 auto;
+}
+
+.dm-hero {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 15% 20%, rgba(255, 255, 255, 0.72) 0, rgba(255, 255, 255, 0.1) 26%, transparent 45%),
+    radial-gradient(circle at 82% 30%, rgba(136, 170, 218, 0.35) 0, rgba(136, 170, 218, 0.05) 30%, transparent 52%),
+    linear-gradient(132deg, #dce7f5 0%, #cedcf0 38%, #dbe5f3 100%);
+}
+
+.dm-hero-overlay {
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle, rgba(255, 255, 255, 0.58) 0 1px, transparent 1px),
+    linear-gradient(120deg, rgba(130, 162, 210, 0.2), rgba(130, 162, 210, 0));
+  background-size: 24px 24px, cover;
+  opacity: 0.65;
+  pointer-events: none;
+}
+
+.dm-nav {
+  position: relative;
+  z-index: 2;
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.dm-nav-actions,
+.dm-cta-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.dm-brand {
+  font-family: "Space Grotesk", "Segoe UI", sans-serif;
+  font-size: 1.1rem;
+  letter-spacing: 0.04em;
+  font-weight: 700;
+}
+
+.dm-nav-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 0 18px;
+  border: 1px solid #315fd6;
+  border-radius: 8px;
+  background: #f3f7ff;
+  color: #234bb1;
+  text-decoration: none;
+  font-weight: 700;
+  transition: 120ms ease;
+}
+
+.dm-nav-cta:hover {
+  background: #e5edff;
+}
+
+.dm-nav-cta-secondary {
+  border-color: #8fa6d8;
+  background: rgba(255, 255, 255, 0.55);
+  color: #22408a;
+}
+
+.dm-nav-cta-secondary:hover {
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.dm-hero-content {
+  position: relative;
+  z-index: 2;
+  padding: 56px 0 86px;
+}
+
+.dm-hero-content h1 {
+  max-width: 740px;
+  margin: 0;
+  font-family: "Space Grotesk", "Segoe UI", sans-serif;
+  font-size: clamp(2.15rem, 4.4vw, 4.1rem);
+  line-height: 1.04;
+  letter-spacing: -0.02em;
+}
+
+.dm-hero-subtitle {
+  max-width: 760px;
+  font-size: clamp(1.05rem, 1.95vw, 1.85rem);
+  line-height: 1.35;
+  margin: 28px 0 18px;
+  font-weight: 700;
+}
+
+.dm-author {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #364255;
+  font-weight: 600;
+}
+
+.dm-main {
+  padding-bottom: 80px;
+}
+
+.dm-section {
+  padding: 52px 0 12px;
+}
+
+.dm-section-kicker {
+  margin: 0 0 12px;
+  letter-spacing: 0.02em;
+  font-weight: 800;
+  font-size: 1.85rem;
+  font-family: "Space Grotesk", "Segoe UI", sans-serif;
+}
+
+.dm-section h2 {
+  margin: 0;
+  font-family: "Space Grotesk", "Segoe UI", sans-serif;
+  font-size: clamp(1.95rem, 2.8vw, 3.15rem);
+  line-height: 1.1;
+}
+
+.dm-section-copy {
+  margin: 14px 0 18px;
+  max-width: 980px;
+  font-size: 1.05rem;
+  line-height: 1.5;
+  color: #2f3b4e;
+}
+
+.dm-card-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.dm-card-grid-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.dm-card {
+  border-radius: 10px;
+  background: #f2f5ff;
+  padding: 18px 16px;
+}
+
+.dm-card h3 {
+  margin: 0;
+  font-size: 1.24rem;
+  line-height: 1.25;
+  font-weight: 800;
+}
+
+.dm-card p {
+  margin: 8px 0 0;
+  color: #334156;
+  line-height: 1.46;
+}
+
+.dm-card-bordered {
+  border: 1px solid #6f82bc;
+  border-left-width: 4px;
+  background: #f7f9ff;
+}
+
+.dm-card-soft .dm-card {
+  border: 1px solid #c6d2ef;
+  background: #dfe5fa;
+}
+
+.dm-card-icons .dm-card {
+  border: 1px solid #bfd0f2;
+  background: #eff4ff;
+}
+
+.dm-card-icon {
+  width: 24px;
+  height: 24px;
+  display: inline-block;
+  border: 2px solid #335fce;
+  border-radius: 7px;
+  margin-bottom: 8px;
+}
+
+.dm-note {
+  margin-top: 12px;
+  padding: 12px 16px;
+  border: 1px solid #becaf0;
+  border-left-width: 4px;
+  border-radius: 8px;
+  background: #dee6fb;
+  color: #1d2a43;
+  font-weight: 600;
+}
+
+.dm-metrics-grid {
+  margin-top: 12px;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.dm-metric {
+  border-radius: 10px;
+  border: 1px solid #ccd5ee;
+  background: #f7f9ff;
+  padding: 14px;
+}
+
+.dm-metric-value {
+  font-family: "Space Grotesk", "Segoe UI", sans-serif;
+  font-size: clamp(1.8rem, 3vw, 2.8rem);
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 8px;
+}
+
+.dm-metric h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.dm-metric p {
+  margin: 8px 0 0;
+  color: #334156;
+  line-height: 1.4;
+}
+
+.dm-compare-grid {
+  margin-top: 12px;
+  display: grid;
+  gap: 18px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.dm-compare-col {
+  border-radius: 10px;
+  border: 1px solid #ccd5ee;
+  background: #f7f9ff;
+  padding: 16px 18px;
+}
+
+.dm-compare-col h3 {
+  margin: 0 0 10px;
+  font-size: 1.15rem;
+  font-weight: 800;
+}
+
+.dm-compare-col ul {
+  margin: 0;
+  padding-left: 18px;
+  color: #25314a;
+  line-height: 1.62;
+}
+
+.dm-cta-section {
+  display: grid;
+  grid-template-columns: 1fr 420px;
+  gap: 24px;
+  align-items: center;
+}
+
+.dm-cta-copy p {
+  font-size: 1.03rem;
+  color: #2f3b4e;
+}
+
+.dm-cta-copy a {
+  color: #234bb1;
+  font-weight: 700;
+}
+
+.dm-cta-visual {
+  min-height: 300px;
+  border-radius: 14px;
+  border: 1px solid #7f95cb;
+  background:
+    radial-gradient(circle at 48% 34%, rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0) 36%),
+    repeating-linear-gradient(90deg, rgba(120, 155, 218, 0.27) 0 2px, transparent 2px 24px),
+    linear-gradient(135deg, #163466 0%, #2f5db1 44%, #8db0ff 100%);
+}
+
+@media (max-width: 1080px) {
+  .dm-card-grid-3,
+  .dm-metrics-grid,
+  .dm-cta-section {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .dm-cta-visual {
+    min-height: 230px;
+  }
+}
+
+@media (max-width: 720px) {
+  .container {
+    width: min(1120px, calc(100% - 26px));
+  }
+
+  .dm-nav {
+    height: 64px;
+    align-items: flex-start;
+    justify-content: space-between;
+    padding-top: 14px;
+  }
+
+  .dm-hero-content {
+    padding: 32px 0 48px;
+  }
+
+  .dm-nav-actions,
+  .dm-cta-actions {
+    width: 100%;
+  }
+
+  .dm-card-grid-3,
+  .dm-metrics-grid,
+  .dm-compare-grid,
+  .dm-cta-section {
+    grid-template-columns: 1fr;
+  }
+
+  .dm-section {
+    padding-top: 40px;
+  }
+}
