@@ -16,3 +16,21 @@ yarn-error.log
 /generated/
 /package-lock.json
 /packages/examples/simple-example/package-lock.json
+
+# Local environment / secrets
+.env
+.env.*
+!.env.example
+!.env.*.example
+.npmrc
+!.npmrc.example
+
+# Extra package-manager / tool output
+*.tsbuildinfo
+*.tgz
+.cache/
+.vite/
+.turbo/
+.nyc_output/
+pnpm-debug.log*
+npm-debug.log*
