@@ -5,11 +5,11 @@ import {
 
 describe('dockview touch drag integration', () => {
     beforeEach(() => {
-        jest.useFakeTimers();
+        vi.useFakeTimers();
     });
 
     afterEach(() => {
-        jest.useRealTimers();
+        vi.useRealTimers();
     });
 
     it('keeps normal tap activation and starts dragging only after a long press', () => {
@@ -52,7 +52,7 @@ describe('dockview touch drag integration', () => {
             })
         );
 
-        jest.advanceTimersByTime(321);
+        vi.advanceTimersByTime(321);
 
         expect(scenario.root.dataset.dragState).toBe('dragging');
         expect(
@@ -76,7 +76,7 @@ describe('dockview touch drag integration', () => {
             })
         );
 
-        jest.advanceTimersByTime(321);
+        vi.advanceTimersByTime(321);
 
         window.dispatchEvent(
             createPointerEvent('pointermove', {
@@ -140,7 +140,7 @@ describe('dockview touch drag integration', () => {
             })
         );
 
-        jest.advanceTimersByTime(321);
+        vi.advanceTimersByTime(321);
 
         expect(
             document.querySelector('[data-testid="dockview-drag-ghost"]')
@@ -155,7 +155,7 @@ describe('dockview touch drag integration', () => {
             })
         );
 
-        jest.advanceTimersByTime(321);
+        vi.advanceTimersByTime(321);
 
         window.dispatchEvent(
             createPointerEvent('pointercancel', {

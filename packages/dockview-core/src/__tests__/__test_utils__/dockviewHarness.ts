@@ -163,7 +163,7 @@ export function mockElementRect(element: HTMLElement, rect: Rect): void {
         value: rect.height,
     });
 
-    element.getBoundingClientRect = jest.fn(() => ({
+    element.getBoundingClientRect = vi.fn(() => ({
         x: rect.left,
         y: rect.top,
         left: rect.left,

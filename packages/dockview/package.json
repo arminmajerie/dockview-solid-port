@@ -1,6 +1,6 @@
 {
   "name": "@arminmajerie/dockview",
-  "version": "5.0.0",
+  "version": "5.0.1",
   "description": "Zero dependency layout manager supporting tabs, grids and splitviews (SolidJS only)",
   "keywords": [
     "dockview",
@@ -49,7 +49,7 @@
     "README.md"
   ],
   "dependencies": {
-    "@arminmajerie/dockview-core": "5.0.0"
+    "@arminmajerie/dockview-core": "5.0.1"
   },
   "peerDependencies": {
     "solid-js": "^1.8.0"
@@ -57,7 +57,6 @@
   "devDependencies": {
     "cross-env": "^7.0.3",
     "eslint": "^9.39.1",
-    "rimraf": "^5.0.5",
     "solid-js": "^1.9.11",
     "ts-node": "^10.9.2",
     "tsup": "^8.5.0",
@@ -67,7 +66,7 @@
   "scripts": {
     "build": "npm run clean && tsc -p tsconfig.json && node scripts/copy-css.js",
     "build:cjs": "tsc -p tsconfig.cjs.json",
-    "clean": "rimraf dist",
+    "clean": "node -e \"require('node:fs').rmSync('dist',{recursive:true,force:true});\"",
     "lint": "eslint src --ext .ts,.tsx",
     "prepublishOnly": "npm run build",
     "rebuild": "npm run clean && npm run build"
