@@ -1,14 +1,38 @@
 /* eslint-disable */
 
+const fs = require('fs');
 const { join } = require('path');
 const typescript = require('@rollup/plugin-typescript');
 const terser = require('@rollup/plugin-terser');
-const postcss = require('rollup-plugin-postcss');
 
 const { name, version, homepage, license } = require('./package.json');
 const main = join(__dirname, './scripts/rollupEntryTarget.ts');
 const mainNoStyles = join(__dirname, './src/index.ts');
 const outputDir = join(__dirname, 'dist');
+
+function bundleCssImports() {
+    return {
+        name: 'bundle-css-imports',
+        load(id) {
+            if (!id.endsWith('.css')) {
+                return null;
+            }
+
+            const css = fs.readFileSync(id, 'utf8');
+
+            return [
+                `const css = ${JSON.stringify(css)};`,
+                `if (typeof document !== 'undefined' && !document.querySelector('style[data-dockview-core-bundle]')) {`,
+                `    const style = document.createElement('style');`,
+                `    style.setAttribute('data-dockview-core-bundle', 'true');`,
+                `    style.appendChild(document.createTextNode(css));`,
+                `    document.head.appendChild(style);`,
+                `}`,
+                `export default css;`,
+            ].join('\n');
+        },
+    };
+}
 
 function outputFile(format, isMinified, withStyles) {
     let filename = join(outputDir, name);
@@ -74,7 +98,7 @@ function createBundle(format, options) {
         plugins.push(terser());
     }
     if (withStyles) {
-        plugins.push(postcss());
+        plugins.push(bundleCssImports());
     }
 
     if (format === 'umd') {

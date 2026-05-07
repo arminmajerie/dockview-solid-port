@@ -1,6 +1,6 @@
 {
   "name": "@arminmajerie/dockview-core",
-  "version": "5.0.0",
+  "version": "5.0.1",
   "description": "Zero dependency layout manager supporting tabs, grids and splitviews",
   "keywords": [
     "splitview",
@@ -47,6 +47,7 @@
     "raf-schd": "^4.0.3"
   },
   "devDependencies": {
+    "@jest/environment-jsdom-abstract": "^30.3.0",
     "@isaacs/brace-expansion": "5.0.1",
     "@rollup/plugin-terser": "^1.0.0",
     "@rollup/plugin-typescript": "^12.3.0",
@@ -54,8 +55,7 @@
     "gulp": "^5.0.1",
     "gulp-dart-sass": "^1.1.0",
     "gulp-sass": "^6.0.1",
-    "rimraf": "^6.0.1",
-    "rollup-plugin-postcss": "^4.0.2",
+    "jsdom": "^29.1.1",
     "sass": "^1.93.2",
     "tsup": "^8.5.0",
     "typescript": "5.9.2",
@@ -68,7 +68,7 @@
     "build:css": "gulp sass",
     "build:esm": "cross-env ../../node_modules/.bin/tsc --build ./tsconfig.esm.json --verbose --extendedDiagnostics",
     "build": "npm run build:cjs && npm run build:esm && npm run build:css",
-    "clean": "rimraf dist/ .build/ .rollup.cache/",
+    "clean": "node -e \"const fs=require('node:fs');['dist','.build','.rollup.cache'].forEach((path)=>fs.rmSync(path,{recursive:true,force:true}));\"",
     "prepublishOnly": "npm run rebuild && npm run build:bundle && npm run test",
     "rebuild": "npm run clean && npm run build",
     "test": "jest --config ./jest.config.ts",
