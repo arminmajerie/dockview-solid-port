@@ -82,7 +82,18 @@ import {
 
 ---
 
-## Project status
+## Development setup
+
+This monorepo uses **pnpm** with a hoisted, copy-based install so it works on **exFAT** and other drives that do not support symlinks (npm workspaces will fail there with `EISDIR`).
+
+```sh
+corepack enable
+pnpm install
+```
+
+Do **not** run `npm install` in this repository.
+
+---
 
 * **Alpha:** Major features are ported, but expect bugs and breaking changes.
 * **Docs and live examples:** Coming soon.

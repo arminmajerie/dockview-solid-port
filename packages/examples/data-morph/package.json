@@ -17,7 +17,7 @@
     "vite-plugin-wasm": "^3.5.0"
   },
   "dependencies": {
-    "@arminmajerie/dockview-solid": "5.0.1",
+    "@arminmajerie/dockview-solid": "5.0.2",
     "@arminmajerie/keyboard-manager": "^1.0.1",
     "@codemirror/autocomplete": "^6.20.1",
     "@codemirror/commands": "^6.10.2",

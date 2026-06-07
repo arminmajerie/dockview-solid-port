@@ -12,13 +12,6 @@
   },
   "license": "MIT",
   "author": "https://github.com/arminmajerie",
-  "workspaces": [
-    "packages/dockview",
-    "packages/dockview-solid",
-    "packages/dockview-core",
-    "packages/examples/simple-example",
-    "packages/examples/data-morph"
-  ],
   "devDependencies": {
     "@playwright/test": "^1.53.2",
     "cross-env": "^7.0.3",
@@ -35,8 +28,10 @@
     "vite": "^6.4.1",
     "vite-plugin-solid": "^2.11.11"
   },
+  "packageManager": "pnpm@10.12.1",
   "engines": {
-    "node": ">=18.0"
+    "node": ">=18.0",
+    "pnpm": ">=9"
   },
   "overrides": {
     "axios": "1.15.2",
@@ -45,29 +40,29 @@
     "yaml": "2.8.4"
   },
   "scripts": {
-    "publish:dockview-core": "npm publish -w @arminmajerie/dockview-core --access public",
-    "publish:dockview": "npm run build -w packages/dockview-core && npm publish -w @arminmajerie/dockview --access public",
-    "publish:dockview-solid": "npm run build -w packages/dockview-core && npm run build -w packages/dockview && npm publish -w @arminmajerie/dockview-solid --access public",
-    "publish:ordered": "npm run publish:dockview-core && npm run publish:dockview && npm run publish:dockview-solid",
-
-    "clean": "npm -ws run clean --if-present",
-    "build": "npm -ws run build --if-present",
-    "build:ordered": "npm run build -w packages/dockview-core && npm run build -w packages/dockview && npm run build -w packages/dockview-solid && npm run build:example && npm run build:example:data-morph",
-    "build:example": "npm --prefix packages/examples/simple-example run build",
-    "build:example:data-morph": "npm --prefix packages/examples/data-morph run build",
-    "dev": "npm run --workspaces --if-present --parallel dev",
-    "dev:example": "npm --prefix packages/examples/simple-example run dev",
-    "dev:example:data-morph": "npm --prefix packages/examples/data-morph run dev",
+    "preinstall": "node scripts/ensure-pnpm.mjs",
+    "publish:dockview-core": "pnpm publish --filter @arminmajerie/dockview-core --access public --no-git-checks",
+    "publish:dockview": "pnpm --filter @arminmajerie/dockview-core run build && pnpm publish --filter @arminmajerie/dockview --access public --no-git-checks",
+    "publish:dockview-solid": "pnpm --filter @arminmajerie/dockview-core run build && pnpm --filter @arminmajerie/dockview run build && pnpm publish --filter @arminmajerie/dockview-solid --access public --no-git-checks",
+    "publish:ordered": "pnpm run publish:dockview-core && pnpm run publish:dockview && pnpm run publish:dockview-solid",
+    "clean": "pnpm -r run clean --if-present",
+    "build": "pnpm -r run build --if-present",
+    "build:ordered": "pnpm --filter @arminmajerie/dockview-core run build && pnpm --filter @arminmajerie/dockview run build && pnpm --filter @arminmajerie/dockview-solid run build && pnpm run build:example && pnpm run build:example:data-morph",
+    "build:example": "pnpm --filter simple-example run build",
+    "build:example:data-morph": "pnpm --filter data-morph-example run build",
+    "dev": "pnpm -r --parallel run dev",
+    "dev:example": "pnpm --filter simple-example run dev",
+    "dev:example:data-morph": "pnpm --filter data-morph-example run dev",
     "lint": "eslint 'packages/*/src/**/*.{ts,tsx,js,jsx}'",
     "lint:fix": "eslint 'packages/*/src/**/*.{ts,tsx,js,jsx}' --fix",
     "docs": "typedoc && node scripts/docs.mjs",
-    "test": "npm run test:unit && npm run test:integration && npm run test:e2e",
-    "test:unit": "npm --prefix packages/dockview-core run test:unit",
-    "test:integration": "npm --prefix packages/dockview-core run test:integration",
+    "test": "pnpm run test:unit && pnpm run test:integration && pnpm run test:e2e",
+    "test:unit": "pnpm --filter @arminmajerie/dockview-core run test:unit",
+    "test:integration": "pnpm --filter @arminmajerie/dockview-core run test:integration",
     "test:e2e": "playwright test",
     "test:e2e:headed": "playwright test --headed",
     "version": "node scripts/version-workspaces.js",
-    "example": "cd packages/examples/simple-example && npm run server",
-    "example:data-morph": "cd packages/examples/data-morph && npm run server"
+    "example": "pnpm --filter simple-example run server",
+    "example:data-morph": "pnpm --filter data-morph-example run server"
   }
 }

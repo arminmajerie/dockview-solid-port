@@ -5,7 +5,9 @@ import {
 
 describe('dockview touch drag integration', () => {
     beforeEach(() => {
-        vi.useFakeTimers();
+        vi.useFakeTimers({
+            toFake: ['setTimeout', 'clearTimeout'],
+        });
     });
 
     afterEach(() => {
@@ -120,7 +122,61 @@ describe('dockview touch drag integration', () => {
         scenario.dispose();
     });
 
-    it('cancels cleanly on pointercancel and ignores quick swipe gestures', () => {
+    it('starts dragging on an intentional touch move without requiring a long press', () => {
+        const scenario = createDockviewScenario('touch');
+        const betaTab = scenario.getTab('beta');
+        const gammaGroup = scenario.api.getPanel('gamma')!.group;
+
+        betaTab.dispatchEvent(
+            createPointerEvent('pointerdown', {
+                clientX: 150,
+                clientY: 20,
+                pointerType: 'touch',
+            })
+        );
+
+        window.dispatchEvent(
+            createPointerEvent('pointermove', {
+                clientX: 210,
+                clientY: 32,
+                pointerType: 'touch',
+            })
+        );
+
+        expect(scenario.root.dataset.dragState).toBe('dragging');
+        expect(
+            document.querySelector('[data-testid="dockview-drag-ghost"]')
+        ).not.toBeNull();
+
+        window.dispatchEvent(
+            createPointerEvent('pointermove', {
+                clientX: 740,
+                clientY: 260,
+                pointerType: 'touch',
+            })
+        );
+
+        window.dispatchEvent(
+            createPointerEvent('pointerup', {
+                clientX: 740,
+                clientY: 260,
+                pointerType: 'touch',
+            })
+        );
+
+        expect(
+            scenario
+                .getGroup(gammaGroup.id)
+                .querySelector(
+                    '[data-testid="dockview-tab"][data-panel-id="beta"]'
+                )
+        ).not.toBeNull();
+        expect(scenario.root.dataset.dragState).toBe('idle');
+
+        scenario.dispose();
+    });
+
+    it('cancels cleanly on pointercancel and preserves taps with only minor movement', () => {
         const scenario = createDockviewScenario('touch');
         const betaTab = scenario.getTab('beta');
 
@@ -134,17 +190,26 @@ describe('dockview touch drag integration', () => {
 
         window.dispatchEvent(
             createPointerEvent('pointermove', {
-                clientX: 220,
+                clientX: 156,
                 clientY: 24,
                 pointerType: 'touch',
             })
         );
 
-        vi.advanceTimersByTime(321);
-
         expect(
             document.querySelector('[data-testid="dockview-drag-ghost"]')
         ).toBeNull();
+        expect(scenario.root.dataset.dragState).toBe('pending');
+
+        betaTab.dispatchEvent(
+            createPointerEvent('pointerup', {
+                clientX: 156,
+                clientY: 24,
+                pointerType: 'touch',
+            })
+        );
+
+        expect(scenario.api.activePanel?.id).toBe('beta');
         expect(scenario.root.dataset.dragState).toBe('idle');
 
         betaTab.dispatchEvent(

@@ -3,6 +3,29 @@ const path = require('path');
 
 const rootDir = path.join(__dirname, '..');
 const rootPackageJsonPath = path.join(rootDir, 'package.json');
+const pnpmWorkspacePath = path.join(rootDir, 'pnpm-workspace.yaml');
+
+function readWorkspaceEntries() {
+    if (fs.existsSync(pnpmWorkspacePath)) {
+        const entries = [];
+
+        for (const line of fs.readFileSync(pnpmWorkspacePath, 'utf8').split(/\r?\n/)) {
+            const match = line.match(/^\s*-\s*(.+?)\s*$/);
+
+            if (match) {
+                entries.push(match[1]);
+            }
+        }
+
+        if (entries.length > 0) {
+            return entries;
+        }
+    }
+
+    const rootPackageJson = readJson(rootPackageJsonPath);
+
+    return Array.isArray(rootPackageJson.workspaces) ? rootPackageJson.workspaces : [];
+}
 
 function readJson(filePath) {
     return JSON.parse(fs.readFileSync(filePath, 'utf8'));
@@ -20,10 +43,7 @@ if (!targetVersion) {
     process.exit(1);
 }
 
-const rootPackageJson = readJson(rootPackageJsonPath);
-const workspaceEntries = Array.isArray(rootPackageJson.workspaces)
-    ? rootPackageJson.workspaces
-    : [];
+const workspaceEntries = readWorkspaceEntries();
 
 const workspacePackageFiles = workspaceEntries
     .filter((entry) => !entry.includes('*'))

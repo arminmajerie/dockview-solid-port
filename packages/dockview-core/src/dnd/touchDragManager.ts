@@ -16,7 +16,7 @@ import {
 import { Droptarget } from './droptarget';
 
 const LONG_PRESS_DELAY_MS = 320;
-const PENDING_CANCEL_DISTANCE_PX = 24;
+const TOUCH_DRAG_START_DISTANCE_PX = 12;
 const GHOST_OFFSET_X = 18;
 const GHOST_OFFSET_Y = 18;
 
@@ -211,15 +211,15 @@ export class DockviewTouchDragManager extends CompositeDisposable {
         state.lastEvent = event;
 
         if (!state.started) {
-            const movedFarEnough =
+            const movedFarEnoughToStart =
                 getPointerTravelDistance(
                     state.startX,
                     state.startY,
                     event
-                ) > PENDING_CANCEL_DISTANCE_PX;
+                ) >= TOUCH_DRAG_START_DISTANCE_PX;
 
-            if (movedFarEnough) {
-                this.cancelTouchDrag(event, false);
+            if (movedFarEnoughToStart) {
+                this.beginTouchDrag(state);
             }
 
             return;

@@ -435,6 +435,18 @@ export class Splitview {
             sash.className = 'dv-sash';
 
             const onPointerStart = (event: PointerEvent) => {
+                if (event.cancelable) {
+                    event.preventDefault();
+                }
+
+                const pointerId = event.pointerId;
+
+                try {
+                    sash.setPointerCapture(pointerId);
+                } catch {
+                    // Some environments do not support pointer capture for synthetic events.
+                }
+
                 for (const item of this.viewItems) {
                     item.enabled = false;
                 }
@@ -522,6 +534,10 @@ export class Splitview {
                 }
 
                 const onPointerMove = (event: PointerEvent) => {
+                    if (event.cancelable) {
+                        event.preventDefault();
+                    }
+
                     const current =
                         this._orientation === Orientation.HORIZONTAL
                             ? event.clientX
@@ -544,6 +560,14 @@ export class Splitview {
                 };
 
                 const end = () => {
+                    try {
+                        if (sash.hasPointerCapture(pointerId)) {
+                            sash.releasePointerCapture(pointerId);
+                        }
+                    } catch {
+                        // Ignore environments that do not fully implement pointer capture.
+                    }
+
                     for (const item of this.viewItems) {
                         item.enabled = true;
                     }

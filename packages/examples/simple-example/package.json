@@ -1,6 +1,6 @@
 {
   "name": "simple-example",
-  "version": "0.0.4",
+  "version": "5.0.2",
   "description": "",
   "type": "module",
   "license": "MIT",
@@ -11,7 +11,7 @@
     "solid-js": "^1.9.11"
   },
   "dependencies": {
-    "@arminmajerie/dockview-solid": "5.0.1",
+    "@arminmajerie/dockview-solid": "5.0.2",
     "@suid/icons-material": "^0.8.1",
     "@suid/material": "^0.18.0"
   },

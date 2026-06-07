@@ -22,8 +22,7 @@ yarn-error.log
 .env.*
 !.env.example
 !.env.*.example
-.npmrc
-!.npmrc.example
+# Project .npmrc is committed (no secrets). User-level auth tokens stay in ~/.npmrc.
 
 # Extra package-manager / tool output
 *.tsbuildinfo
@@ -34,3 +33,5 @@ yarn-error.log
 .nyc_output/
 pnpm-debug.log*
 npm-debug.log*
+/pnpm-workspace.yaml
+/pnpm-lock.yaml

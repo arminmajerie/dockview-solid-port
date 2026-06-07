@@ -5,7 +5,7 @@
             "path": "./packages/dockview"
         },
         {
-            "path": "./packages/examples/simple-example,"
+            "path": "./packages/examples/simple-example"
         },
         {
             "path": "./packages/dockview-solid"
