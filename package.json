@@ -28,10 +28,10 @@
     "vite": "^6.4.1",
     "vite-plugin-solid": "^2.11.11"
   },
-  "packageManager": "pnpm@10.12.1",
+  "packageManager": "npm@10.12.1",
   "engines": {
     "node": ">=18.0",
-    "pnpm": ">=9"
+    "npm": ">=9"
   },
   "overrides": {
     "axios": "1.15.2",
@@ -40,29 +40,29 @@
     "yaml": "2.8.4"
   },
   "scripts": {
-    "preinstall": "node scripts/ensure-pnpm.mjs",
-    "publish:dockview-core": "pnpm publish --filter @arminmajerie/dockview-core --access public --no-git-checks",
-    "publish:dockview": "pnpm --filter @arminmajerie/dockview-core run build && pnpm publish --filter @arminmajerie/dockview --access public --no-git-checks",
-    "publish:dockview-solid": "pnpm --filter @arminmajerie/dockview-core run build && pnpm --filter @arminmajerie/dockview run build && pnpm publish --filter @arminmajerie/dockview-solid --access public --no-git-checks",
-    "publish:ordered": "pnpm run publish:dockview-core && pnpm run publish:dockview && pnpm run publish:dockview-solid",
-    "clean": "pnpm -r run clean --if-present",
-    "build": "pnpm -r run build --if-present",
-    "build:ordered": "pnpm --filter @arminmajerie/dockview-core run build && pnpm --filter @arminmajerie/dockview run build && pnpm --filter @arminmajerie/dockview-solid run build && pnpm run build:example && pnpm run build:example:data-morph",
-    "build:example": "pnpm --filter simple-example run build",
-    "build:example:data-morph": "pnpm --filter data-morph-example run build",
-    "dev": "pnpm -r --parallel run dev",
-    "dev:example": "pnpm --filter simple-example run dev",
-    "dev:example:data-morph": "pnpm --filter data-morph-example run dev",
+    "preinstall": "node scripts/ensure-npm.mjs",
+    "publish:dockview-core": "npm publish --filter @arminmajerie/dockview-core --access public --no-git-checks",
+    "publish:dockview": "npm --filter @arminmajerie/dockview-core run build && npm publish --filter @arminmajerie/dockview --access public --no-git-checks",
+    "publish:dockview-solid": "npm --filter @arminmajerie/dockview-core run build && npm --filter @arminmajerie/dockview run build && npm publish --filter @arminmajerie/dockview-solid --access public --no-git-checks",
+    "publish:ordered": "npm run publish:dockview-core && npm run publish:dockview && npm run publish:dockview-solid",
+    "clean": "npm -r run clean --if-present",
+    "build": "npm -r run build --if-present",
+    "build:ordered": "npm --filter @arminmajerie/dockview-core run build && npm --filter @arminmajerie/dockview run build && npm --filter @arminmajerie/dockview-solid run build && npm run build:example && npm run build:example:data-morph",
+    "build:example": "npm --filter simple-example run build",
+    "build:example:data-morph": "npm --filter data-morph-example run build",
+    "dev": "npm -r --parallel run dev",
+    "dev:example": "npm --filter simple-example run dev",
+    "dev:example:data-morph": "npm --filter data-morph-example run dev",
     "lint": "eslint 'packages/*/src/**/*.{ts,tsx,js,jsx}'",
     "lint:fix": "eslint 'packages/*/src/**/*.{ts,tsx,js,jsx}' --fix",
     "docs": "typedoc && node scripts/docs.mjs",
-    "test": "pnpm run test:unit && pnpm run test:integration && pnpm run test:e2e",
-    "test:unit": "pnpm --filter @arminmajerie/dockview-core run test:unit",
-    "test:integration": "pnpm --filter @arminmajerie/dockview-core run test:integration",
+    "test": "npm run test:unit && npm run test:integration && npm run test:e2e",
+    "test:unit": "npm --filter @arminmajerie/dockview-core run test:unit",
+    "test:integration": "npm --filter @arminmajerie/dockview-core run test:integration",
     "test:e2e": "playwright test",
     "test:e2e:headed": "playwright test --headed",
     "version": "node scripts/version-workspaces.js",
-    "example": "pnpm --filter simple-example run server",
-    "example:data-morph": "pnpm --filter data-morph-example run server"
+    "example": "npm --filter simple-example run server",
+    "example:data-morph": "npm --filter data-morph-example run server"
   }
 }

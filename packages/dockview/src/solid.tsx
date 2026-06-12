@@ -1,7 +1,7 @@
 // packages/dockview/src/solid.tsx
 import { createSignal, JSX, createContext, Accessor } from 'solid-js';
 import { render } from 'solid-js/web';
-import { DockviewIDisposable } from '@arminmajerie/dockview-core';
+import type { DockviewIDisposable } from '@arminmajerie/dockview-core';
 
 // Context (use if you actually need context passing)
 export const SolidPartContext = createContext({});
@@ -63,16 +63,10 @@ export class SolidPart<P extends object = {}, C extends object = {}> {
     const parentEl = this.parent;
 
     const ComponentWithContext = () => {
-      // Return a FUNCTION so SolidJS treats it as a dynamic expression.
-      // SolidJS will wrap this in a reactive effect, re-executing it
-      // whenever the signals read inside change (i.e. when version bumps).
-      // Previously we read version() in the component body, but component
-      // functions only run ONCE — SolidJS doesn't re-call them.
       const dynamic = () => {
-        const v = version();
+        version();
         const plainProps = { ...(baseParams as any), ...overridesRef } as P;
-        const result = Comp(plainProps);
-        return result;
+        return Comp(plainProps);
       };
       return ctx
         ? (

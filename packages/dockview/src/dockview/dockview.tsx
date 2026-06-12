@@ -23,7 +23,7 @@ import { SolidPortalStore, usePortalsLifecycle } from '../solid';
 import { SolidWatermarkPart } from './solidWatermarkPart';
 import { SolidHeaderActionsRendererPart } from './headerActionsRenderer';
 import { createEffect, createSignal, JSX, onCleanup, onMount } from 'solid-js';
-import { IDisposable } from '@arminmajerie/dockview-core/dist/cjs/lifecycle';
+import type { IDisposable } from '@arminmajerie/dockview-core';
 
 function createGroupControlElement(
   component: ((props: IDockviewHeaderActionsProps) => JSX.Element) | undefined,

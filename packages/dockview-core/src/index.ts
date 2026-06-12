@@ -25,8 +25,8 @@ export * from './dockview/dockviewEnvironment';
  * To be a good citizen these are exported with a `Dockview` prefix to prevent accidental use by others.
  */
 export { Emitter as DockviewEmitter, Event as DockviewEvent } from './events';
+export type { IDisposable as DockviewIDisposable } from './lifecycle';
 export {
-    IDisposable as DockviewIDisposable,
     MutableDisposable as DockviewMutableDisposable,
     CompositeDisposable as DockviewCompositeDisposable,
     Disposable as DockviewDisposable,
