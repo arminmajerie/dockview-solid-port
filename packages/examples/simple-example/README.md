@@ -1,11 +1,11 @@
 ## Usage
 
-Those templates dependencies are maintained via [pnpm](https://pnpm.io) via `pnpm up -Lri`.
+These template dependencies are maintained via [npm](https://www.npmjs.com/) with `npm update`.
 
-This is the reason you see a `pnpm-lock.yaml`. That being said, any package manager will work. This file can be safely be removed once you clone a template.
+This project uses `package-lock.json` for dependency locking.
 
 ```bash
-$ npm install # or pnpm install or yarn install
+$ npm install
 ```
 
 ### Learn more on the [Solid Website](https://solidjs.com) and come chat with us on our [Discord](https://discord.com/invite/solidjs)

@@ -31,7 +31,5 @@ yarn-error.log
 .vite/
 .turbo/
 .nyc_output/
-pnpm-debug.log*
 npm-debug.log*
-/pnpm-workspace.yaml
-/pnpm-lock.yaml
+npm-debug.log*

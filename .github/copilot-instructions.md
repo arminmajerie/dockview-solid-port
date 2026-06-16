@@ -2,16 +2,16 @@
 
 ## Package manager (NON-NEGOTIABLE)
 
-- **pnpm only.** Never run `npm install`, `npm ci`, or `npm i` in this repository.
+- Use **npm** in this repository.
 - `preinstall` blocks npm with an error message.
-- Install: `corepack enable` then `pnpm install` from this directory.
-- Scripts: `pnpm run build`, `pnpm run dev:example`, `pnpm run test:unit`, etc.
+- Install: `npm install` from this directory.
+- Scripts: `npm run build`, `npm run dev:example`, `npm run test:unit`, etc.
 - See repo root `.github/package-manager-policy.md` for workspace-wide policy.
 
-## Why pnpm
+## Why npm
 
-This monorepo is on **exFAT**, which does not support symlinks. npm workspaces fail with `EISDIR`. pnpm uses `node-linker=hoisted` and `package-import-method=copy` (see `.npmrc`).
+This monorepo uses npm workspaces.
 
 ## After editing workspace packages
 
-Copied workspace deps do not auto-update like symlinks. Re-run `pnpm install` after changing `@arminmajerie/*` packages in `packages/`.
+Re-run `npm install` after changing `@arminmajerie/*` packages in `packages/`.

@@ -48,12 +48,12 @@ function Disable-NpmTokenAuth {
   }
 }
 
-function Invoke-Pnpm([string]$WorkingDirectory, [string[]]$Arguments) {
+function Invoke-Npm([string]$WorkingDirectory, [string[]]$Arguments) {
   Push-Location $WorkingDirectory
   try {
-    & pnpm @Arguments
+    & npm @Arguments
     if ($LASTEXITCODE -ne 0) {
-      throw "pnpm $($Arguments -join ' ') failed with exit code $LASTEXITCODE"
+      throw "npm $($Arguments -join ' ') failed with exit code $LASTEXITCODE"
     }
   }
   finally {
@@ -61,7 +61,7 @@ function Invoke-Pnpm([string]$WorkingDirectory, [string[]]$Arguments) {
   }
 }
 
-Assert-Command pnpm
+Assert-Command npm
 
 $workspaceRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
 $packageDirectory = Join-Path $workspaceRoot 'packages\dockview-solid'
@@ -85,7 +85,7 @@ if ([string]::IsNullOrWhiteSpace($parentVersion)) {
 }
 
 Step "Syncing $parentDependencyName dependency to published version $parentVersion"
-Invoke-Pnpm -WorkingDirectory $packageDirectory -Arguments @('pkg', 'set', "dependencies.$parentDependencyName=$parentVersion")
+Invoke-Npm -WorkingDirectory $packageDirectory -Arguments @('pkg', 'set', "dependencies.$parentDependencyName=$parentVersion")
 
 Enable-NpmTokenAuth
 
@@ -93,9 +93,9 @@ Push-Location $packageDirectory
 try {
   if ($Bump -ne 'none') {
     Step "Bumping $dependencyName version ($Bump)"
-    & pnpm version $Bump --no-git-tag-version
+    & npm version $Bump --no-git-tag-version
     if ($LASTEXITCODE -ne 0) {
-      throw "pnpm version failed with exit code $LASTEXITCODE"
+      throw "npm version failed with exit code $LASTEXITCODE"
     }
   }
   else {
@@ -107,8 +107,8 @@ try {
 
   if (-not $SkipInstall) {
     Step "Building $coreDependencyName and $parentDependencyName"
-    Invoke-Pnpm -WorkingDirectory $workspaceRoot -Arguments @('--filter', $coreDependencyName, 'run', 'build')
-    Invoke-Pnpm -WorkingDirectory $workspaceRoot -Arguments @('--filter', $parentDependencyName, 'run', 'build')
+    Invoke-Npm -WorkingDirectory $workspaceRoot -Arguments @('run', 'build', '--workspace', $coreDependencyName)
+    Invoke-Npm -WorkingDirectory $workspaceRoot -Arguments @('run', 'build', '--workspace', $parentDependencyName)
     Step "Installing dependencies in $packageDirectory"
     Push-Location $packageDirectory
     try {
@@ -124,19 +124,19 @@ try {
 
   if ($DryRun) {
     Step "Dry run: packing $dependencyName@$newVersion"
-    & pnpm pack
+    & npm pack
     if ($LASTEXITCODE -ne 0) {
-      throw "pnpm pack failed with exit code $LASTEXITCODE"
+      throw "npm pack failed with exit code $LASTEXITCODE"
     }
     Write-Host "[OK] Packed $dependencyName@$newVersion" -ForegroundColor Green
     return
   }
 
   Step "Publishing $dependencyName@$newVersion"
-  $publishArgs = @('publish', '--access', $Access, '--no-git-checks')
-  & pnpm @publishArgs
+  $publishArgs = @('publish', '--access', $Access)
+  & npm @publishArgs
   if ($LASTEXITCODE -ne 0) {
-    throw "pnpm publish failed with exit code $LASTEXITCODE"
+    throw "npm publish failed with exit code $LASTEXITCODE"
   }
 
   Write-Host "[OK] Published $dependencyName@$newVersion" -ForegroundColor Green

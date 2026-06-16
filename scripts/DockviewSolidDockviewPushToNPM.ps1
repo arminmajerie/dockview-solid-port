@@ -27,12 +27,12 @@ function Read-PackageJson([string]$PackageJsonPath) {
   return Get-Content -LiteralPath $PackageJsonPath -Raw | ConvertFrom-Json
 }
 
-function Invoke-Pnpm([string]$WorkingDirectory, [string[]]$Arguments) {
+function Invoke-Npm([string]$WorkingDirectory, [string[]]$Arguments) {
   Push-Location $WorkingDirectory
   try {
-    & pnpm @Arguments
+    & npm @Arguments
     if ($LASTEXITCODE -ne 0) {
-      throw "pnpm $($Arguments -join ' ') failed with exit code $LASTEXITCODE"
+      throw "npm $($Arguments -join ' ') failed with exit code $LASTEXITCODE"
     }
   }
   finally {
@@ -113,8 +113,6 @@ function Get-InstallRoot([string]$StartDirectory, [string]$WorkspaceRoot) {
   $workspaceBoundary = [System.IO.Path]::GetFullPath($WorkspaceRoot)
 
   while ($true) {
-    if (Test-Path -LiteralPath (Join-Path $current 'pnpm-lock.yaml')) { return $current }
-    if (Test-Path -LiteralPath (Join-Path $current 'pnpm-workspace.yaml')) { return $current }
     if (Test-Path -LiteralPath (Join-Path $current 'package-lock.json')) { return $current }
 
     $packageJsonPath = Join-Path $current 'package.json'
@@ -138,7 +136,7 @@ function Get-InstallRoot([string]$StartDirectory, [string]$WorkspaceRoot) {
   }
 }
 
-Assert-Command pnpm
+Assert-Command npm
 
 $workspaceRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
 $packageDirectory = Join-Path $workspaceRoot 'packages\dockview'
@@ -161,7 +159,7 @@ if ([string]::IsNullOrWhiteSpace($coreVersion)) {
 }
 
 Step "Syncing $coreDependencyName dependency to published version $coreVersion"
-Invoke-Pnpm -WorkingDirectory $packageDirectory -Arguments @('pkg', 'set', "dependencies.$coreDependencyName=$coreVersion")
+Invoke-Npm -WorkingDirectory $packageDirectory -Arguments @('pkg', 'set', "dependencies.$coreDependencyName=$coreVersion")
 
 $references = @(Get-DependencyReferences -WorkspaceRoot $workspaceRoot -DependencyName $dependencyName)
 
@@ -171,9 +169,9 @@ Push-Location $packageDirectory
 try {
   if ($Bump -ne 'none') {
     Step "Bumping $dependencyName version ($Bump)"
-    & pnpm version $Bump --no-git-tag-version
+    & npm version $Bump --no-git-tag-version
     if ($LASTEXITCODE -ne 0) {
-      throw "pnpm version failed with exit code $LASTEXITCODE"
+      throw "npm version failed with exit code $LASTEXITCODE"
     }
   }
   else {
@@ -185,7 +183,7 @@ try {
 
   if (-not $SkipInstall) {
     Step "Building $coreDependencyName"
-    Invoke-Pnpm -WorkingDirectory $workspaceRoot -Arguments @('--filter', $coreDependencyName, 'run', 'build')
+    Invoke-Npm -WorkingDirectory $workspaceRoot -Arguments @('run', 'build', '--workspace', $coreDependencyName)
     Step "Installing dependencies in $packageDirectory"
     Push-Location $packageDirectory
     try {
@@ -201,25 +199,25 @@ try {
 
   if ($DryRun) {
     Step "Dry run: packing $dependencyName@$newVersion"
-    & pnpm pack
+    & npm pack
     if ($LASTEXITCODE -ne 0) {
-      throw "pnpm pack failed with exit code $LASTEXITCODE"
+      throw "npm pack failed with exit code $LASTEXITCODE"
     }
     Write-Host "[OK] Packed $dependencyName@$newVersion" -ForegroundColor Green
     return
   }
 
   Step "Publishing $dependencyName@$newVersion"
-  $publishArgs = @('publish', '--access', $Access, '--no-git-checks')
-  & pnpm @publishArgs
+  $publishArgs = @('publish', '--access', $Access)
+  & npm @publishArgs
   if ($LASTEXITCODE -ne 0) {
-    throw "pnpm publish failed with exit code $LASTEXITCODE"
+    throw "npm publish failed with exit code $LASTEXITCODE"
   }
 
   if ($references.Count -gt 0) {
     Step "Updating $($references.Count) consumer dependency entries to $newVersion"
     foreach ($reference in $references) {
-      Invoke-Pnpm -WorkingDirectory $reference.PackageDirectory -Arguments @('pkg', 'set', "$($reference.Section).$dependencyName=$newVersion")
+      Invoke-Npm -WorkingDirectory $reference.PackageDirectory -Arguments @('pkg', 'set', "$($reference.Section).$dependencyName=$newVersion")
       Write-Host "  updated $($reference.PackageJsonPath) [$($reference.Section)]" -ForegroundColor DarkGray
     }
   }
@@ -235,7 +233,7 @@ try {
     foreach ($installRoot in ($installRoots | Sort-Object)) {
       Step "Refreshing install metadata in $installRoot"
       try {
-        Invoke-Pnpm -WorkingDirectory $installRoot -Arguments @('install')
+        Invoke-Npm -WorkingDirectory $installRoot -Arguments @('install')
       }
       catch {
         Write-Warning "Install refresh skipped in $installRoot (registry may still be propagating the new version)."
