@@ -32,65 +32,43 @@ export function App() {
   let dockViewContainer: HTMLDivElement | undefined = undefined;
   let dockViewApi: DockviewApi | undefined;
 
-  function CustomTabHeaderNoClosing(props: IDockviewPanelHeaderProps) {
+  function TabHeader(
+    props: IDockviewPanelHeaderProps & { closable?: boolean }
+  ) {
     return (
-      <div style="padding:0 10px; color:blue;">
-        {props.params.title}
+      <div class="example-tab-header">
+        <span class="example-tab-header__label" title={props.params.title}>
+          {props.params.title}
+        </span>
+        <Show when={props.closable}>
+          <button
+            type="button"
+            class="example-tab-header__close"
+            onPointerDown={(event) => {
+              event.preventDefault();
+              event.stopPropagation();
+            }}
+            onClick={(event) => {
+              event.preventDefault();
+              event.stopPropagation();
+              props.api.close();
+            }}
+            title={`Close ${props.params.title}`}
+            aria-label={`Close ${props.params.title}`}
+          >
+            <CloseIcon style={{ width: "12px", height: "12px" }} />
+          </button>
+        </Show>
       </div>
     );
   }
 
+  function CustomTabHeaderNoClosing(props: IDockviewPanelHeaderProps) {
+    return <TabHeader {...props} />;
+  }
+
   function CustomTabHeaderWithCloseButton(props: IDockviewPanelHeaderProps) {
-    const [hover, setHover] = createSignal(false);
-    return (
-      <div
-        style={{
-          padding: "0 8px 0 10px",
-          color: "purple",
-          position: "relative",
-          display: "flex",
-          "align-items": "flex-start",
-          "min-width": "100px",
-          height: "100%",
-          "box-sizing": "border-box",
-        }}
-      >
-        <span
-          style={{
-            overflow: "hidden",
-            "text-overflow": "ellipsis",
-            "white-space": "nowrap",
-            "padding-right": "22px",
-            width: "100%",
-          }}
-        >
-          {props.params.title}
-        </span>
-        <button
-          style={{
-            background: hover() ? "#8ea7d6" : "none",
-            border: "none",
-            "border-radius": "45%",
-            transition: "background 0.9s",
-            cursor: "pointer",
-            position: "absolute",
-            right: "0px",
-            top: "0px",
-            padding: 0,
-            margin: 0,
-            "margin-top": "-8px",
-            "margin-right": "-8px",
-            "z-index": 2,
-          }}
-          onMouseEnter={() => setHover(true)}
-          onMouseLeave={() => setHover(false)}
-          onClick={() => props.api.close()}
-          title="Close"
-        >
-          <CloseIcon style={{ width: "12px", height: "12px", color: "#34343a" }} />
-        </button>
-      </div>
-    );
+    return <TabHeader {...props} closable={true} />;
   }
 
   // Watermark component (optional)

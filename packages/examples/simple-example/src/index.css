@@ -19,6 +19,76 @@ html, body {
   border-width: 0 !important;
 }
 
+.dockview-theme-replit .example-tab-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 0 8px 0 10px;
+  box-shadow: inset 0 -1.5px 0 transparent;
+  font-family: "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+  font-size: 13px;
+  line-height: 1.1;
+  letter-spacing: 0.1px;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.dockview-theme-replit .example-tab-header__label {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dockview-theme-replit .example-tab-header__close {
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  margin: 0;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: inherit;
+  opacity: 0;
+  pointer-events: none;
+  cursor: pointer;
+  transition: opacity 120ms ease, background-color 120ms ease;
+}
+
+.dockview-theme-replit .example-tab-header__close:hover {
+  background: rgba(127, 127, 127, 0.14);
+}
+
+.dockview-theme-replit .example-tab-header__close svg {
+  pointer-events: none;
+}
+
+.dockview-theme-replit .dv-tab.dv-active-tab .example-tab-header {
+  font-weight: 600;
+  box-shadow: inset 0 -1.5px 0 currentColor;
+}
+
+.dockview-theme-replit .dv-tab.dv-inactive-tab .example-tab-header {
+  font-weight: 500;
+}
+
+.dockview-theme-replit .dv-tab.dv-active-tab .example-tab-header__close,
+.dockview-theme-replit .dv-tab:hover .example-tab-header__close,
+.dockview-theme-replit .dv-tab:focus-within .example-tab-header__close {
+  opacity: 1;
+  pointer-events: auto;
+}
+
 #root {
   height: 100%;
 }

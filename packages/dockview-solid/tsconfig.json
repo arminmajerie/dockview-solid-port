@@ -12,7 +12,6 @@
     "jsxImportSource": "solid-js",
     "strict": true,
     "moduleResolution": "bundler",
-    "ignoreDeprecations": "6.0",
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true
