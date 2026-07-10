@@ -28,7 +28,6 @@ html, body {
   min-width: 0;
   box-sizing: border-box;
   padding: 0 8px 0 10px;
-  box-shadow: inset 0 -1.5px 0 transparent;
   font-family: "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
   font-size: 13px;
   line-height: 1.1;
@@ -75,7 +74,6 @@ html, body {
 
 .dockview-theme-replit .dv-tab.dv-active-tab .example-tab-header {
   font-weight: 600;
-  box-shadow: inset 0 -1.5px 0 currentColor;
 }
 
 .dockview-theme-replit .dv-tab.dv-inactive-tab .example-tab-header {

@@ -55,7 +55,7 @@
     "README.md"
   ],
   "dependencies": {
-    "@arminmajerie/dockview": "5.0.2"
+    "@arminmajerie/dockview": "5.0.3"
   },
   "peerDependencies": {
     "solid-js": "^1.8.0"
