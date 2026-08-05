@@ -72,4 +72,5 @@ export interface GroupviewPanelState {
     minimumHeight?: number;
     maximumWidth?: number;
     maximumHeight?: number;
+    disableDnd?: boolean;
 }

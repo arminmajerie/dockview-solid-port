@@ -1,6 +1,45 @@
 import { createDockviewScenario, createDragEvent, MockDataTransfer } from '../__test_utils__/dockviewHarness';
 
 describe('dockview desktop drag integration', () => {
+    it('can disable dragging for an individual panel tab', () => {
+        const scenario = createDockviewScenario('desktop');
+        const dataTransfer = new MockDataTransfer();
+        let dragStarts = 0;
+
+        scenario.api.addPanel({
+            id: 'fixed',
+            title: 'Fixed',
+            component: 'content',
+            disableDnd: true,
+            position: {
+                referencePanel: 'alpha',
+                direction: 'within',
+            },
+        });
+
+        const disposable = scenario.api.onWillDragPanel(() => {
+            dragStarts++;
+        });
+        const fixedTab = scenario.getTab('fixed');
+
+        expect(fixedTab.draggable).toBe(false);
+        expect(scenario.getTab('alpha').draggable).toBe(true);
+        expect(scenario.api.toJSON().panels.fixed.disableDnd).toBe(true);
+
+        fixedTab.dispatchEvent(
+            createDragEvent('dragstart', {
+                clientX: 180,
+                clientY: 20,
+                dataTransfer,
+            })
+        );
+
+        expect(dragStarts).toBe(0);
+
+        disposable.dispose();
+        scenario.dispose();
+    });
+
     it('reorders tabs within the same group through the shared drag session', () => {
         const scenario = createDockviewScenario('desktop');
         const dataTransfer = new MockDataTransfer();

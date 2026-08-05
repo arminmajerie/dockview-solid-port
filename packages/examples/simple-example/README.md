@@ -1,36 +1,42 @@
-## Usage
+# Dockview Solid customization lab
 
-These template dependencies are maintained via [npm](https://www.npmjs.com/) with `npm update`.
+This example is intentionally excessive. It demonstrates how much of a Dockview layout can be changed without modifying Dockview itself.
 
-This project uses `package-lock.json` for dependency locking.
+## Run it
+
+Run commands from the `dockview-solid-port` workspace root:
 
 ```bash
-$ npm install
+npm install
+npm run dev:example
 ```
 
-### Learn more on the [Solid Website](https://solidjs.com) and come chat with us on our [Discord](https://discord.com/invite/solidjs)
+Open `http://127.0.0.1:4173`.
 
-## Available Scripts
+## What is customized
 
-In the project directory, you can run:
+- Runtime panel width and height through `panel.api.setSize(...)`
+- Per-panel minimum and maximum width/height constraints
+- Layout presets that resize several groups together
+- Theme gap through `api.updateOptions({ theme })`
+- Panel, group, tab, header, sash, drag overlay, and floating-window CSS
+- Live corner radius, header height, spacing, and color palettes
+- Fully custom Solid tab renderers with icons, badges, dirty state, locks, and selective close buttons
+- Custom group-level header actions
+- Multiple tabs in one group
+- Close and restore behavior
+- Floating and maximized groups
+- A custom empty-workspace watermark
 
-### `npm run dev` or `npm start`
+The implementation is mainly in:
 
-Runs the app in the development mode.<br>
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+- `src/App.tsx` for renderers, API calls, constraints, and layout behavior
+- `src/index.css` for the visual system and Dockview CSS hooks
 
-The page will reload if you make edits.<br>
+## Practical limits
 
-### `npm run build`
+Public APIs control layout structure and geometry. CSS controls nearly all visual chrome. Custom renderers control tab, panel, header-action, and watermark markup.
 
-Builds the app for production to the `dist` folder.<br>
-It correctly bundles Solid in production mode and optimizes the build for the best performance.
+The layout remains a rectangular split grid: individual docked groups cannot overlap or use arbitrary non-rectangular geometry. Floating groups can overlap. Replacing drag/drop rules, grid mathematics, serialization, or sash behavior would require changes in `dockview-core`.
 
-The build is minified and the filenames include the hashes.<br>
-Your app is ready to be deployed!
-
-## Deployment
-
-You can deploy the `dist` folder to any static host provider (netlify, surge, now, etc.)
-
-## This project was created with the [Solid CLI](https://github.com/solidjs-community/solid-cli)
+No Dockview package changes were required for this lab. Because this repository is an npm workspace, the example resolves the local `@arminmajerie/dockview-solid` workspace automatically; a `file:` dependency is not needed here.

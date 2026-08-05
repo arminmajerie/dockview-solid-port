@@ -252,6 +252,11 @@ export type AddPanelOptions<P extends object = Parameters> = {
      */
     renderer?: DockviewPanelRenderer;
     /**
+     * Disable dragging for this panel's tab while leaving drag-and-drop enabled
+     * for the rest of the Dockview instance.
+     */
+    disableDnd?: boolean;
+    /**
      * If true then add the panel without setting it as the active panel.
      *
      * Defaults to `false` which forces newly added panels to become active.

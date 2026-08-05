@@ -70,6 +70,10 @@ export class Tab extends CompositeDisposable {
         return this._element;
     }
 
+    private get isDndDisabled(): boolean {
+        return !!this.accessor.options.disableDnd || this.panel.disableDnd;
+    }
+
     constructor(
         public readonly panel: IDockviewPanel,
         private readonly accessor: DockviewComponent,
@@ -80,7 +84,7 @@ export class Tab extends CompositeDisposable {
         this._element = document.createElement('div');
         this._element.className = 'dv-tab';
         this._element.tabIndex = 0;
-        this._element.draggable = !this.accessor.options.disableDnd;
+        this._element.draggable = !this.isDndDisabled;
         addTestId(this._element, 'dockview-tab');
         this._element.dataset.groupId = this.group.id;
         this._element.dataset.panelId = this.panel.id;
@@ -92,7 +96,7 @@ export class Tab extends CompositeDisposable {
             this.accessor,
             this.group,
             this.panel,
-            !!this.accessor.options.disableDnd
+            this.isDndDisabled
         );
 
         this.dropTarget = new Droptarget(this._element, {
@@ -173,7 +177,7 @@ export class Tab extends CompositeDisposable {
             this.dragHandler,
             this.accessor.touchDragManager.registerSource({
                 element: this._element,
-                disabled: () => !!this.accessor.options.disableDnd,
+                disabled: () => this.isDndDisabled,
                 getDescriptor: () => this.getDragDescriptor(),
                 getGhostLabel: () => this.panel.title ?? this.panel.id,
                 onDragStart: (event) => {
@@ -219,8 +223,8 @@ export class Tab extends CompositeDisposable {
     }
 
     updateDragAndDropState(): void {
-        this._element.draggable = !this.accessor.options.disableDnd;
-        this.dragHandler.setDisabled(!!this.accessor.options.disableDnd);
+        this._element.draggable = !this.isDndDisabled;
+        this.dragHandler.setDisabled(this.isDndDisabled);
     }
 
     private getDragDescriptor(): DockviewDragItemDescriptor {

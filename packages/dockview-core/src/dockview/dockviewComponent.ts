@@ -2844,6 +2844,7 @@ export class DockviewComponent
             view,
             {
                 renderer: options.renderer,
+                disableDnd: options.disableDnd,
                 minimumWidth: options.minimumWidth,
                 minimumHeight: options.minimumHeight,
                 maximumWidth: options.maximumWidth,

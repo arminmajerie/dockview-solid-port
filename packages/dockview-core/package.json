@@ -1,6 +1,6 @@
 {
   "name": "@arminmajerie/dockview-core",
-  "version": "5.0.3",
+  "version": "5.0.4",
   "description": "Zero dependency layout manager supporting tabs, grids and splitviews",
   "keywords": [
     "splitview",

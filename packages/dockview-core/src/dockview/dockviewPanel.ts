@@ -23,6 +23,7 @@ export interface IDockviewPanel extends IDisposable, IPanel {
     readonly minimumHeight?: number;
     readonly maximumWidth?: number;
     readonly maximumHeight?: number;
+    readonly disableDnd: boolean;
     updateParentGroup(
         group: DockviewGroupPanel,
         options?: { skipSetActive?: boolean }
@@ -39,6 +40,7 @@ export class DockviewPanel
     implements IDockviewPanel
 {
     readonly api: DockviewPanelApiImpl;
+    readonly disableDnd: boolean;
 
     private _group: DockviewGroupPanel;
     private _params?: Parameters;
@@ -90,7 +92,10 @@ export class DockviewPanel
         private readonly containerApi: DockviewApi,
         group: DockviewGroupPanel,
         readonly view: IDockviewPanelModel,
-        options: { renderer?: DockviewPanelRenderer } & Partial<Contraints>
+        options: {
+            renderer?: DockviewPanelRenderer;
+            disableDnd?: boolean;
+        } & Partial<Contraints>
     ) {
         super();
         this._renderer = options.renderer;
@@ -99,6 +104,7 @@ export class DockviewPanel
         this._minimumHeight = options.minimumHeight;
         this._maximumWidth = options.maximumWidth;
         this._maximumHeight = options.maximumHeight;
+        this.disableDnd = options.disableDnd ?? false;
 
         this.api = new DockviewPanelApiImpl(
             this,
@@ -163,6 +169,7 @@ export class DockviewPanel
             maximumHeight: this._maximumHeight,
             minimumWidth: this._minimumWidth,
             maximumWidth: this._maximumWidth,
+            disableDnd: this.disableDnd || undefined,
         };
     }
 

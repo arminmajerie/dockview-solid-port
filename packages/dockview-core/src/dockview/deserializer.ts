@@ -57,6 +57,7 @@ export class DefaultDockviewDeserialzier implements IPanelDeserializer {
             view,
             {
                 renderer: panelData.renderer,
+                disableDnd: panelData.disableDnd,
                 minimumWidth: panelData.minimumWidth,
                 minimumHeight: panelData.minimumHeight,
                 maximumWidth: panelData.maximumWidth,

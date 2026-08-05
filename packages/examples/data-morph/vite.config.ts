@@ -9,6 +9,7 @@ const configuredBasePath = process.env.VITE_BASE_PATH?.trim() ?? '/';
 const normalizedBasePath = configuredBasePath === '/'
   ? '/'
   : `/${configuredBasePath.replace(/^\/+|\/+$/g, '')}/`;
+const exampleTarget = 'esnext';
 
 export default defineConfig({
   base: normalizedBasePath,
@@ -20,7 +21,7 @@ export default defineConfig({
     },
   },
   build: {
-    target: 'esnext',
+    target: exampleTarget,
     rollupOptions: {
       treeshake: {
         correctVarValueBeforeDeclaration: true,
@@ -44,6 +45,14 @@ export default defineConfig({
     ]
   },
   optimizeDeps: {
+    esbuildOptions: {
+      // Vite 6's dep pre-bundler still defaults to an older modules target
+      // that triggers esbuild 0.28.x destructuring failures in modern deps.
+      target: exampleTarget,
+      supported: {
+        destructuring: true,
+      },
+    },
     exclude: [
       '@arminmajerie/dockview-solid',
       '@arminmajerie/dockview-core',

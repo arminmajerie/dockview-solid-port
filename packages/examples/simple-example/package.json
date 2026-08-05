@@ -11,7 +11,7 @@
     "solid-js": "^1.9.11"
   },
   "dependencies": {
-    "@arminmajerie/dockview-solid": "5.0.3",
+    "@arminmajerie/dockview-solid": "file:../../dockview-solid",
     "@suid/icons-material": "^0.8.1",
     "@suid/material": "^0.18.0"
   },
