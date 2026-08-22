@@ -75,8 +75,8 @@
     "prepublishOnly": "npm run rebuild && npm run build:bundle && npm run test",
     "rebuild": "npm run clean && npm run build",
     "test": "vitest run --config ./vitest.config.ts",
-    "test:unit": "vitest run --config ./vitest.config.ts \"src/__tests__/unit/**/*.spec.ts\"",
-    "test:integration": "vitest run --config ./vitest.config.ts \"src/__tests__/integration/**/*.spec.ts\"",
+    "test:unit": "vitest run --config ./vitest.config.ts src/__tests__/unit",
+    "test:integration": "vitest run --config ./vitest.config.ts src/__tests__/integration",
     "test:cov": "vitest run --config ./vitest.config.ts --coverage"
   }
 }

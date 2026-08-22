@@ -36,7 +36,7 @@
     "vite": "^6.4.1",
     "vite-plugin-solid": "^2.11.11"
   },
-  "packageManager": "npm@10.12.1",
+  "packageManager": "npm@11.17.0",
   "engines": {
     "node": ">=18.0",
     "npm": ">=9"
@@ -65,7 +65,9 @@
       "minimatch": {
         "brace-expansion": "5.0.9"
       }
-    }
+    },
+    "nanoid": "3.3.18",
+    "js-yaml": "4.3.1"
   },
   "scripts": {
     "preinstall": "node scripts/ensure-npm.mjs",
@@ -91,6 +93,7 @@
     "test:e2e:headed": "playwright test --headed",
     "version": "node scripts/version-workspaces.js",
     "example": "npm run server --workspace simple-example",
-    "example:data-morph": "npm run server --workspace data-morph-example"
+    "example:data-morph": "npm run server --workspace data-morph-example",
+    "audit:check": "npm audit --audit-level=low --registry=https://registry.npmjs.org/"
   }
 }
