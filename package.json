@@ -41,6 +41,13 @@
     "node": ">=18.0",
     "npm": ">=9"
   },
+  "allowScripts": {
+    "esbuild": true,
+    "@parcel/watcher": true,
+    "@swc/core": true,
+    "esbuild@0.25.12": true,
+    "esbuild@0.28.1": true
+  },
   "overrides": {
     "axios": "1.15.2",
     "ip-address": "10.2.0",
