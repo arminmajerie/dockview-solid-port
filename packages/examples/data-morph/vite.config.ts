@@ -54,6 +54,7 @@ export default defineConfig({
       },
     },
     exclude: [
+      'solid-js',
       '@arminmajerie/dockview-solid',
       '@arminmajerie/dockview-core',
       '@codemirror/autocomplete',

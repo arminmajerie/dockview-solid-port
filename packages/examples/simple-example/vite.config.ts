@@ -29,6 +29,7 @@ export default defineConfig({
     },
     // Prevents Vite from "pre-bundling" these as plain JS (keeps them in .jsx)
     exclude: [
+      'solid-js',
       '@arminmajerie/dockview-solid',
       '@arminmajerie/dockview-core'
     ],

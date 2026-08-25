@@ -8,7 +8,7 @@
     "typescript": "^5.7.2",
     "vite": "^6.4.1",
     "vite-plugin-solid": "^2.11.11",
-    "solid-js": "^1.9.11"
+    "solid-js": "1.9.15"
   },
   "dependencies": {
     "@arminmajerie/dockview-solid": "file:../../dockview-solid",
