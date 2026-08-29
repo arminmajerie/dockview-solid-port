@@ -21,6 +21,10 @@ import {
     DockviewDragItemDescriptor,
     DockviewNativeDragEvent,
 } from '../../../dnd/dragSession';
+import {
+    applyNativeHtml5Drag,
+    nativeHtml5DragEnabled,
+} from '../../../dnd/nativeHtml5Drag';
 
 export class VoidContainer extends CompositeDisposable {
     private readonly _element: HTMLElement;
@@ -47,7 +51,13 @@ export class VoidContainer extends CompositeDisposable {
 
         this._element = document.createElement('div');
         this._element.className = 'dv-void-container';
-        this._element.draggable = !this.accessor.options.disableDnd;
+        applyNativeHtml5Drag(
+            this._element,
+            nativeHtml5DragEnabled(
+                this.accessor.interactionMode,
+                !!this.accessor.options.disableDnd
+            )
+        );
         addTestId(this._element, 'dockview-group-handle');
         this._element.dataset.groupId = this.group.id;
 
@@ -69,7 +79,10 @@ export class VoidContainer extends CompositeDisposable {
             this._element,
             accessor,
             group,
-            !!this.accessor.options.disableDnd
+            !nativeHtml5DragEnabled(
+                this.accessor.interactionMode,
+                !!this.accessor.options.disableDnd
+            )
         );
 
         this.dropTarget = new Droptarget(this._element, {
@@ -138,13 +151,17 @@ export class VoidContainer extends CompositeDisposable {
     }
 
     updateDragAndDropState(): void {
-        this._element.draggable = !this.accessor.options.disableDnd;
+        const useNative = nativeHtml5DragEnabled(
+            this.accessor.interactionMode,
+            !!this.accessor.options.disableDnd
+        );
+        applyNativeHtml5Drag(this._element, useNative);
         toggleClass(
             this._element,
             'dv-draggable',
             !this.accessor.options.disableDnd
         );
-        this.handler.setDisabled(!!this.accessor.options.disableDnd);
+        this.handler.setDisabled(!useNative);
     }
 
     private getDragDescriptor(): DockviewDragItemDescriptor {

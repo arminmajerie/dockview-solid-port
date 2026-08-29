@@ -23,6 +23,10 @@ import {
     DockviewDragItemDescriptor,
     DockviewNativeDragEvent,
 } from '../../../dnd/dragSession';
+import {
+    applyNativeHtml5Drag,
+    nativeHtml5DragEnabled,
+} from '../../../dnd/nativeHtml5Drag';
 
 class TabDragHandler extends DragHandler {
     constructor(
@@ -74,6 +78,13 @@ export class Tab extends CompositeDisposable {
         return !!this.accessor.options.disableDnd || this.panel.disableDnd;
     }
 
+    private get useNativeHtml5Drag(): boolean {
+        return nativeHtml5DragEnabled(
+            this.accessor.interactionMode,
+            this.isDndDisabled
+        );
+    }
+
     constructor(
         public readonly panel: IDockviewPanel,
         private readonly accessor: DockviewComponent,
@@ -84,7 +95,7 @@ export class Tab extends CompositeDisposable {
         this._element = document.createElement('div');
         this._element.className = 'dv-tab';
         this._element.tabIndex = 0;
-        this._element.draggable = !this.isDndDisabled;
+        applyNativeHtml5Drag(this._element, this.useNativeHtml5Drag);
         addTestId(this._element, 'dockview-tab');
         this._element.dataset.groupId = this.group.id;
         this._element.dataset.panelId = this.panel.id;
@@ -96,7 +107,7 @@ export class Tab extends CompositeDisposable {
             this.accessor,
             this.group,
             this.panel,
-            this.isDndDisabled
+            !this.useNativeHtml5Drag
         );
 
         this.dropTarget = new Droptarget(this._element, {
@@ -223,8 +234,8 @@ export class Tab extends CompositeDisposable {
     }
 
     updateDragAndDropState(): void {
-        this._element.draggable = !this.isDndDisabled;
-        this.dragHandler.setDisabled(this.isDndDisabled);
+        applyNativeHtml5Drag(this._element, this.useNativeHtml5Drag);
+        this.dragHandler.setDisabled(!this.useNativeHtml5Drag);
     }
 
     private getDragDescriptor(): DockviewDragItemDescriptor {

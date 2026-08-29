@@ -14,6 +14,19 @@ describe('dockview touch drag integration', () => {
         vi.useRealTimers();
     });
 
+    it('does not enable native HTML5 draggable on tabs in touch mode', () => {
+        const scenario = createDockviewScenario('touch');
+        const alphaTab = scenario.getTab('alpha');
+        const groupHandle = scenario.container.querySelector(
+            '[data-testid="dockview-group-handle"]'
+        ) as HTMLElement;
+
+        expect(alphaTab.draggable).toBe(false);
+        expect(groupHandle.draggable).toBe(false);
+
+        scenario.dispose();
+    });
+
     it('keeps normal tap activation and starts dragging only after a long press', () => {
         const scenario = createDockviewScenario('touch');
         const alphaTab = scenario.getTab('alpha');

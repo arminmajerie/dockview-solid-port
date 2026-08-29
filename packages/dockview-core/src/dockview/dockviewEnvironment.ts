@@ -46,8 +46,12 @@ export function detectInteractionMode(win: Window): DockviewInteractionMode {
     const anyHoverHover = mediaMatches(win, '(any-hover: hover)');
     const anyPointerFine = mediaMatches(win, '(any-pointer: fine)');
     const mobileHint = getMobileHint(win);
+    const mobileUserAgent = isMobileUserAgent(win.navigator.userAgent);
 
-    if (pointerCoarse && hoverNone) {
+    // Phone browsers, especially Android Chrome/Edge, report hover/pointer
+    // media queries unreliably and implement HTML5 drag as a native long-press
+    // that cancels our pointer backend. Always prefer the touch path there.
+    if (mobileUserAgent) {
         return 'touch';
     }
 
@@ -79,7 +83,7 @@ export function detectInteractionMode(win: Window): DockviewInteractionMode {
         return 'touch';
     }
 
-    return isMobileUserAgent(win.navigator.userAgent) ? 'touch' : 'desktop';
+    return 'desktop';
 }
 
 export function detectLayoutModeFromSize(width: number): DockviewLayoutMode {

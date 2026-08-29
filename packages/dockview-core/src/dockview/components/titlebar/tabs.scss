@@ -56,6 +56,10 @@
     margin: var(--dv-tab-margin);
 }
 
+.dv-dockview[data-interaction-mode='touch'] .dv-tab {
+    -webkit-user-drag: none;
+}
+
 .dv-tabs-overflow-container {
     flex-direction: column;
     height: unset;

@@ -596,6 +596,7 @@ export class DockviewComponent
             this._onDidOpenPopoutWindowFail,
             this.environment.onDidInteractionModeChange(() => {
                 this.updateEnvironmentAttributes();
+                this.updateDragAndDropState();
             }),
             this.environment.onDidLayoutModeChange(() => {
                 this.updateEnvironmentAttributes();

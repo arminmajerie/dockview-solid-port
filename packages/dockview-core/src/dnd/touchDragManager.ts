@@ -111,13 +111,15 @@ export class DockviewTouchDragManager extends CompositeDisposable {
         event: PointerEvent,
         options: DockviewTouchDragSourceOptions
     ): void {
-        if (
-            options.disabled?.() ||
-            this.environment.interactionMode !== 'touch' ||
-            event.button !== 0 ||
-            !event.isPrimary ||
-            event.pointerType === 'mouse'
-        ) {
+        if (options.disabled?.() || event.button !== 0 || !event.isPrimary) {
+            return;
+        }
+
+        if (event.pointerType === 'mouse') {
+            return;
+        }
+
+        if (this.environment.interactionMode !== 'touch') {
             return;
         }
 
@@ -199,6 +201,35 @@ export class DockviewTouchDragManager extends CompositeDisposable {
             coordinates: getDragCoordinates(event),
             nativeEvent: event,
         });
+
+        try {
+            options.element.setPointerCapture(event.pointerId);
+            state.hasPointerCapture = true;
+        } catch (_error) {
+            state.hasPointerCapture = false;
+        }
+
+        cleanup.addDisposables(
+            addDisposableListener(
+                options.element,
+                'touchmove',
+                (touchEvent: TouchEvent) => {
+                    if (this.activeSource === state) {
+                        touchEvent.preventDefault();
+                    }
+                },
+                { passive: false }
+            ),
+            addDisposableListener(
+                options.element,
+                'dragstart',
+                (dragEvent: DragEvent) => {
+                    dragEvent.preventDefault();
+                    dragEvent.stopPropagation();
+                },
+                true
+            )
+        );
     }
 
     private onPointerMove(event: PointerEvent): void {
@@ -209,6 +240,7 @@ export class DockviewTouchDragManager extends CompositeDisposable {
         }
 
         state.lastEvent = event;
+        event.preventDefault();
 
         if (!state.started) {
             const movedFarEnoughToStart =
@@ -224,8 +256,6 @@ export class DockviewTouchDragManager extends CompositeDisposable {
 
             return;
         }
-
-        event.preventDefault();
         this.dragSessionStore.updateCoordinates(
             getDragCoordinates(event),
             event
@@ -331,11 +361,13 @@ export class DockviewTouchDragManager extends CompositeDisposable {
         );
         state.ghost.move(state.lastEvent.clientX, state.lastEvent.clientY);
 
-        try {
-            state.options.element.setPointerCapture(state.pointerId);
-            state.hasPointerCapture = true;
-        } catch (_error) {
-            state.hasPointerCapture = false;
+        if (!state.hasPointerCapture) {
+            try {
+                state.options.element.setPointerCapture(state.pointerId);
+                state.hasPointerCapture = true;
+            } catch (_error) {
+                state.hasPointerCapture = false;
+            }
         }
 
         this.onPointerMove(state.lastEvent);
