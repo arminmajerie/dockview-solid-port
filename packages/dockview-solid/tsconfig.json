@@ -14,7 +14,12 @@
     "moduleResolution": "bundler",
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "baseUrl": ".",
+    "paths": {
+      "@arminmajerie/dockview": ["../dockview/dist/index.d.ts", "../dockview/src/index.ts"],
+      "@arminmajerie/dockview/*": ["../dockview/dist/*", "../dockview/src/*"]
+    }
   },
   "include": ["src"]
 }

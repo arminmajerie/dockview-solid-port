@@ -80,8 +80,8 @@
   "scripts": {
     "preinstall": "node scripts/ensure-npm.mjs",
     "publish:dockview-core": "npm publish --workspace @arminmajerie/dockview-core --access public",
-    "publish:dockview": "npm run build --workspace @arminmajerie/dockview-core && npm publish --workspace @arminmajerie/dockview --access public",
-    "publish:dockview-solid": "npm run build --workspace @arminmajerie/dockview-core && npm run build --workspace @arminmajerie/dockview && npm publish --workspace @arminmajerie/dockview-solid --access public",
+    "publish:dockview": "npm run build --workspace @arminmajerie/dockview-core && npm run build --workspace @arminmajerie/dockview && npm publish --workspace @arminmajerie/dockview --access public --ignore-scripts",
+    "publish:dockview-solid": "npm run build --workspace @arminmajerie/dockview-core && npm run build --workspace @arminmajerie/dockview && npm run build --workspace @arminmajerie/dockview-solid && npm publish --workspace @arminmajerie/dockview-solid --access public --ignore-scripts",
     "publish:ordered": "npm run publish:dockview-core && npm run publish:dockview && npm run publish:dockview-solid",
     "clean": "npm run clean --workspaces --if-present",
     "build": "npm run build --workspaces --if-present",

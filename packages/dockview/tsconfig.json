@@ -12,7 +12,14 @@
     "rootDir": "src",
     "strict": true,
     "esModuleInterop": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "@arminmajerie/dockview-core": [
+        "../dockview-core/dist/cjs/index.d.ts",
+        "../dockview-core/src/index.ts"
+      ]
+    }
   },
   "include": ["src"],
   "exclude": ["node_modules", "dist"]

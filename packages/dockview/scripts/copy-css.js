@@ -11,11 +11,21 @@ fs.mkdirSync(outDir, { recursive: true });
 
 let sourceCss;
 try {
-  // Try direct resolution
   sourceCss = require.resolve('@arminmajerie/dockview-core/dist/styles/dockview.css');
 } catch (e) {
-  console.error('[copy-css.js] ERROR: Could not resolve dockview-core CSS from node_modules:', e);
-  process.exit(1);
+  const siblingCss = path.resolve(
+    thisPackageDir,
+    '../dockview-core/dist/styles/dockview.css'
+  );
+  if (fs.existsSync(siblingCss)) {
+    sourceCss = siblingCss;
+  } else {
+    console.error(
+      '[copy-css.js] ERROR: Could not resolve dockview-core CSS from node_modules:',
+      e
+    );
+    process.exit(1);
+  }
 }
 
 const destCss = path.join(outDir, 'dockview.css');
