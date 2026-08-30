@@ -1,0 +1,362 @@
+// packages/dockview/src/splitview/splitview.tsx
+import { createEffect, createSignal, onCleanup } from "solid-js";
+import { createSplitview, PROPERTY_KEYS_SPLITVIEW, } from '@arminmajerie/dockview-core';
+import { usePortalsLifecycle } from "../solid";
+import { SolidPanelView } from "./view";
+/* ---------- Helpers ---------- */
+function extractCoreOptions(props) {
+    const core = PROPERTY_KEYS_SPLITVIEW.reduce((acc, key) => {
+        if (key in props) {
+            acc[key] = props[key];
+        }
+        return acc;
+    }, {});
+    return core;
+}
+function createRatioPersistence(props, hostEl) {
+    if (!props.persistRatio) {
+        return {
+            load: () => null,
+            save: () => { },
+            shouldPersist: () => false,
+        };
+    }
+    const storage = props.storage ?? (typeof window !== 'undefined' ? window.localStorage : null);
+    if (!storage) {
+        console.warn('Splitview: persistRatio enabled but no storage available');
+        return {
+            load: () => null,
+            save: () => { },
+            shouldPersist: () => false,
+        };
+    }
+    // Generate storage key
+    const getStorageKey = () => {
+        if (props.storageKey) {
+            return `splitview_ratio_${props.storageKey}`;
+        }
+        // Fallback: try to generate from host element id or use a hash of component names
+        const el = hostEl();
+        if (el?.id) {
+            return `splitview_ratio_${el.id}`;
+        }
+        // Last resort: hash component names (stable if components don't change)
+        const componentHash = Object.keys(props.components).sort().join('_');
+        return `splitview_ratio_${componentHash}`;
+    };
+    const load = () => {
+        try {
+            const key = getStorageKey();
+            const stored = storage.getItem(key);
+            if (!stored)
+                return null;
+            const ratio = Number(stored);
+            if (!Number.isFinite(ratio) || ratio <= 0 || ratio >= 1) {
+                return null;
+            }
+            // Ignore suspicious extremes
+            if (ratio <= 0.05 || ratio >= 0.95) {
+                return null;
+            }
+            return ratio;
+        }
+        catch (e) {
+            console.error('Splitview: Failed to load persisted ratio', e);
+            return null;
+        }
+    };
+    const save = (ratio) => {
+        try {
+            const clamped = Math.max(0.05, Math.min(0.95, ratio));
+            const key = getStorageKey();
+            storage.setItem(key, String(clamped));
+        }
+        catch (e) {
+            console.error('Splitview: Failed to save ratio', e);
+        }
+    };
+    return {
+        load,
+        save,
+        shouldPersist: () => true,
+    };
+}
+/* ---------- Component ---------- */
+export function SplitviewSolid(props) {
+    // Use a signal to track the host element reactively
+    const [hostEl, setHostEl] = createSignal(undefined);
+    let api;
+    let ro;
+    const [portals, addPortal] = usePortalsLifecycle();
+    // Track last seen SplitviewOptions to send only changes
+    let prevOptions = {};
+    // Ratio persistence state
+    let saveEnabled = false;
+    let userAdjusting = false;
+    let wrapResizeSettled = true;
+    let adjustResetTimer;
+    let wrapSettleTimer;
+    let firstPanelEl;
+    let panelRO;
+    // Store cleanup function at component level
+    let persistenceCleanup;
+    const persistence = createRatioPersistence(props, () => hostEl());
+    const attachPersistenceHandlers = () => {
+        const el = hostEl();
+        if (!persistence.shouldPersist() || !el || !api)
+            return;
+        // Track user mouse interactions
+        const onMouseDown = () => {
+            userAdjusting = true;
+            if (adjustResetTimer)
+                window.clearTimeout(adjustResetTimer);
+            adjustResetTimer = window.setTimeout(() => {
+                userAdjusting = false;
+            }, 1500);
+        };
+        const onMouseUp = () => {
+            userAdjusting = false;
+            if (adjustResetTimer)
+                window.clearTimeout(adjustResetTimer);
+        };
+        try {
+            el.addEventListener('mousedown', onMouseDown, { passive: true });
+            window.addEventListener('mouseup', onMouseUp, { passive: true });
+        }
+        catch (e) {
+            console.error('Splitview: Failed to attach mouse handlers', e);
+        }
+        // Track wrapper resize to avoid persisting during layout thrash
+        const onWrapResize = () => {
+            wrapResizeSettled = false;
+            if (wrapSettleTimer)
+                window.clearTimeout(wrapSettleTimer);
+            wrapSettleTimer = window.setTimeout(() => {
+                wrapResizeSettled = true;
+            }, 300);
+        };
+        if (ro) {
+            // Enhance existing ResizeObserver callback
+            ro.disconnect();
+            ro = new ResizeObserver((entries) => {
+                // Original resize logic
+                const currentEl = hostEl();
+                if (api && currentEl) {
+                    api.layout(currentEl.clientWidth, currentEl.clientHeight);
+                }
+                // Persistence resize tracking
+                onWrapResize();
+            });
+            ro.observe(el);
+        }
+        // Observe first panel to detect ratio changes
+        const observeFirstPanel = () => {
+            try {
+                panelRO?.disconnect();
+            }
+            catch (e) {
+                console.error('Splitview: Failed to disconnect panel observer', e);
+            }
+            // Get first panel element from API
+            const panels = api.panels;
+            if (!panels || panels.length === 0)
+                return;
+            firstPanelEl = panels[0]?.view?.element;
+            const currentEl = hostEl();
+            if (!firstPanelEl || !currentEl)
+                return;
+            panelRO = new ResizeObserver(() => {
+                if (!saveEnabled || !wrapResizeSettled || !userAdjusting)
+                    return;
+                const el = hostEl();
+                if (!el || !firstPanelEl)
+                    return;
+                const total = props.orientation === 'VERTICAL'
+                    ? el.clientHeight
+                    : el.clientWidth;
+                const first = props.orientation === 'VERTICAL'
+                    ? firstPanelEl.clientHeight
+                    : firstPanelEl.clientWidth;
+                if (total <= 1)
+                    return;
+                const ratio = first / total;
+                persistence.save(ratio);
+            });
+            panelRO.observe(firstPanelEl);
+        };
+        // Listen for panel changes
+        api.onDidAddView(() => {
+            observeFirstPanel();
+        });
+        api.onDidRemoveView(() => {
+            observeFirstPanel();
+        });
+        observeFirstPanel();
+        return () => {
+            try {
+                el?.removeEventListener('mousedown', onMouseDown);
+                window.removeEventListener('mouseup', onMouseUp);
+                panelRO?.disconnect();
+                if (adjustResetTimer)
+                    window.clearTimeout(adjustResetTimer);
+                if (wrapSettleTimer)
+                    window.clearTimeout(wrapSettleTimer);
+            }
+            catch (e) {
+                console.error('Splitview: Failed to cleanup persistence handlers', e);
+            }
+        };
+    };
+    // Track if we've initialized the splitview
+    let initialized = false;
+    let layoutScheduled = false;
+    // Helper to wait for element to have real dimensions
+    const waitForDimensions = (el, callback, maxAttempts = 50) => {
+        let attempts = 0;
+        const check = () => {
+            attempts++;
+            if (el.clientWidth > 0 && el.clientHeight > 0) {
+                callback();
+            }
+            else if (attempts < maxAttempts) {
+                requestAnimationFrame(check);
+            }
+            else {
+                // Fallback: call anyway after max attempts (element might legitimately be 0 width)
+                callback();
+            }
+        };
+        requestAnimationFrame(check);
+    };
+    // Use createEffect to initialize when hostEl becomes available
+    createEffect(() => {
+        const el = hostEl();
+        if (!el || initialized)
+            return;
+        initialized = true;
+        const frameworkOptions = {
+            createComponent: (options) => new SolidPanelView(options.id, options.name, props.components[options.name], { addPortal }),
+        };
+        api = createSplitview(el, {
+            ...extractCoreOptions(props),
+            ...frameworkOptions,
+        });
+        // Wait for element to have real dimensions before first layout
+        waitForDimensions(el, () => {
+            const currentEl = hostEl();
+            if (!api || !currentEl)
+                return;
+            api.layout(currentEl.clientWidth, currentEl.clientHeight);
+            // Setup persistence after initial layout - store cleanup
+            persistenceCleanup = attachPersistenceHandlers();
+            // Enable saving only after layout stabilizes
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    saveEnabled = true;
+                });
+            });
+            props.onReady?.({ api });
+        });
+        if (!props.disableAutoResizing && "ResizeObserver" in window) {
+            ro = new ResizeObserver(() => {
+                const currentEl = hostEl();
+                if (!api || !currentEl)
+                    return;
+                api.layout(currentEl.clientWidth, currentEl.clientHeight);
+            });
+            ro.observe(el);
+        }
+    });
+    // Update createComponent if components registry identity changes
+    createEffect(() => {
+        if (!api)
+            return;
+        api.updateOptions({
+            createComponent: (options) => new SolidPanelView(options.id, options.name, props.components[options.name], { addPortal }),
+        });
+    });
+    // Reactively update SplitviewOptions (orientation, margin, proportionalLayout, styles, descriptor, ...)
+    createEffect(() => {
+        if (!api)
+            return;
+        const changes = {};
+        for (const k of PROPERTY_KEYS_SPLITVIEW) {
+            const nextVal = props[k];
+            if (nextVal !== prevOptions[k]) {
+                changes[k] = nextVal;
+            }
+        }
+        if (Object.keys(changes).length > 0) {
+            api.updateOptions(changes);
+            prevOptions = { ...prevOptions, ...changes };
+            const el = hostEl();
+            if (el)
+                api.layout(el.clientWidth, el.clientHeight);
+        }
+    });
+    onCleanup(() => {
+        ro?.disconnect();
+        ro = undefined;
+        panelRO?.disconnect();
+        panelRO = undefined;
+        api?.dispose();
+        api = undefined;
+        if (adjustResetTimer)
+            window.clearTimeout(adjustResetTimer);
+        if (wrapSettleTimer)
+            window.clearTimeout(wrapSettleTimer);
+        // Call persistence cleanup if it was set
+        if (persistenceCleanup) {
+            persistenceCleanup();
+            persistenceCleanup = undefined;
+        }
+    });
+    const hostClass = () => props.class ?? props.className ?? undefined;
+    return (<div ref={setHostEl} class={hostClass()} style={props.style}>
+      {/*{portals()}*/}
+    </div>);
+}
+/* ---------- Export helper for programmatic ratio restoration ---------- */
+/**
+ * Helper to load a saved split ratio.
+ * Returns the ratio (0-1) if found, or null if not found/invalid.
+ * Use this when you need to manually set panel sizes in onReady.
+ *
+ * @example
+ * ```tsx
+ * <SplitviewSolid
+ *   persistRatio={true}
+ *   storageKey="my-split"
+ *   onReady={({ api }) => {
+ *     const ratio = loadSplitRatio('my-split');
+ *     const totalWidth = containerEl.clientWidth;
+ *
+ *     api.addPanel({
+ *       id: 'left',
+ *       component: 'left',
+ *       size: ratio ? totalWidth * ratio : 300
+ *     });
+ *     api.addPanel({ id: 'right', component: 'right' });
+ *   }}
+ * />
+ * ```
+ */
+export function loadSplitRatio(storageKey, storage) {
+    const store = storage ?? (typeof window !== 'undefined' ? window.localStorage : null);
+    if (!store)
+        return null;
+    try {
+        const key = `splitview_ratio_${storageKey}`;
+        const stored = store.getItem(key);
+        if (!stored)
+            return null;
+        const ratio = Number(stored);
+        if (!Number.isFinite(ratio) || ratio <= 0.05 || ratio >= 0.95)
+            return null;
+        return ratio;
+    }
+    catch (e) {
+        console.error('Splitview: Failed to load ratio', e);
+        return null;
+    }
+}

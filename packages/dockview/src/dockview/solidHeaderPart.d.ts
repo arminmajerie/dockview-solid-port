@@ -1,5 +1,5 @@
 import { SolidPortalStore } from '../solid';
-import { PanelUpdateEvent, ITabRenderer, TabPartInitParameters, IDockviewPanelHeaderProps } from 'dockview-core';
+import { PanelUpdateEvent, ITabRenderer, TabPartInitParameters, IDockviewPanelHeaderProps } from '@arminmajerie/dockview-core';
 import { JSX } from 'solid-js';
 export declare class SolidPanelHeaderPart implements ITabRenderer {
     readonly id: string;

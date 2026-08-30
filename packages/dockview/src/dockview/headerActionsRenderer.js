@@ -1,6 +1,12 @@
 import { SolidPart } from '../solid';
-import { DockviewCompositeDisposable, DockviewMutableDisposable, } from 'dockview-core';
+import { DockviewCompositeDisposable, DockviewMutableDisposable, } from '@arminmajerie/dockview-core';
 export class SolidHeaderActionsRendererPart {
+    component;
+    solidPortalStore;
+    _group;
+    mutableDisposable = new DockviewMutableDisposable();
+    _element;
+    _part;
     get element() {
         return this._element;
     }
@@ -11,11 +17,11 @@ export class SolidHeaderActionsRendererPart {
         this.component = component;
         this.solidPortalStore = solidPortalStore;
         this._group = _group;
-        this.mutableDisposable = new DockviewMutableDisposable();
         this._element = document.createElement('div');
         this._element.className = 'dv-solid-part';
         this._element.style.height = '100%';
-        this._element.style.width = '100%';
+        this._element.style.display = 'flex';
+        this._element.style.alignItems = 'center';
     }
     init(parameters) {
         this.mutableDisposable.value = new DockviewCompositeDisposable(this._group.model.onDidAddPanel(() => {
@@ -37,13 +43,11 @@ export class SolidHeaderActionsRendererPart {
         });
     }
     dispose() {
-        var _a;
         this.mutableDisposable.dispose();
-        (_a = this._part) === null || _a === void 0 ? void 0 : _a.dispose();
+        this._part?.dispose();
     }
     update(event) {
-        var _a;
-        (_a = this._part) === null || _a === void 0 ? void 0 : _a.update(event.params);
+        this._part?.update(event.params);
     }
     updatePanels() {
         this.update({ params: { panels: this._group.model.panels } });

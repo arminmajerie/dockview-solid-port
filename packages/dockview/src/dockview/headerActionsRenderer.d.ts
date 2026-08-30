@@ -1,5 +1,5 @@
 import { SolidPart, SolidPortalStore } from '../solid';
-import { DockviewApi, DockviewGroupPanel, DockviewGroupPanelApi, PanelUpdateEvent, IHeaderActionsRenderer, IDockviewHeaderActionsProps } from 'dockview-core';
+import { DockviewApi, DockviewGroupPanel, DockviewGroupPanelApi, PanelUpdateEvent, IHeaderActionsRenderer, IDockviewHeaderActionsProps } from '@arminmajerie/dockview-core';
 import { JSX } from 'solid-js';
 export declare class SolidHeaderActionsRendererPart implements IHeaderActionsRenderer {
     private readonly component;

@@ -1,6 +1,6 @@
 {
   "name": "@arminmajerie/dockview",
-  "version": "5.0.5",
+  "version": "5.0.6",
   "description": "Zero dependency layout manager supporting tabs, grids and splitviews (SolidJS only)",
   "keywords": [
     "dockview",
@@ -49,7 +49,7 @@
     "README.md"
   ],
   "dependencies": {
-    "@arminmajerie/dockview-core": "5.0.5"
+    "@arminmajerie/dockview-core": "5.0.6"
   },
   "peerDependencies": {
     "solid-js": "^1.8.0"

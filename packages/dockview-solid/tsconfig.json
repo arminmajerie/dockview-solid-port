@@ -17,8 +17,7 @@
     "forceConsistentCasingInFileNames": true,
     "baseUrl": ".",
     "paths": {
-      "@arminmajerie/dockview": ["../dockview/dist/index.d.ts", "../dockview/src/index.ts"],
-      "@arminmajerie/dockview/*": ["../dockview/dist/*", "../dockview/src/*"]
+      "@arminmajerie/dockview": ["../dockview/dist/index.d.ts"]
     }
   },
   "include": ["src"]

@@ -1,6 +1,9 @@
 import { defineConfig } from 'vite';
 import solidPlugin from 'vite-plugin-solid';
+import { fileURLToPath } from 'node:url';
+import { workspacePackageAliases } from '../../../scripts/workspace-aliases.mjs';
 
+const exampleRoot = fileURLToPath(new URL('.', import.meta.url));
 const exampleTarget = 'esnext';
 
 export default defineConfig({
@@ -13,21 +16,17 @@ export default defineConfig({
   },
   ssr: {
     noExternal: [
-      // Ensures Solid's JSX transform is applied even during dev/SSR
       '@arminmajerie/dockview-solid',
       '@arminmajerie/dockview-core'
     ]
   },
   optimizeDeps: {
     esbuildOptions: {
-      // Vite 6's dep pre-bundler still defaults to an older modules target
-      // that triggers esbuild 0.28.x destructuring failures in modern deps.
       target: exampleTarget,
       supported: {
         destructuring: true,
       },
     },
-    // Prevents Vite from "pre-bundling" these as plain JS (keeps them in .jsx)
     exclude: [
       'solid-js',
       '@arminmajerie/dockview-solid',
@@ -35,6 +34,7 @@ export default defineConfig({
     ],
   },
   resolve: {
+    alias: workspacePackageAliases(exampleRoot),
     extensions: ['.js', '.jsx', '.ts', '.tsx', '.json']
   }
 });

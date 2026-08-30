@@ -1,4 +1,4 @@
-import { DockviewWillDropEvent, DockviewDidDropEvent, IWatermarkPanelProps, IDockviewHeaderActionsProps, IDockviewPanelHeaderProps, IDockviewPanelProps, DockviewOptions, DockviewReadyEvent } from 'dockview-core';
+import { DockviewWillDropEvent, DockviewDidDropEvent, IWatermarkPanelProps, IDockviewHeaderActionsProps, IDockviewPanelHeaderProps, IDockviewPanelProps, DockviewOptions, DockviewReadyEvent } from '@arminmajerie/dockview-core';
 import { JSX } from 'solid-js';
 export interface IDockviewSolidProps extends DockviewOptions {
     tabComponents?: Record<string, (props: IDockviewPanelHeaderProps) => JSX.Element>;

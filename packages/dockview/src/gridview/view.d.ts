@@ -1,4 +1,4 @@
-import { GridviewPanel, IFrameworkPart } from 'dockview-core';
+import { GridviewPanel, IFrameworkPart } from '@arminmajerie/dockview-core';
 import { SolidPortalStore } from '../solid';
 import { IGridviewPanelProps } from './gridview';
 import { JSX } from 'solid-js';

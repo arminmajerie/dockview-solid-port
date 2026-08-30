@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "@arminmajerie/data-morph-wasm": "0.1.1",
-    "@arminmajerie/dockview-solid": "5.0.4",
+    "@arminmajerie/dockview-solid": "5.0.6",
     "@arminmajerie/keyboard-manager": "^1.0.1",
     "@codemirror/autocomplete": "^6.20.1",
     "@codemirror/commands": "^6.10.2",

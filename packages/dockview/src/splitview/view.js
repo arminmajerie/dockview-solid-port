@@ -1,17 +1,31 @@
-import { SplitviewApi, SplitviewPanel, } from 'dockview-core';
-import { SolidPart } from '../solid'; // Use your Solid version
+// packages/dockview/src/splitview/view.ts
+import { SplitviewApi, SplitviewPanel, } from '@arminmajerie/dockview-core';
+import { SolidPart } from "../solid";
+/**
+ * Solid-backed panel view that satisfies dockview-core's SplitviewPanel contract.
+ * No non-existent types/classes are used.
+ */
 export class SolidPanelView extends SplitviewPanel {
+    solidComponent;
+    solidPortalStore;
     constructor(id, component, solidComponent, solidPortalStore) {
         super(id, component);
         this.solidComponent = solidComponent;
         this.solidPortalStore = solidPortalStore;
     }
+    /**
+     * Called by dockview-core to obtain the framework-specific renderer.
+     * We return a SolidPart that mounts the Solid component into this.element.
+     */
     getComponent() {
-        var _a, _b;
+        const paramsObj = this._params;
         return new SolidPart(this.element, this.solidPortalStore, this.solidComponent, {
-            params: (_b = (_a = this._params) === null || _a === void 0 ? void 0 : _a.params) !== null && _b !== void 0 ? _b : {},
+            // user params
+            params: paramsObj?.params ?? {},
+            // panel API (already created by base class)
             api: this.api,
-            containerApi: new SplitviewApi(this._params.accessor),
+            // Splitview API for the container, created from accessor
+            containerApi: new SplitviewApi(paramsObj.accessor),
         });
     }
 }

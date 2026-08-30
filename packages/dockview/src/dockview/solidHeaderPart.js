@@ -1,5 +1,10 @@
 import { SolidPart } from '../solid';
 export class SolidPanelHeaderPart {
+    id;
+    component;
+    solidPortalStore;
+    _element;
+    part;
     get element() {
         return this._element;
     }
@@ -24,14 +29,12 @@ export class SolidPanelHeaderPart {
         });
     }
     update(event) {
-        var _a;
-        (_a = this.part) === null || _a === void 0 ? void 0 : _a.update({ params: event.params });
+        this.part?.update({ params: event.params });
     }
     layout(_width, _height) {
         // noop
     }
     dispose() {
-        var _a;
-        (_a = this.part) === null || _a === void 0 ? void 0 : _a.dispose();
+        this.part?.dispose();
     }
 }

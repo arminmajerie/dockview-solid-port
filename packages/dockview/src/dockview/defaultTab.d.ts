@@ -1,5 +1,5 @@
 import { JSX } from 'solid-js';
-import type { IDockviewPanelHeaderProps } from 'dockview-core';
+import type { IDockviewPanelHeaderProps } from '@arminmajerie/dockview-core';
 export type IDockviewDefaultTabProps = IDockviewPanelHeaderProps & JSX.HTMLAttributes<HTMLDivElement> & {
     hideClose?: boolean;
     closeActionOverride?: () => void;

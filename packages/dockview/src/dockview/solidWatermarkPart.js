@@ -1,5 +1,11 @@
 import { SolidPart } from '../solid';
 export class SolidWatermarkPart {
+    id;
+    component;
+    solidPortalStore;
+    _element;
+    part;
+    parameters;
     get element() {
         return this._element;
     }
@@ -22,17 +28,15 @@ export class SolidWatermarkPart {
         // noop
     }
     update(params) {
-        var _a, _b, _c;
         if (this.parameters) {
             this.parameters.params = params.params;
         }
-        (_a = this.part) === null || _a === void 0 ? void 0 : _a.update({ params: (_c = (_b = this.parameters) === null || _b === void 0 ? void 0 : _b.params) !== null && _c !== void 0 ? _c : {} });
+        this.part?.update({ params: this.parameters?.params ?? {} });
     }
     layout(_width, _height) {
         // noop - retrieval from api
     }
     dispose() {
-        var _a;
-        (_a = this.part) === null || _a === void 0 ? void 0 : _a.dispose();
+        this.part?.dispose();
     }
 }

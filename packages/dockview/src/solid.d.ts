@@ -1,14 +1,5 @@
 import { JSX, Accessor } from 'solid-js';
-import { DockviewIDisposable } from 'dockview-core';
-export interface SolidPanelWrapperProps {
-    component: (props: Record<string, any>) => JSX.Element;
-    componentProps: Record<string, any>;
-    ref?: (api: SolidPanelWrapperRef) => void;
-}
-export interface SolidPanelWrapperRef {
-    update: (props: Record<string, any>) => void;
-}
-export declare function SolidComponentBridge(props: SolidPanelWrapperProps): JSX.Element;
+import type { DockviewIDisposable } from '@arminmajerie/dockview-core';
 export declare const SolidPartContext: import("solid-js").Context<{}>;
 export interface SolidPortalStore {
     addPortal: (disposeFn: DockviewIDisposable) => DockviewIDisposable;
@@ -19,10 +10,13 @@ export declare class SolidPart<P extends object = {}, C extends object = {}> {
     private readonly component;
     private readonly parameters;
     private readonly context?;
-    private _initialProps;
-    private componentInstance?;
     private ref?;
     private disposed;
+    /** Accumulated prop overrides from update() calls */
+    private overrides;
+    /** Signal to trigger re-render when overrides change */
+    private triggerUpdate?;
+    private version;
     constructor(parent: HTMLElement, portalStore: SolidPortalStore, component: (props: P) => JSX.Element, parameters: P, context?: C | undefined);
     update(props: Record<string, any>): void;
     private createPortal;
@@ -38,5 +32,4 @@ type PortalLifecycleHook = () => [
  * portal array
  */
 export declare const usePortalsLifecycle: PortalLifecycleHook;
-export declare function isSolidComponent(component: any): boolean;
 export {};

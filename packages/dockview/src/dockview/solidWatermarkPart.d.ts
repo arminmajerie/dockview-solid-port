@@ -1,5 +1,5 @@
 import { SolidPortalStore } from '../solid';
-import { PanelUpdateEvent, IWatermarkRenderer, WatermarkRendererInitParameters, IWatermarkPanelProps } from 'dockview-core';
+import { PanelUpdateEvent, IWatermarkRenderer, WatermarkRendererInitParameters, IWatermarkPanelProps } from '@arminmajerie/dockview-core';
 import { JSX } from 'solid-js';
 export declare class SolidWatermarkPart implements IWatermarkRenderer {
     readonly id: string;

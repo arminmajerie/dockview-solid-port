@@ -3,6 +3,7 @@ import { defineConfig } from 'vite';
 import solidPlugin from 'vite-plugin-solid';
 import wasm from 'vite-plugin-wasm';
 import { fileURLToPath } from 'node:url';
+import { workspacePackageAliases } from '../../../scripts/workspace-aliases.mjs';
 
 const exampleRoot = fileURLToPath(new URL('.', import.meta.url));
 const configuredBasePath = process.env.VITE_BASE_PATH?.trim() ?? '/';
@@ -82,6 +83,7 @@ export default defineConfig({
       '@suid/types',
     ],
     alias: {
+      ...workspacePackageAliases(exampleRoot),
       'data-morph-wasm': '@arminmajerie/data-morph-wasm',
     },
     extensions: ['.js', '.jsx', '.ts', '.tsx', '.json']

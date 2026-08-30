@@ -1,4 +1,4 @@
-import { GridviewPanelApi, GridviewApi, GridviewOptions } from 'dockview-core';
+import { GridviewPanelApi, GridviewApi, GridviewOptions } from '@arminmajerie/dockview-core';
 import { PanelParameters } from '../types';
 import { JSX } from 'solid-js';
 export interface GridviewReadyEvent {

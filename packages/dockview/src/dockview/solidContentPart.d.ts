@@ -1,6 +1,6 @@
 import { SolidPortalStore } from '../solid';
-import { DockviewEvent, PanelUpdateEvent, IContentRenderer, GroupPanelPartInitParameters, IDockviewPanelProps } from 'dockview-core';
 import { JSX } from 'solid-js';
+import { DockviewEvent, GroupPanelPartInitParameters, IContentRenderer, IDockviewPanelProps, PanelUpdateEvent } from '@arminmajerie/dockview-core';
 export declare class SolidPanelContentPart implements IContentRenderer {
     readonly id: string;
     private readonly component;

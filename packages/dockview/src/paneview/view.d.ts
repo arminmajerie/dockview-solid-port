@@ -1,5 +1,4 @@
-// dockview-solid-port\packages\dockview\src\paneview\view.d.ts
-import { PanelUpdateEvent, IPanePart, PanePanelComponentInitParameter } from 'dockview-core';
+import { PanelUpdateEvent, IPanePart, PanePanelComponentInitParameter } from '@arminmajerie/dockview-core';
 import { SolidPortalStore } from '../solid';
 import { IPaneviewPanelProps } from './paneview';
 import { JSX } from 'solid-js';

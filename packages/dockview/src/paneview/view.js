@@ -1,6 +1,10 @@
-// dockview-solid-port\packages\dockview\src\paneview\view.js
 import { SolidPart } from '../solid';
 export class PanePanelSection {
+    id;
+    component;
+    solidPortalStore;
+    _element;
+    part;
     get element() {
         return this._element;
     }
@@ -26,11 +30,9 @@ export class PanePanelSection {
         };
     }
     update(params) {
-        var _a;
-        (_a = this.part) === null || _a === void 0 ? void 0 : _a.update(params.params);
+        this.part?.update(params.params);
     }
     dispose() {
-        var _a;
-        (_a = this.part) === null || _a === void 0 ? void 0 : _a.dispose();
+        this.part?.dispose();
     }
 }
